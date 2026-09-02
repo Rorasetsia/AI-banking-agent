@@ -1,0 +1,7 @@
+node_modules/
+.DS_Store
+miniprogram_npm/
+cloudfunctions/**/node_modules/
+unpackage/
+*.log
+.project.config.json.bak
