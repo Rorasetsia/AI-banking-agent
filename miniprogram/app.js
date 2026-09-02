@@ -6,7 +6,7 @@ App({
     }
     wx.cloud.init({
       // TODO: 替换为你的云开发环境 ID（在微信开发者工具-云开发控制台创建后获得）
-      env: 'YOUR_ENV_ID',
+      env: 'aifinance-d8gg5pftj80748c97',
       traceUser: true
     });
   },
