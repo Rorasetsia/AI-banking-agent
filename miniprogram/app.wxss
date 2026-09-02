@@ -1,0 +1,43 @@
+/* 全局设计变量（UI 规范详见 docs/10_UI设计规范.md） */
+page {
+  --primary: #3a7afe;
+  --primary-light: #eaf0ff;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --text-main: #1f2329;
+  --text-sub: #6b7280;
+  --text-light: #9aa0a6;
+  --bg-page: #f7f8fa;
+  --bg-card: #ffffff;
+  --radius: 16rpx;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+/* 通用卡片 */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 24rpx;
+  margin: 16rpx 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(31,35,41,0.04);
+}
+
+/* 通用按钮 */
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 48rpx;
+  padding: 20rpx 48rpx;
+  font-size: 30rpx;
+  text-align: center;
+}
+.btn-primary:active { opacity: 0.85; }
+
+/* 文本工具类 */
+.t-main { color: var(--text-main); }
+.t-sub { color: var(--text-sub); }
+.t-light { color: var(--text-light); }

@@ -1,0 +1,3 @@
+.scan-title { font-size:30rpx; font-weight:600; display:block; margin-bottom:8rpx; }
+.row { display:flex; justify-content:space-between; padding:20rpx 0; border-bottom:1rpx solid #f2f3f5; }
+.empty { text-align:center; color:var(--text-light); padding:40rpx 0; }

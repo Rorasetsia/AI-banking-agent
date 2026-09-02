@@ -1,0 +1,10 @@
+<view class="card" bindtap="scan">
+  <text class="scan-title">🔍 订阅体检</text>
+  <text class="t-sub">自动识别你的订阅扣费，生成体检报告</text>
+</view>
+<view class="card">
+  <view class="row" wx:for="{{list}}" wx:key="index">
+    <text>{{item.name}}</text><text>{{item.amount}}/{{item.cycle}}</text>
+  </view>
+  <view wx:if="{{list.length === 0}}" class="empty">暂无订阅记录</view>
+</view>

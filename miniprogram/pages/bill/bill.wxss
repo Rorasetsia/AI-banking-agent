@@ -1,0 +1,6 @@
+.summary { display:flex; flex-direction:column; }
+.s-label { font-size:24rpx; color:var(--text-sub); }
+.s-amount { font-size:56rpx; font-weight:700; margin-top:8rpx; }
+.row { display:flex; justify-content:space-between; padding:20rpx 0; border-bottom:1rpx solid #f2f3f5; }
+.empty { text-align:center; color:var(--text-light); padding:40rpx 0; }
+.ask-ai { margin:24rpx; text-align:center; color:var(--primary); font-size:26rpx; }

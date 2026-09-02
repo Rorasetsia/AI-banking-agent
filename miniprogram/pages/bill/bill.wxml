@@ -1,0 +1,11 @@
+<view class="card summary">
+  <text class="s-label">本月支出</text>
+  <text class="s-amount">¥{{monthExpense}}</text>
+</view>
+<view class="card">
+  <view class="row" wx:for="{{list}}" wx:key="index">
+    <text>{{item.name}}</text><text>{{item.amount}}</text>
+  </view>
+  <view wx:if="{{list.length === 0}}" class="empty">暂无流水，去「记一笔」说句话吧</view>
+</view>
+<view class="ask-ai" bindtap="askAI">💬 用自然语言问账（如：这月吃饭花了多少）</view>

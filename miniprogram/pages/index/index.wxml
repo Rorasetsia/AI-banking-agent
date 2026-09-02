@@ -1,0 +1,27 @@
+<!-- 今日概览 -->
+<view class="hero card">
+  <view class="hero-title">今天</view>
+  <view class="hero-amount">
+    <view class="amount-item"><text class="num">¥{{todayExpense}}</text><text class="label">支出</text></view>
+    <view class="amount-item"><text class="num">¥{{todayIncome}}</text><text class="label">收入</text></view>
+  </view>
+</view>
+
+<!-- 心情选择 -->
+<view class="card">
+  <view class="sec-title">今天心情如何？</view>
+  <view class="mood-row" wx:for="{{['morning','noon','night']}}" wx:key="*this">
+    <text class="mood-period">{{item === 'morning' ? '早' : item === 'noon' ? '中' : '晚'}}</text>
+    <view class="mood-tags">
+      <text wx:for="{{moods}}" wx:for-item="m" wx:key="*this"
+        class="mood-tag {{data[item] === m ? 'active' : ''}}"
+        data-period="{{item}}" data-mood="{{m}}" bindtap="pickMood">{{m}}</text>
+    </view>
+  </view>
+</view>
+
+<!-- 快捷入口 -->
+<view class="card quick-grid">
+  <view class="quick" bindtap="goChat"><text class="q-ico">✎</text><text>记一笔</text></view>
+  <view class="quick" bindtap="goDiary"><text class="q-ico">📖</text><text>今日日记</text></view>
+</view>

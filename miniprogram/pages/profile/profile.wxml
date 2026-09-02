@@ -1,0 +1,10 @@
+<view class="card user">
+  <text class="avatar">👤</text>
+  <view><text class="name">未登录</text><text class="t-sub">登录后同步账本</text></view>
+</view>
+<view class="card menu">
+  <view class="menu-item">账户与支付方式</view>
+  <view class="menu-item">预算与攒钱目标</view>
+  <view class="menu-item">分类偏好</view>
+  <view class="menu-item">隐私与协议</view>
+</view>

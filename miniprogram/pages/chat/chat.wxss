@@ -1,0 +1,11 @@
+.msg-list { height: calc(100vh - 140rpx); padding: 24rpx; box-sizing:border-box; }
+.msg { display:flex; margin-bottom: 20rpx; }
+.msg.user { justify-content: flex-end; }
+.msg.ai { justify-content: flex-start; }
+.bubble { max-width: 80%; padding: 20rpx 24rpx; border-radius: 16rpx; font-size: 28rpx; white-space: pre-line; }
+.msg.user .bubble { background: var(--primary); color:#fff; }
+.msg.ai .bubble { background:#fff; color:var(--text-main); box-shadow: 0 2rpx 8rpx rgba(0,0,0,.04); }
+.input-bar { position:fixed; left:0; right:0; bottom:0; display:flex; align-items:center; gap:12rpx; padding:16rpx 24rpx; background:#fff; border-top:1rpx solid #eee; padding-bottom: calc(16rpx + env(safe-area-inset-bottom)); }
+.tool { font-size: 40rpx; padding: 0 4rpx; }
+.input { flex:1; background:#f2f3f5; border-radius: 36rpx; padding: 16rpx 24rpx; font-size:28rpx; }
+.send-btn { background: var(--primary); color:#fff; padding: 14rpx 28rpx; border-radius: 36rpx; font-size:26rpx; }

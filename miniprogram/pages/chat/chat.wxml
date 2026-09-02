@@ -1,0 +1,11 @@
+<scroll-view class="msg-list" scroll-y>
+  <view wx:for="{{messages}}" wx:key="index" class="msg {{item.role === 'user' ? 'user' : 'ai'}}">
+    <view class="bubble">{{item.text}}</view>
+  </view>
+</scroll-view>
+<view class="input-bar">
+  <view class="tool" bindtap="voice">🎤</view>
+  <view class="tool" bindtap="photo">📷</view>
+  <input class="input" value="{{input}}" bindinput="onInput" confirm-type="send" bindconfirm="send" placeholder="说一句话记账…" />
+  <view class="send-btn" bindtap="send">发送</view>
+</view>

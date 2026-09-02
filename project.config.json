@@ -1,0 +1,18 @@
+{
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "appid": "wxbdbdac4e591d951f",
+  "projectname": "AI财务管家",
+  "compileType": "miniprogram",
+  "libVersion": "3.7.1",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "urlCheck": false,
+    "coverView": true,
+    "autoAudits": false
+  },
+  "condition": {}
+}

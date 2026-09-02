@@ -1,0 +1,45 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/bill/bill",
+    "pages/chat/chat",
+    "pages/subscription/subscription",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "navigationBarTitleText": "AI财务管家",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f7f8fa"
+  },
+  "tabBar": {
+    "color": "#9aa0a6",
+    "selectedColor": "#3a7afe",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/bill/bill",
+        "text": "账单"
+      },
+      {
+        "pagePath": "pages/chat/chat",
+        "text": "记一笔"
+      },
+      {
+        "pagePath": "pages/subscription/subscription",
+        "text": "订阅"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2"
+}
