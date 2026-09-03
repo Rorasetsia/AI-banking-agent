@@ -26,11 +26,14 @@ function nextCycleDate(cycle) {
   else d.setMonth(d.getMonth() + 1)
   return fmt(d)
 }
+function genCode() {
+  return Math.random().toString(36).slice(2, 8).toUpperCase()
+}
 
 // 意图识别
 async function parseIntent(model, message, history) {
   const sys = '你是财务管家的意图解析器。把用户的话解析成 JSON，只输出 JSON，不要任何解释或多余文字。\n' +
-    'type 只能是：addTransaction（记一笔账）、queryBill（查账/统计）、addSubscription（记录订阅）、querySubscription（查看订阅）、cancelSubscription（取消订阅）、setBudget（设置预算）、queryBudget（查看预算）、aaSplit（AA分账）、chat（闲聊/无法判断）。\n' +
+    'type 只能是：addTransaction（记一笔账）、queryBill（查账/统计）、addSubscription（记录订阅）、querySubscription（查看订阅）、cancelSubscription（取消订阅）、setBudget（设置预算）、queryBudget（查看预算）、aaSplit（AA分账）、createLedger（创建共同账本）、joinLedger（加入共同账本）、ledgerAdd（记到共同账本）、ledgerQuery（查看共同账本）、chat（闲聊/无法判断）。\n' +
     'slots 字段：\n' +
     '- addTransaction：{"amount":数字,"direction":"expense"或"income","remark":"内容","category":"分类 或 null","date":"日期 或 null"}\n' +
     '- queryBill：{"category":"分类 或 null","period":"month"或"lastMonth"或"year"或"all"}\n' +
@@ -40,13 +43,18 @@ async function parseIntent(model, message, history) {
     '- setBudget：{"category":"分类","amount":数字,"period":"monthly"或"yearly"}\n' +
     '- queryBudget：{"category":"分类 或 null"}\n' +
     '- aaSplit：{"amount":数字,"remark":"内容","people":人数,"category":"分类 或 null"}\n' +
+    '- createLedger：{}\n' +
+    '- joinLedger：{"inviteCode":"邀请码"}\n' +
+    '- ledgerAdd：{"amount":数字,"remark":"内容","category":"分类 或 null"}\n' +
+    '- ledgerQuery：{"period":"month"或"lastMonth"或"year"或"all"}\n' +
     '- chat：{}\n' +
     '示例：\n' +
     '用户"中午喝了晨光酸奶，花了5块" -> {"type":"addTransaction","slots":{"amount":5,"direction":"expense","remark":"晨光酸奶","category":null,"date":null}}\n' +
-    '用户"设个餐饮预算每月500" -> {"type":"setBudget","slots":{"category":"餐饮","amount":500,"period":"monthly"}}\n' +
-    '用户"我的预算还剩多少" -> {"type":"queryBudget","slots":{"category":null}}\n' +
-    '用户"我有哪些订阅" -> {"type":"querySubscription","slots":{}}\n' +
-    '用户"昨晚聚餐花了300，3个人AA" -> {"type":"aaSplit","slots":{"amount":300,"remark":"聚餐","people":3,"category":null}}'
+    '用户"昨晚聚餐花了300，3个人AA" -> {"type":"aaSplit","slots":{"amount":300,"remark":"聚餐","people":3,"category":null}}\n' +
+    '用户"创建共同账本" -> {"type":"createLedger","slots":{}}\n' +
+    '用户"加入共同账本 ABC123" -> {"type":"joinLedger","slots":{"inviteCode":"ABC123"}}\n' +
+    '用户"记到共同账本，买菜花了50" -> {"type":"ledgerAdd","slots":{"amount":50,"remark":"买菜","category":null}}\n' +
+    '用户"共同账本这个月花了多少" -> {"type":"ledgerQuery","slots":{"period":"month"}}'
 
   const res = await model.generateText({
     model: 'hy3',
@@ -72,7 +80,6 @@ async function aiCategorize(model, remark) {
   } catch (e) { return '其他' }
 }
 
-// 记账
 async function doAdd(openid, slots, model) {
   const amount = Math.abs(Number(slots.amount))
   if (!amount) return { ok: false, msg: '没听清金额，请再说一次' }
@@ -87,7 +94,6 @@ async function doAdd(openid, slots, model) {
   return { ok: true, type: 'add', category, amount: signed, remark: slots.remark || '', date }
 }
 
-// 查账
 async function doQuery(openid, slots) {
   const cond = { _openid: openid, amount: _.lt(0) }
   const range = dateRange(slots.period || 'month')
@@ -102,7 +108,6 @@ async function doQuery(openid, slots) {
   return { ok: true, type: 'query', total: Math.round(total * 100) / 100, count: list.length, period: slots.period || 'month', category: slots.category || '全部', byCat: Object.fromEntries(top) }
 }
 
-// 加订阅
 async function doAddSub(openid, slots) {
   const name = (slots.name || '').trim()
   const amount = Number(slots.amount)
@@ -135,22 +140,6 @@ async function doCancelSub(openid, name) {
   return { ok: true, type: 'cancelSub', name: n }
 }
 
-// AA 分账
-async function doAASplit(openid, slots, model) {
-  const amount = Math.abs(Number(slots.amount))
-  const people = Number(slots.people) || 2
-  if (!amount) return { ok: false, msg: '没听清金额，请再说一次' }
-  let category = slots.category
-  if (!category && slots.remark) category = await aiCategorize(model, slots.remark)
-  category = category || '其他'
-  const per = Math.round(amount / people * 100) / 100
-  await db.collection('transactions').add({
-    data: { amount: -amount, category, remark: (slots.remark || '') + '（' + people + '人AA）', date: today(), time: '', source: 'chat', accountId: '', merchant: '', _openid: openid, createdAt: db.serverDate() }
-  })
-  return { ok: true, type: 'aaSplit', amount, people, per, category, remark: slots.remark || '' }
-}
-
-// 设预算
 async function doSetBudget(openid, slots) {
   const category = slots.category
   const amount = Number(slots.amount)
@@ -165,7 +154,6 @@ async function doSetBudget(openid, slots) {
   return { ok: true, type: 'setBudget', category, amount, period }
 }
 
-// 查预算
 async function doQueryBudget(openid, slots) {
   const cond = { _openid: openid }
   if (slots.category) cond.category = slots.category
@@ -182,6 +170,71 @@ async function doQueryBudget(openid, slots) {
     return { category: b.category, amount: b.amount, spent: Math.round(spent * 100) / 100, remaining, ratio, over: ratio >= 100 }
   })
   return { ok: true, type: 'queryBudget', list }
+}
+
+async function doAASplit(openid, slots, model) {
+  const amount = Math.abs(Number(slots.amount))
+  const people = Number(slots.people) || 2
+  if (!amount) return { ok: false, msg: '没听清金额，请再说一次' }
+  let category = slots.category
+  if (!category && slots.remark) category = await aiCategorize(model, slots.remark)
+  category = category || '其他'
+  const per = Math.round(amount / people * 100) / 100
+  await db.collection('transactions').add({
+    data: { amount: -amount, category, remark: (slots.remark || '') + '（' + people + '人AA）', date: today(), time: '', source: 'chat', accountId: '', merchant: '', _openid: openid, createdAt: db.serverDate() }
+  })
+  return { ok: true, type: 'aaSplit', amount, people, per, category, remark: slots.remark || '' }
+}
+
+// 双人共同账本
+async function doCreateLedger(openid) {
+  const exist = await db.collection('ledgers').where({ members: openid }).get()
+  if (exist.data.length) return { ok: true, type: 'createLedger', inviteCode: exist.data[0].inviteCode, existed: true }
+  const inviteCode = genCode()
+  await db.collection('ledgers').add({ data: { inviteCode, name: '共同账本', members: [openid], _openid: openid, createdAt: db.serverDate() } })
+  return { ok: true, type: 'createLedger', inviteCode }
+}
+
+async function doJoinLedger(openid, code) {
+  const c = (code || '').trim().toUpperCase()
+  if (!c) return { ok: false, msg: '请告诉我要加入的邀请码' }
+  const exist = await db.collection('ledgers').where({ inviteCode: c }).get()
+  if (!exist.data.length) return { ok: false, msg: '邀请码不存在' }
+  const ledger = exist.data[0]
+  if (ledger.members.includes(openid)) return { ok: true, type: 'joinLedger', msg: '你已在该账本中' }
+  if (ledger.members.length >= 2) return { ok: false, msg: '该账本已有 2 人' }
+  await db.collection('ledgers').doc(ledger._id).update({ data: { members: ledger.members.concat([openid]) } })
+  return { ok: true, type: 'joinLedger', msg: '已加入共同账本' }
+}
+
+async function doLedgerAdd(openid, slots, model) {
+  const amount = Math.abs(Number(slots.amount))
+  if (!amount) return { ok: false, msg: '没听清金额' }
+  const ledgers = await db.collection('ledgers').where({ members: openid }).get()
+  if (!ledgers.data.length) return { ok: false, msg: '你还没有共同账本，先说"创建共同账本"' }
+  const ledgerId = ledgers.data[0]._id
+  let category = slots.category
+  if (!category && slots.remark) category = await aiCategorize(model, slots.remark)
+  category = category || '其他'
+  await db.collection('transactions').add({
+    data: { amount: -amount, category, remark: slots.remark || '', date: today(), time: '', source: 'chat', accountId: '', merchant: '', ledgerId, _openid: openid, createdAt: db.serverDate() }
+  })
+  return { ok: true, type: 'ledgerAdd', amount, category, remark: slots.remark || '' }
+}
+
+async function doLedgerQuery(openid, slots) {
+  const ledgers = await db.collection('ledgers').where({ members: openid }).get()
+  if (!ledgers.data.length) return { ok: true, type: 'ledgerQuery', list: [], total: 0, msg: '还没有共同账本' }
+  const ledgerId = ledgers.data[0]._id
+  const range = dateRange(slots.period || 'month')
+  const cond = { ledgerId, amount: _.lt(0) }
+  if (range) cond.date = _.gte(range.start).and(_.lte(range.end))
+  const txRes = await db.collection('transactions').where(cond).limit(1000).get()
+  const list = txRes.data
+  const total = Math.round(list.reduce((s, x) => s + Math.abs(x.amount), 0) * 100) / 100
+  const byCat = {}
+  list.forEach(x => { byCat[x.category] = (byCat[x.category] || 0) + Math.abs(x.amount) })
+  return { ok: true, type: 'ledgerQuery', total, count: list.length, byCat }
 }
 
 async function genReply(model, message, exec) {
@@ -210,9 +263,13 @@ exports.main = async (event) => {
   else if (intent.type === 'addSubscription') exec = await doAddSub(OPENID, intent.slots)
   else if (intent.type === 'querySubscription') exec = await doQuerySub(OPENID)
   else if (intent.type === 'cancelSubscription') exec = await doCancelSub(OPENID, intent.slots.name)
-  else if (intent.type === 'aaSplit') exec = await doAASplit(OPENID, intent.slots, model)
   else if (intent.type === 'setBudget') exec = await doSetBudget(OPENID, intent.slots)
   else if (intent.type === 'queryBudget') exec = await doQueryBudget(OPENID, intent.slots)
+  else if (intent.type === 'aaSplit') exec = await doAASplit(OPENID, intent.slots, model)
+  else if (intent.type === 'createLedger') exec = await doCreateLedger(OPENID)
+  else if (intent.type === 'joinLedger') exec = await doJoinLedger(OPENID, intent.slots.inviteCode)
+  else if (intent.type === 'ledgerAdd') exec = await doLedgerAdd(OPENID, intent.slots, model)
+  else if (intent.type === 'ledgerQuery') exec = await doLedgerQuery(OPENID, intent.slots)
   else exec = { ok: true, type: 'chat' }
 
   const reply = await genReply(model, message, exec)
