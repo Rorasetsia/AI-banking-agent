@@ -3,10 +3,17 @@ Page({
     todayExpense: '0.00',
     todayIncome: '0.00',
     moods: ['很开心', '开心', '平静', '心情一般', '难过'],
-    morning: '', noon: '', night: ''
+    morning: '', noon: '', night: '',
+    reminders: []
   },
   onLoad() {
-    // TODO: 拉取今日账目概览 + 今日已选心情
+    this.loadReminders()
+  },
+  loadReminders() {
+    const db = wx.cloud.database()
+    db.collection('reminders').where({ read: false }).orderBy('createdAt', 'desc').limit(5).get()
+      .then(res => this.setData({ reminders: res.data }))
+      .catch(() => {})
   },
   today() {
     const d = new Date()

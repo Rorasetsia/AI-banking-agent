@@ -7,6 +7,12 @@
   </view>
 </view>
 
+<!-- 提醒 -->
+<view class="card" wx:if="{{reminders.length > 0}}">
+  <view class="sec-title">📌 提醒</view>
+  <view class="reminder-item" wx:for="{{reminders}}" wx:key="_id">{{item.content}}</view>
+</view>
+
 <!-- 心情选择 -->
 <view class="card">
   <view class="sec-title">今天心情如何？</view>

@@ -30,7 +30,7 @@ function nextCycleDate(cycle) {
 // 意图识别
 async function parseIntent(model, message, history) {
   const sys = '你是财务管家的意图解析器。把用户的话解析成 JSON，只输出 JSON，不要任何解释或多余文字。\n' +
-    'type 只能是：addTransaction（记一笔账）、queryBill（查账/统计）、addSubscription（记录订阅）、querySubscription（查看订阅）、cancelSubscription（取消订阅）、setBudget（设置预算）、queryBudget（查看预算）、chat（闲聊/无法判断）。\n' +
+    'type 只能是：addTransaction（记一笔账）、queryBill（查账/统计）、addSubscription（记录订阅）、querySubscription（查看订阅）、cancelSubscription（取消订阅）、setBudget（设置预算）、queryBudget（查看预算）、aaSplit（AA分账）、chat（闲聊/无法判断）。\n' +
     'slots 字段：\n' +
     '- addTransaction：{"amount":数字,"direction":"expense"或"income","remark":"内容","category":"分类 或 null","date":"日期 或 null"}\n' +
     '- queryBill：{"category":"分类 或 null","period":"month"或"lastMonth"或"year"或"all"}\n' +
@@ -39,12 +39,14 @@ async function parseIntent(model, message, history) {
     '- cancelSubscription：{"name":"订阅名"}\n' +
     '- setBudget：{"category":"分类","amount":数字,"period":"monthly"或"yearly"}\n' +
     '- queryBudget：{"category":"分类 或 null"}\n' +
+    '- aaSplit：{"amount":数字,"remark":"内容","people":人数,"category":"分类 或 null"}\n' +
     '- chat：{}\n' +
     '示例：\n' +
     '用户"中午喝了晨光酸奶，花了5块" -> {"type":"addTransaction","slots":{"amount":5,"direction":"expense","remark":"晨光酸奶","category":null,"date":null}}\n' +
     '用户"设个餐饮预算每月500" -> {"type":"setBudget","slots":{"category":"餐饮","amount":500,"period":"monthly"}}\n' +
     '用户"我的预算还剩多少" -> {"type":"queryBudget","slots":{"category":null}}\n' +
-    '用户"我有哪些订阅" -> {"type":"querySubscription","slots":{}}'
+    '用户"我有哪些订阅" -> {"type":"querySubscription","slots":{}}\n' +
+    '用户"昨晚聚餐花了300，3个人AA" -> {"type":"aaSplit","slots":{"amount":300,"remark":"聚餐","people":3,"category":null}}'
 
   const res = await model.generateText({
     model: 'hy3',
@@ -133,6 +135,21 @@ async function doCancelSub(openid, name) {
   return { ok: true, type: 'cancelSub', name: n }
 }
 
+// AA 分账
+async function doAASplit(openid, slots, model) {
+  const amount = Math.abs(Number(slots.amount))
+  const people = Number(slots.people) || 2
+  if (!amount) return { ok: false, msg: '没听清金额，请再说一次' }
+  let category = slots.category
+  if (!category && slots.remark) category = await aiCategorize(model, slots.remark)
+  category = category || '其他'
+  const per = Math.round(amount / people * 100) / 100
+  await db.collection('transactions').add({
+    data: { amount: -amount, category, remark: (slots.remark || '') + '（' + people + '人AA）', date: today(), time: '', source: 'chat', accountId: '', merchant: '', _openid: openid, createdAt: db.serverDate() }
+  })
+  return { ok: true, type: 'aaSplit', amount, people, per, category, remark: slots.remark || '' }
+}
+
 // 设预算
 async function doSetBudget(openid, slots) {
   const category = slots.category
@@ -193,6 +210,7 @@ exports.main = async (event) => {
   else if (intent.type === 'addSubscription') exec = await doAddSub(OPENID, intent.slots)
   else if (intent.type === 'querySubscription') exec = await doQuerySub(OPENID)
   else if (intent.type === 'cancelSubscription') exec = await doCancelSub(OPENID, intent.slots.name)
+  else if (intent.type === 'aaSplit') exec = await doAASplit(OPENID, intent.slots, model)
   else if (intent.type === 'setBudget') exec = await doSetBudget(OPENID, intent.slots)
   else if (intent.type === 'queryBudget') exec = await doQueryBudget(OPENID, intent.slots)
   else exec = { ok: true, type: 'chat' }
