@@ -23,28 +23,28 @@ function nextCycleDate(cycle) {
   const d = new Date()
   if (cycle === 'yearly') d.setFullYear(d.getFullYear() + 1)
   else if (cycle === 'weekly') d.setDate(d.getDate() + 7)
-  else d.setMonth(d.getMonth() + 1) // monthly 默认
+  else d.setMonth(d.getMonth() + 1)
   return fmt(d)
 }
 
-// 1. 意图识别 + 槽位抽取
+// 意图识别
 async function parseIntent(model, message, history) {
   const sys = '你是财务管家的意图解析器。把用户的话解析成 JSON，只输出 JSON，不要任何解释或多余文字。\n' +
-    'type 只能是：addTransaction（记一笔账）、queryBill（查账/问账/统计）、addSubscription（记录一个订阅）、querySubscription（查看订阅/订阅体检）、cancelSubscription（取消订阅）、chat（打招呼/闲聊/无法判断）。\n' +
+    'type 只能是：addTransaction（记一笔账）、queryBill（查账/统计）、addSubscription（记录订阅）、querySubscription（查看订阅）、cancelSubscription（取消订阅）、setBudget（设置预算）、queryBudget（查看预算）、chat（闲聊/无法判断）。\n' +
     'slots 字段：\n' +
-    '- addTransaction：{"amount":数字(正数),"direction":"expense"或"income","remark":"消费内容","category":"分类 或 null","date":"YYYY-MM-DD 或 null"}\n' +
+    '- addTransaction：{"amount":数字,"direction":"expense"或"income","remark":"内容","category":"分类 或 null","date":"日期 或 null"}\n' +
     '- queryBill：{"category":"分类 或 null","period":"month"或"lastMonth"或"year"或"all"}\n' +
     '- addSubscription：{"name":"订阅名","amount":数字,"cycle":"monthly"或"yearly"或"weekly","nextDate":"日期 或 null"}\n' +
     '- querySubscription：{}\n' +
     '- cancelSubscription：{"name":"订阅名"}\n' +
+    '- setBudget：{"category":"分类","amount":数字,"period":"monthly"或"yearly"}\n' +
+    '- queryBudget：{"category":"分类 或 null"}\n' +
     '- chat：{}\n' +
     '示例：\n' +
     '用户"中午喝了晨光酸奶，花了5块" -> {"type":"addTransaction","slots":{"amount":5,"direction":"expense","remark":"晨光酸奶","category":null,"date":null}}\n' +
-    '用户"这月吃饭花了多少" -> {"type":"queryBill","slots":{"category":"餐饮","period":"month"}}\n' +
-    '用户"我订阅了腾讯视频VIP，每月25块" -> {"type":"addSubscription","slots":{"name":"腾讯视频VIP","amount":25,"cycle":"monthly","nextDate":null}}\n' +
-    '用户"我有哪些订阅" -> {"type":"querySubscription","slots":{}}\n' +
-    '用户"取消腾讯视频VIP" -> {"type":"cancelSubscription","slots":{"name":"腾讯视频VIP"}}\n' +
-    '用户"你好" -> {"type":"chat","slots":{}}'
+    '用户"设个餐饮预算每月500" -> {"type":"setBudget","slots":{"category":"餐饮","amount":500,"period":"monthly"}}\n' +
+    '用户"我的预算还剩多少" -> {"type":"queryBudget","slots":{"category":null}}\n' +
+    '用户"我有哪些订阅" -> {"type":"querySubscription","slots":{}}'
 
   const res = await model.generateText({
     model: 'hy3',
@@ -56,7 +56,6 @@ async function parseIntent(model, message, history) {
   return { type: 'chat', slots: {} }
 }
 
-// 2. AI 分类
 async function aiCategorize(model, remark) {
   try {
     const res = await model.generateText({
@@ -71,7 +70,7 @@ async function aiCategorize(model, remark) {
   } catch (e) { return '其他' }
 }
 
-// 3. 记账
+// 记账
 async function doAdd(openid, slots, model) {
   const amount = Math.abs(Number(slots.amount))
   if (!amount) return { ok: false, msg: '没听清金额，请再说一次' }
@@ -80,13 +79,13 @@ async function doAdd(openid, slots, model) {
   if (!category && slots.remark) category = await aiCategorize(model, slots.remark)
   category = category || '其他'
   const date = slots.date || today()
-  const res = await db.collection('transactions').add({
+  await db.collection('transactions').add({
     data: { amount: signed, category, remark: slots.remark || '', date, time: '', source: 'chat', accountId: '', merchant: '', _openid: openid, createdAt: db.serverDate() }
   })
   return { ok: true, type: 'add', category, amount: signed, remark: slots.remark || '', date }
 }
 
-// 4. 查账
+// 查账
 async function doQuery(openid, slots) {
   const cond = { _openid: openid, amount: _.lt(0) }
   const range = dateRange(slots.period || 'month')
@@ -101,7 +100,7 @@ async function doQuery(openid, slots) {
   return { ok: true, type: 'query', total: Math.round(total * 100) / 100, count: list.length, period: slots.period || 'month', category: slots.category || '全部', byCat: Object.fromEntries(top) }
 }
 
-// 5. 加订阅
+// 加订阅
 async function doAddSub(openid, slots) {
   const name = (slots.name || '').trim()
   const amount = Number(slots.amount)
@@ -114,7 +113,6 @@ async function doAddSub(openid, slots) {
   return { ok: true, type: 'addSub', name, amount, cycle, nextDate }
 }
 
-// 6. 查订阅（体检报告数据）
 function monthlyAmount(x) {
   if (x.cycle === 'yearly') return Math.round(x.amount / 12 * 100) / 100
   if (x.cycle === 'weekly') return Math.round(x.amount * 4.33 * 100) / 100
@@ -127,7 +125,6 @@ async function doQuerySub(openid) {
   return { ok: true, type: 'querySub', list: list.map(x => ({ name: x.name, amount: x.amount, cycle: x.cycle, nextDate: x.nextDate })), count: list.length, totalMonthly }
 }
 
-// 7. 取消订阅
 async function doCancelSub(openid, name) {
   const n = (name || '').trim()
   if (!n) return { ok: false, msg: '请告诉我要取消哪个订阅' }
@@ -136,7 +133,40 @@ async function doCancelSub(openid, name) {
   return { ok: true, type: 'cancelSub', name: n }
 }
 
-// 8. 生成自然语言回复
+// 设预算
+async function doSetBudget(openid, slots) {
+  const category = slots.category
+  const amount = Number(slots.amount)
+  if (!category || !amount) return { ok: false, msg: '没听清预算分类或金额，请再说一次' }
+  const period = slots.period || 'monthly'
+  const exist = await db.collection('budgets').where({ _openid: openid, category, period }).get()
+  if (exist.data.length) {
+    await db.collection('budgets').doc(exist.data[0]._id).update({ data: { amount } })
+    return { ok: true, type: 'setBudget', category, amount, period, updated: true }
+  }
+  await db.collection('budgets').add({ data: { category, amount, period, _openid: openid, createdAt: db.serverDate() } })
+  return { ok: true, type: 'setBudget', category, amount, period }
+}
+
+// 查预算
+async function doQueryBudget(openid, slots) {
+  const cond = { _openid: openid }
+  if (slots.category) cond.category = slots.category
+  const bRes = await db.collection('budgets').where(cond).get()
+  const budgets = bRes.data
+  if (!budgets.length) return { ok: true, type: 'queryBudget', list: [], msg: '还没有设置预算' }
+  const range = dateRange('month')
+  const txRes = await db.collection('transactions').where({ _openid: openid, amount: _.lt(0), date: _.gte(range.start).and(_.lte(range.end)) }).limit(1000).get()
+  const txList = txRes.data
+  const list = budgets.map(b => {
+    const spent = txList.filter(x => x.category === b.category).reduce((s, x) => s + Math.abs(x.amount), 0)
+    const remaining = Math.round((b.amount - spent) * 100) / 100
+    const ratio = b.amount > 0 ? Math.round(spent / b.amount * 100) : 0
+    return { category: b.category, amount: b.amount, spent: Math.round(spent * 100) / 100, remaining, ratio, over: ratio >= 100 }
+  })
+  return { ok: true, type: 'queryBudget', list }
+}
+
 async function genReply(model, message, exec) {
   const sys = '你是 AI 财务管家，语气友好简洁，像贴心助手。基于给定的执行结果回复用户，不要编造数据。若执行失败或信息不足，就友好地请用户补充。'
   const res = await model.generateText({
@@ -163,6 +193,8 @@ exports.main = async (event) => {
   else if (intent.type === 'addSubscription') exec = await doAddSub(OPENID, intent.slots)
   else if (intent.type === 'querySubscription') exec = await doQuerySub(OPENID)
   else if (intent.type === 'cancelSubscription') exec = await doCancelSub(OPENID, intent.slots.name)
+  else if (intent.type === 'setBudget') exec = await doSetBudget(OPENID, intent.slots)
+  else if (intent.type === 'queryBudget') exec = await doQueryBudget(OPENID, intent.slots)
   else exec = { ok: true, type: 'chat' }
 
   const reply = await genReply(model, message, exec)
