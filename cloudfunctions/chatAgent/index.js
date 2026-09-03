@@ -9,37 +9,41 @@ function today() {
   const d = new Date()
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
 }
-
 function fmt(d) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
 }
-
-// 时间范围：month=本月 lastMonth=上月 year=今年，all=全部
 function dateRange(period) {
   const now = new Date()
-  if (period === 'month') {
-    return { start: fmt(new Date(now.getFullYear(), now.getMonth(), 1)), end: fmt(new Date(now.getFullYear(), now.getMonth() + 1, 0)) }
-  }
-  if (period === 'lastMonth') {
-    return { start: fmt(new Date(now.getFullYear(), now.getMonth() - 1, 1)), end: fmt(new Date(now.getFullYear(), now.getMonth(), 0)) }
-  }
-  if (period === 'year') {
-    return { start: fmt(new Date(now.getFullYear(), 0, 1)), end: fmt(new Date(now.getFullYear(), 11, 31)) }
-  }
+  if (period === 'month') return { start: fmt(new Date(now.getFullYear(), now.getMonth(), 1)), end: fmt(new Date(now.getFullYear(), now.getMonth() + 1, 0)) }
+  if (period === 'lastMonth') return { start: fmt(new Date(now.getFullYear(), now.getMonth() - 1, 1)), end: fmt(new Date(now.getFullYear(), now.getMonth(), 0)) }
+  if (period === 'year') return { start: fmt(new Date(now.getFullYear(), 0, 1)), end: fmt(new Date(now.getFullYear(), 11, 31)) }
   return null
 }
+function nextCycleDate(cycle) {
+  const d = new Date()
+  if (cycle === 'yearly') d.setFullYear(d.getFullYear() + 1)
+  else if (cycle === 'weekly') d.setDate(d.getDate() + 7)
+  else d.setMonth(d.getMonth() + 1) // monthly 默认
+  return fmt(d)
+}
 
-// 1. 意图识别 + 槽位抽取（要求输出严格 JSON）
+// 1. 意图识别 + 槽位抽取
 async function parseIntent(model, message, history) {
   const sys = '你是财务管家的意图解析器。把用户的话解析成 JSON，只输出 JSON，不要任何解释或多余文字。\n' +
-    'type 只能是：addTransaction（记一笔账）、queryBill（查账/问账/统计）、chat（打招呼/闲聊/无法判断）。\n' +
+    'type 只能是：addTransaction（记一笔账）、queryBill（查账/问账/统计）、addSubscription（记录一个订阅）、querySubscription（查看订阅/订阅体检）、cancelSubscription（取消订阅）、chat（打招呼/闲聊/无法判断）。\n' +
     'slots 字段：\n' +
-    '- addTransaction：{"amount":数字(正数),"direction":"expense"或"income","remark":"消费内容","category":"餐饮/交通/购物/娱乐/居住/医疗/教育/其他 或 null","date":"YYYY-MM-DD 或 null"}\n' +
-    '- queryBill：{"category":"分类 或 null(全部)","period":"month"或"lastMonth"或"year"或"all"}\n' +
+    '- addTransaction：{"amount":数字(正数),"direction":"expense"或"income","remark":"消费内容","category":"分类 或 null","date":"YYYY-MM-DD 或 null"}\n' +
+    '- queryBill：{"category":"分类 或 null","period":"month"或"lastMonth"或"year"或"all"}\n' +
+    '- addSubscription：{"name":"订阅名","amount":数字,"cycle":"monthly"或"yearly"或"weekly","nextDate":"日期 或 null"}\n' +
+    '- querySubscription：{}\n' +
+    '- cancelSubscription：{"name":"订阅名"}\n' +
     '- chat：{}\n' +
     '示例：\n' +
     '用户"中午喝了晨光酸奶，花了5块" -> {"type":"addTransaction","slots":{"amount":5,"direction":"expense","remark":"晨光酸奶","category":null,"date":null}}\n' +
     '用户"这月吃饭花了多少" -> {"type":"queryBill","slots":{"category":"餐饮","period":"month"}}\n' +
+    '用户"我订阅了腾讯视频VIP，每月25块" -> {"type":"addSubscription","slots":{"name":"腾讯视频VIP","amount":25,"cycle":"monthly","nextDate":null}}\n' +
+    '用户"我有哪些订阅" -> {"type":"querySubscription","slots":{}}\n' +
+    '用户"取消腾讯视频VIP" -> {"type":"cancelSubscription","slots":{"name":"腾讯视频VIP"}}\n' +
     '用户"你好" -> {"type":"chat","slots":{}}'
 
   const res = await model.generateText({
@@ -48,13 +52,11 @@ async function parseIntent(model, message, history) {
   })
   const text = (res.text || '').trim()
   const m = text.match(/\{[\s\S]*\}/)
-  if (m) {
-    try { return JSON.parse(m[0]) } catch (e) {}
-  }
+  if (m) { try { return JSON.parse(m[0]) } catch (e) {} }
   return { type: 'chat', slots: {} }
 }
 
-// 2. AI 分类（remark -> 分类）
+// 2. AI 分类
 async function aiCategorize(model, remark) {
   try {
     const res = await model.generateText({
@@ -66,12 +68,10 @@ async function aiCategorize(model, remark) {
     })
     const c = (res.text || '').trim().replace(/[，。、\s]/g, '')
     return CATEGORIES.includes(c) ? c : '其他'
-  } catch (e) {
-    return '其他'
-  }
+  } catch (e) { return '其他' }
 }
 
-// 3. 执行：记账
+// 3. 记账
 async function doAdd(openid, slots, model) {
   const amount = Math.abs(Number(slots.amount))
   if (!amount) return { ok: false, msg: '没听清金额，请再说一次' }
@@ -86,7 +86,7 @@ async function doAdd(openid, slots, model) {
   return { ok: true, type: 'add', category, amount: signed, remark: slots.remark || '', date }
 }
 
-// 4. 执行：查账
+// 4. 查账
 async function doQuery(openid, slots) {
   const cond = { _openid: openid, amount: _.lt(0) }
   const range = dateRange(slots.period || 'month')
@@ -101,14 +101,49 @@ async function doQuery(openid, slots) {
   return { ok: true, type: 'query', total: Math.round(total * 100) / 100, count: list.length, period: slots.period || 'month', category: slots.category || '全部', byCat: Object.fromEntries(top) }
 }
 
-// 5. 生成自然语言回复
-async function genReply(model, message, execResult) {
+// 5. 加订阅
+async function doAddSub(openid, slots) {
+  const name = (slots.name || '').trim()
+  const amount = Number(slots.amount)
+  if (!name || !amount) return { ok: false, msg: '没听清订阅名或金额，请再说一次' }
+  const cycle = slots.cycle || 'monthly'
+  const nextDate = slots.nextDate || nextCycleDate(cycle)
+  await db.collection('subscriptions').add({
+    data: { name, amount, cycle, nextDate, status: 'active', autoRenew: true, _openid: openid, createdAt: db.serverDate() }
+  })
+  return { ok: true, type: 'addSub', name, amount, cycle, nextDate }
+}
+
+// 6. 查订阅（体检报告数据）
+function monthlyAmount(x) {
+  if (x.cycle === 'yearly') return Math.round(x.amount / 12 * 100) / 100
+  if (x.cycle === 'weekly') return Math.round(x.amount * 4.33 * 100) / 100
+  return x.amount
+}
+async function doQuerySub(openid) {
+  const res = await db.collection('subscriptions').where({ _openid: openid, status: 'active' }).get()
+  const list = res.data
+  const totalMonthly = Math.round(list.reduce((s, x) => s + monthlyAmount(x), 0) * 100) / 100
+  return { ok: true, type: 'querySub', list: list.map(x => ({ name: x.name, amount: x.amount, cycle: x.cycle, nextDate: x.nextDate })), count: list.length, totalMonthly }
+}
+
+// 7. 取消订阅
+async function doCancelSub(openid, name) {
+  const n = (name || '').trim()
+  if (!n) return { ok: false, msg: '请告诉我要取消哪个订阅' }
+  const res = await db.collection('subscriptions').where({ _openid: openid, name: n, status: 'active' }).update({ data: { status: 'cancelled', autoRenew: false } })
+  if (!res.stats.updated) return { ok: false, msg: '没找到名为「' + n + '」的有效订阅' }
+  return { ok: true, type: 'cancelSub', name: n }
+}
+
+// 8. 生成自然语言回复
+async function genReply(model, message, exec) {
   const sys = '你是 AI 财务管家，语气友好简洁，像贴心助手。基于给定的执行结果回复用户，不要编造数据。若执行失败或信息不足，就友好地请用户补充。'
   const res = await model.generateText({
     model: 'hy3',
     messages: [
       { role: 'system', content: sys },
-      { role: 'user', content: '用户说：' + message + '\n执行结果：' + JSON.stringify(execResult) + '\n请给出自然回复。' }
+      { role: 'user', content: '用户说：' + message + '\n执行结果：' + JSON.stringify(exec) + '\n请给出自然回复。' }
     ]
   })
   return res.text || '收到！'
@@ -123,13 +158,12 @@ exports.main = async (event) => {
 
   const intent = await parseIntent(model, message, history)
   let exec
-  if (intent.type === 'addTransaction') {
-    exec = await doAdd(OPENID, intent.slots, model)
-  } else if (intent.type === 'queryBill') {
-    exec = await doQuery(OPENID, intent.slots)
-  } else {
-    exec = { ok: true, type: 'chat' }
-  }
+  if (intent.type === 'addTransaction') exec = await doAdd(OPENID, intent.slots, model)
+  else if (intent.type === 'queryBill') exec = await doQuery(OPENID, intent.slots)
+  else if (intent.type === 'addSubscription') exec = await doAddSub(OPENID, intent.slots)
+  else if (intent.type === 'querySubscription') exec = await doQuerySub(OPENID)
+  else if (intent.type === 'cancelSubscription') exec = await doCancelSub(OPENID, intent.slots.name)
+  else exec = { ok: true, type: 'chat' }
 
   const reply = await genReply(model, message, exec)
   return { success: true, reply, intent: intent.type, data: exec }
