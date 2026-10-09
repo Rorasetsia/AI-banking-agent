@@ -4,19 +4,29 @@
     "pages/bill/bill",
     "pages/chat/chat",
     "pages/subscription/subscription",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/penguin-preview/penguin-preview",
+    "pages/transaction-edit/transaction-edit",
+    "pages/subscription-edit/subscription-edit",
+    "pages/history-calendar/history-calendar",
+    "pages/subscription-history/subscription-history",
+    "pages/diary-list/diary-list",
+    "pages/diary-detail/diary-detail",
+    "pages/budget-goals/budget-goals",
+    "pages/profile-settings/profile-settings"
   ],
   "window": {
     "navigationBarTitleText": "AI财务管家",
     "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#f7f8fa"
+    "backgroundColor": "#fdf9f5"
   },
   "tabBar": {
-    "color": "#9aa0a6",
-    "selectedColor": "#3a7afe",
+    "custom": true,
+    "color": "#c1b3a6",
+    "selectedColor": "#f17a4e",
     "backgroundColor": "#ffffff",
-    "borderStyle": "black",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",
@@ -41,5 +51,6 @@
     ]
   },
   "sitemapLocation": "sitemap.json",
-  "style": "v2"
+  "style": "v2",
+  "entryPagePath": "pages/index/index"
 }

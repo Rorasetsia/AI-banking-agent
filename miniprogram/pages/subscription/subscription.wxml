@@ -1,10 +1,34 @@
-<view class="card" bindtap="scan">
-  <text class="scan-title">🔍 订阅体检</text>
-  <text class="t-sub">自动识别你的订阅扣费，生成体检报告</text>
+<view class="sub-summary anim-rise d-0">
+  <view class="sum-title">订阅管理</view>
+  <view class="sum-main"><text class="sum-num">¥{{totalMonthly}}</text><text class="sum-unit">/月</text></view>
+  <view class="sum-sub">{{count}} 个生效订阅</view>
 </view>
-<view class="card">
-  <view class="row" wx:for="{{list}}" wx:key="index">
-    <text>{{item.name}}</text><text>{{item.amount}}/{{item.cycle}}</text>
+
+<view class="scan-card tap anim-rise d-1" bindtap="scan">
+  <view class="scan-ico"><view class="iico iico-md search-white"></view></view>
+  <view class="scan-body"><text class="scan-title">订阅体检</text><text class="scan-sub">自动识别你的订阅扣费，生成体检报告</text></view>
+  <image class="decor decor-cycling" src="/assets/decorations/cycling.png" mode="aspectFit" />
+</view>
+
+<view class="card sub-list anim-rise d-2">
+  <view class="row tap" wx:for="{{list}}" wx:key="_id" data-id="{{item._id}}" bindtap="openItem">
+    <view class="row-main">
+      <view class="row-top"><text class="row-name">{{item.name}}</text><text class="row-amount">¥{{item.amount}} / {{item.cycle}}</text></view>
+      <view class="row-meta">下次扣费 {{item.nextDate || '未设置'}} · {{item.statusText}} · {{item.sourceText}}</view>
+      <view wx:if="{{item.merchant || item.notes}}" class="row-note">{{item.merchant}}{{item.notes ? ' · ' + item.notes : ''}}</view>
+    </view>
+    <view class="row-actions"><view wx:if="{{item.status !== 'cancelled'}}" class="renew-btn tap" data-id="{{item._id}}" data-name="{{item.name}}" catchtap="renewItem">续费</view><view wx:if="{{item.status !== 'cancelled'}}" class="cancel-btn tap" data-id="{{item._id}}" data-name="{{item.name}}" catchtap="cancelItem">取消</view></view>
   </view>
-  <view wx:if="{{list.length === 0}}" class="empty">暂无订阅记录</view>
+  <view wx:if="{{!loading && list.length === 0}}" class="empty">
+    <view class="empty-ico"><view class="iico iico-lg folder-inactive"></view></view>
+    <text class="empty-text">暂无订阅记录</text>
+  </view>
+  <view wx:if="{{loading}}" class="loading">加载中…</view>
 </view>
+
+<view class="add-entry tap" bindtap="addSubscription">＋ 手动添加订阅</view>
+
+<view wx:if="{{historyText}}" class="history-toggle tap" bindtap="openHistory">{{historyText}}</view>
+
+<view class="penguin-float"><mascot-penguin size="{{256}}" /></view>
+<view class="tab-safe"></view>

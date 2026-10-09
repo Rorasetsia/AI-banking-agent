@@ -1,33 +1,65 @@
 <!-- 今日概览 -->
-<view class="hero card">
-  <view class="hero-title">今天</view>
-  <view class="hero-amount">
-    <view class="amount-item"><text class="num">¥{{todayExpense}}</text><text class="label">支出</text></view>
-    <view class="amount-item"><text class="num">¥{{todayIncome}}</text><text class="label">收入</text></view>
+<view class="hero-wrap">
+  <view class="hero card anim-rise d-0">
+    <view class="hero-orb"></view>
+    <view class="hero-orb2"></view>
+    <view class="hero-title">今天</view>
+    <view class="hero-amount">
+      <view class="amount-item">
+        <text class="num"><text class="cny">¥</text>{{todayExpense}}</text>
+        <text class="label">支出</text>
+      </view>
+      <view class="amount-divider"></view>
+      <view class="amount-item">
+        <text class="num"><text class="cny">¥</text>{{todayIncome}}</text>
+        <text class="label">收入</text>
+      </view>
+    </view>
+    <view class="hero-caption">每一笔，都被温柔记住</view>
   </view>
 </view>
 
-<!-- 提醒 -->
-<view class="card" wx:if="{{reminders.length > 0}}">
+<!-- 提醒（保留本地提醒功能） -->
+<view class="card reminder-card anim-rise d-1" wx:if="{{reminders.length > 0}}">
   <view class="sec-title">📌 提醒</view>
   <view class="reminder-item" wx:for="{{reminders}}" wx:key="_id">{{item.content}}</view>
 </view>
 
 <!-- 心情选择 -->
-<view class="card">
+<view class="card mood-card anim-rise d-1">
   <view class="sec-title">今天心情如何？</view>
-  <view class="mood-row" wx:for="{{['morning','noon','night']}}" wx:key="*this">
-    <text class="mood-period">{{item === 'morning' ? '早' : item === 'noon' ? '中' : '晚'}}</text>
-    <view class="mood-tags">
-      <text wx:for="{{moods}}" wx:for-item="m" wx:key="*this"
-        class="mood-tag {{data[item] === m ? 'active' : ''}}"
+  <image class="decor decor-reading" src="/assets/decorations/reading.png" mode="aspectFit" />
+  <view class="mood-row {{item === 'morning' ? 'mood-row-first' : item === 'noon' ? 'mood-row-middle' : 'mood-row-last'}}" wx:for="{{['morning','noon','night']}}" wx:key="*this">
+    <view class="mood-period">{{item === 'morning' ? '早' : item === 'noon' ? '中' : '晚'}}</view>
+    <view wx:if="{{moodValues[item]}}" class="mood-selected anim-rise">
+      <text class="mood-selected-text">{{item === 'morning' ? '今早' : item === 'noon' ? '今天中午' : '今晚'}}心情：{{moodValues[item]}}</text>
+      <text class="mood-reset" data-period="{{item}}" bindtap="resetMood">重选</text>
+    </view>
+    <view wx:else class="mood-tags">
+      <text wx:for="{{moods}}" wx:for-item="m" wx:for-index="mi" wx:key="*this"
+        class="mood-tag mood-{{mi}}"
         data-period="{{item}}" data-mood="{{m}}" bindtap="pickMood">{{m}}</text>
+      <text class="mood-tag mood-custom" data-period="{{item}}" bindtap="pickCustomMood">{{customMoods[item] || '＋ 自定义'}}</text>
     </view>
   </view>
 </view>
 
 <!-- 快捷入口 -->
-<view class="card quick-grid">
-  <view class="quick" bindtap="goChat"><text class="q-ico">✎</text><text>记一笔</text></view>
-  <view class="quick" bindtap="goDiary"><text class="q-ico">📖</text><text>今日日记</text></view>
+<view class="quick-grid anim-rise d-2">
+  <view class="quick quick-primary tap" bindtap="goChat">
+    <view class="q-ico"><view class="iico iico-md edit-white"></view></view>
+    <text class="q-name">记一笔</text>
+  </view>
+  <view class="quick tap" bindtap="goDiary">
+    <view class="q-ico"><view class="iico iico-md book-active"></view></view>
+    <text class="q-name">今日日记</text>
+  </view>
+  <image class="decor decor-cake" src="/assets/decorations/cake.png" mode="aspectFit" />
 </view>
+
+<!-- 企鹅 IP：右下角固定 -->
+<view class="penguin-float">
+  <mascot-penguin size="{{256}}" />
+</view>
+
+<view class="tab-safe"></view>

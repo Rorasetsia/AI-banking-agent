@@ -1,17 +1,273 @@
-.hero { background: linear-gradient(135deg, #3a7afe, #6ea8ff); color:#fff; }
-.hero-title { font-size: 26rpx; opacity:.9; }
-.hero-amount { display:flex; gap: 60rpx; margin-top: 12rpx; }
-.amount-item { display:flex; flex-direction:column; }
-.amount-item .num { font-size: 48rpx; font-weight:600; }
-.amount-item .label { font-size: 24rpx; opacity:.85; }
-.sec-title { font-size: 30rpx; font-weight:600; margin-bottom: 16rpx; }
-.mood-row { display:flex; align-items:center; margin-bottom: 12rpx; }
-.mood-period { width: 48rpx; font-size: 24rpx; color: var(--text-light); }
-.mood-tags { display:flex; flex-wrap:wrap; gap: 12rpx; }
-.mood-tag { padding: 8rpx 20rpx; border-radius: 28rpx; background:#f2f3f5; font-size:24rpx; color:var(--text-sub); }
-.mood-tag.active { background: var(--primary-light); color: var(--primary); }
-.quick-grid { display:flex; gap: 24rpx; }
-.quick { flex:1; display:flex; flex-direction:column; align-items:center; padding: 24rpx 0; background:#f7f8fa; border-radius: 12rpx; font-size:26rpx; }
-.q-ico { font-size: 44rpx; margin-bottom: 8rpx; }
-.reminder-item { padding: 12rpx 0; font-size: 26rpx; color: var(--text-main); border-bottom: 1rpx solid #f2f3f5; }
-.reminder-item:last-child { border-bottom: none; }
+/* ============ 首页（森林系 · 方案一 · 描边卡片） ============ */
+
+/* --- 今日概览 hero：午夜绿底 + 深绿描边 + 硬阴影 --- */
+.hero-wrap {
+  position: relative;
+  margin: 24rpx;
+  z-index: 1;
+}
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 44rpx 36rpx;
+  border-radius: var(--radius-lg);
+  background: #105666;
+  border: var(--stroke-width) solid var(--stroke);
+  box-shadow: var(--shadow-float);
+  color: #fff;
+}
+.hero-orb {
+  position: absolute;
+  top: -90rpx;
+  right: -70rpx;
+  width: 260rpx;
+  height: 260rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(211,150,140,0.55) 0%, rgba(211,150,140,0) 68%);
+  pointer-events: none;
+}
+.hero-orb2 {
+  position: absolute;
+  bottom: -100rpx;
+  left: -50rpx;
+  width: 220rpx;
+  height: 220rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(131,153,88,0.45) 0%, rgba(131,153,88,0) 70%);
+  pointer-events: none;
+}
+.hero-title { position: relative; font-size: 26rpx; font-weight: 600; color: rgba(255,255,255,0.95); }
+.hero-amount { position: relative; display: flex; align-items: center; margin-top: 20rpx; }
+.amount-item { display: flex; flex-direction: column; }
+.amount-item .num {
+  font-size: 60rpx;
+  font-weight: 700;
+  line-height: 1.1;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+.amount-item .cny { font-size: 34rpx; font-weight: 600; margin-right: 6rpx; opacity: .92; }
+.amount-item .label { font-size: 24rpx; font-weight: 500; color: rgba(255,255,255,0.92); margin-top: 8rpx; }
+.amount-divider { width: 2rpx; height: 64rpx; background: rgba(255,255,255,0.35); margin: 0 40rpx; }
+.hero-caption {
+  position: relative;
+  margin-top: 24rpx;
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.95);
+  letter-spacing: 1rpx;
+}
+
+/* --- 心情选择 --- */
+.mood-card { padding: 32rpx; }
+.sec-title { font-size: 32rpx; font-weight: 700; margin-bottom: 26rpx; color: var(--text-main); }
+.mood-row { display: flex; align-items: flex-start; margin-bottom: 24rpx; }
+.mood-row:last-child { margin-bottom: 0; }
+.mood-period {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #fff;
+  background: var(--primary-mid);
+  border: var(--stroke-width) solid var(--stroke);
+  border-radius: 18rpx;
+  margin-right: 20rpx;
+  margin-top: 2rpx;
+  flex-shrink: 0;
+  box-shadow: 0 4rpx 0 var(--stroke);
+}
+/* 两行三列：五种固定心情 + 自定义 */
+.mood-tags {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14rpx;
+}
+.mood-tag {
+  min-height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10rpx 6rpx;
+  border-radius: 999rpx;
+  background: rgba(10, 51, 35, 0.05);
+  border: var(--stroke-width) solid transparent;
+  font-size: 24rpx;
+  color: var(--text-sub);
+  transition: all .16s;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.mood-tag:active { transform: scale(.94); }
+.mood-tag.active {
+  font-weight: 700;
+  border-color: var(--stroke);
+  box-shadow: 0 4rpx 0 var(--stroke);
+}
+.mood-custom {
+  border-color: rgba(16, 86, 102, 0.28);
+  color: var(--primary-mid);
+  background: rgba(16, 86, 102, 0.06);
+  font-size: 22rpx;
+}
+.mood-custom.active {
+  background: var(--cream);
+  border-color: var(--stroke);
+  color: var(--text-main);
+}
+
+/* 心情标签配色（五种限定色均匀分布） */
+.mood-0.active { background: rgba(211, 150, 140, 0.22); color: #D3968C; }
+.mood-1.active { background: rgba(131, 153, 88, 0.22);  color: #839958; }
+.mood-2.active { background: rgba(16, 86, 102, 0.18);   color: #105666; }
+.mood-3.active { background: rgba(247, 244, 213, 0.85); color: #0A3323; }
+.mood-4.active { background: rgba(10, 51, 35, 0.14);    color: #0A3323; }
+
+/* --- 快捷入口：3D 大按钮 --- */
+.quick-grid { display: flex; gap: 20rpx; margin: 24rpx; }
+.quick {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 0;
+  background: #fff;
+  border-radius: var(--radius-md);
+  border: var(--stroke-width) solid var(--stroke);
+  box-shadow: var(--shadow-card);
+}
+.quick .q-ico {
+  width: 88rpx;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--alt-light);
+  border: var(--stroke-width) solid var(--stroke);
+  border-radius: 26rpx;
+  margin-bottom: 16rpx;
+}
+.quick .q-name { font-size: 28rpx; font-weight: 700; color: var(--text-main); }
+.quick-primary {
+  background: var(--primary);
+  box-shadow: 0 8rpx 0 var(--stroke);
+}
+.quick-primary .q-ico { background: rgba(255,255,255,0.28); border-color: rgba(255,255,255,0.55); }
+.quick-primary .q-name { color: #fff; text-shadow: 0 1rpx 0 rgba(0,0,0,0.08); }
+.quick-primary:active {
+  transform: translateY(8rpx);
+  box-shadow: 0 0 0 var(--stroke);
+}
+
+/* --- 管家寄语 --- */
+.tip-card {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 32rpx;
+  margin-top: 4rpx;
+}
+.tip-ico {
+  width: 88rpx;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-light);
+  border: var(--stroke-width) solid var(--stroke);
+  border-radius: 26rpx;
+  margin-right: 22rpx;
+  flex-shrink: 0;
+}
+.tip-body { flex: 1; display: flex; flex-direction: column; }
+.tip-title { font-size: 28rpx; font-weight: 700; color: var(--text-main); }
+.tip-text { font-size: 24rpx; color: var(--text-sub); margin-top: 6rpx; line-height: 1.5; }
+
+.hero-wrap .hero { margin: 0; }
+
+/* 首页企鹅下移约 1cm，减少对“今日日记”板块的遮挡 */
+.penguin-float {
+  bottom: calc(-14rpx + env(safe-area-inset-bottom));
+}
+
+/* ============ 首页装饰插画 ============ */
+.decor {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+}
+.decor-reading {
+  top: -150rpx;
+  right: -24rpx;
+  width: 180rpx;
+  height: 231rpx;
+}
+.decor-cake {
+  top: -150rpx;
+  left: -28rpx;
+  width: 140rpx;
+  height: 235rpx;
+}
+.quick-grid {
+  position: relative;
+  z-index: 3;
+}
+/* 给跨卡片插画预留空间，文字始终在图片上方 */
+.mood-row-first {
+  padding-right: 128rpx;
+  margin-left: 0;
+}
+.mood-row-middle {
+  margin-left: 64rpx;
+  margin-right: 72rpx;
+}
+.mood-row-middle .mood-tag {
+  min-height: 56rpx;
+  padding: 8rpx 4rpx;
+  font-size: 22rpx;
+}
+.mood-row-last {
+  margin-left: 128rpx;
+  margin-right: 40rpx;
+}
+.mood-card {
+  position: relative;
+  z-index: 2;
+}
+.quick {
+  position: relative;
+}
+.mood-card .sec-title,
+.mood-row,
+.quick .q-ico,
+.quick .q-name {
+  position: relative;
+  z-index: 2;
+}
+
+/* 提醒卡片（保留本地提醒功能） */
+.reminder-card {
+  padding: 28rpx 32rpx;
+}
+.reminder-card .sec-title {
+  margin-bottom: 12rpx;
+}
+.reminder-item {
+  padding: 12rpx 0;
+  font-size: 26rpx;
+  color: var(--text-main);
+  border-bottom: 1rpx solid var(--divider);
+}
+.reminder-item:last-child {
+  border-bottom: none;
+}
+
+.mood-selected { flex: 1; min-height: 60rpx; display: flex; align-items: center; justify-content: space-between; padding: 0 22rpx; border-radius: 999rpx; background: var(--primary-light); border: var(--stroke-width) solid var(--stroke); animation: moodIn .24s ease both; }
+.mood-selected-text { font-size: 25rpx; font-weight: 700; color: var(--text-main); }
+.mood-reset { padding-left: 18rpx; font-size: 22rpx; color: var(--primary-mid); text-decoration: underline; }
+@keyframes moodIn { from { opacity: 0; transform: translateY(8rpx) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }

@@ -1,7 +1,18 @@
 {
   "libVersion": "3.17.2",
-  "projectname": "AI-finance-agent",
-  "condition": {},
+  "projectname": "AI%20finance%20agent",
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "企鹅预览",
+          "pathName": "pages/penguin-preview/penguin-preview",
+          "query": "",
+          "scene": null
+        }
+      ]
+    }
+  },
   "setting": {
     "urlCheck": false,
     "coverView": true,
@@ -16,7 +27,7 @@
     "showES6CompileOption": false,
     "compileHotReLoad": true,
     "checkInvalidKey": true,
-    "ignoreDevUnusedFiles": true,
+    "ignoreDevUnusedFiles": false,
     "bigPackageSizeSupport": false
   }
 }

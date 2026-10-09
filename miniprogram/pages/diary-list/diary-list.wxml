@@ -1,0 +1,10 @@
+<view class="diary-head"><text class="head-title">我的日记</text><text class="head-sub">记录每一条账目和心情</text></view>
+<view class="card diary-list">
+  <view class="diary-item tap" wx:for="{{list}}" wx:key="_id" data-date="{{item.date}}" bindtap="openDiary">
+    <view class="date-badge">{{item.date.slice(5)}}</view>
+    <view class="diary-main"><text class="diary-title">{{item.title || item.date}}</text><text class="diary-excerpt">{{item.excerpt}}</text><text class="diary-meta">{{item.expenseSummary}}</text></view>
+    <text class="arrow">›</text>
+  </view>
+  <view wx:if="{{!loading && list.length === 0}}" class="empty"><text>暂无日记记录</text></view>
+  <view wx:if="{{loading}}" class="loading">加载中…</view>
+</view>

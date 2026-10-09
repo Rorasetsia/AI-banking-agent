@@ -1,12 +1,25 @@
-<scroll-view class="msg-list" scroll-y scroll-into-view="{{scrollIntoView}}" scroll-with-animation bindscroll="onScroll">
-  <view wx:for="{{messages}}" wx:key="index" id="msg-{{index}}" class="msg {{item.role === 'user' ? 'user' : 'ai'}}">
+<scroll-view class="msg-list" scroll-y scroll-into-view="{{scrollIntoView}}" scroll-with-animation bindscroll="onScroll" bindtouchstart="onHistoryTouchStart" bindtouchend="onHistoryTouchEnd">
+  <view class="history-banner tap" wx:if="{{historyAvailable}}" bindtap="showHistory">下滑或点击查看历史聊天（{{historyCount}}）</view>
+  <view wx:for="{{messages}}" wx:key="index" id="msg-{{index}}" class="msg {{item.role === 'user' ? 'user' : 'ai'}} anim-rise">
+    <view wx:if="{{item.role !== 'user'}}" class="avatar">
+      <view class="avatar-core"></view>
+      <view class="avatar-spark s1"></view>
+      <view class="avatar-spark s2"></view>
+    </view>
     <view class="bubble">{{item.text}}</view>
   </view>
 </scroll-view>
+
 <view class="back-bottom" wx:if="{{showBackBottom}}" bindtap="goBottom">↓ 回到底部</view>
-<view class="input-bar">
-  <view class="tool" bindtap="voice">🎤</view>
-  <view class="tool" bindtap="photo">📷</view>
-  <input class="input" value="{{input}}" bindinput="onInput" confirm-type="send" bindconfirm="send" placeholder="说一句话记账…" />
-  <view class="send-btn" bindtap="send">发送</view>
+
+<view class="input-bar" style="{{inputBarStyle}}">
+  <view class="tool tap" bindtap="voice"><view class="iico iico-sm mic-active"></view></view>
+  <view class="tool tap" bindtap="photo"><view class="iico iico-sm camera-active"></view></view>
+  <input class="input" value="{{input}}" bindinput="onInput" bindfocus="onInputFocus" bindblur="onInputBlur" adjust-position="{{false}}" cursor-spacing="24" confirm-type="send" bindconfirm="send" placeholder="说一句话记账…" />
+  <view class="send-btn tap" bindtap="send">发送</view>
+</view>
+
+<!-- 企鹅 IP：右下角固定 -->
+<view class="penguin-float">
+  <mascot-penguin size="{{256}}" />
 </view>

@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "mascot-penguin": "/components/mascot-penguin/index"
+  }
+}

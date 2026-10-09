@@ -1,5 +1,70 @@
-.user { display:flex; align-items:center; gap:20rpx; }
-.avatar { font-size:72rpx; }
-.name { display:block; font-size:32rpx; font-weight:600; }
-.menu-item { padding:24rpx 0; border-bottom:1rpx solid #f2f3f5; font-size:28rpx; }
-.menu-item:last-child { border-bottom:none; }
+/* ============ 我的（森林系 · 方案一 · 描边卡片） ============ */
+
+/* --- 用户信息：午夜绿底 + 深绿描边 --- */
+.user-card {
+  position: relative;
+  overflow: hidden;
+  margin: 24rpx;
+  padding: 46rpx 34rpx;
+  border-radius: var(--radius-lg);
+  background: #105666;
+  border: var(--stroke-width) solid var(--stroke);
+  box-shadow: var(--shadow-float);
+  display: flex;
+  align-items: center;
+}
+.user-orb {
+  position: absolute;
+  top: -80rpx;
+  right: -50rpx;
+  width: 240rpx;
+  height: 240rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(211,150,140,0.48) 0%, rgba(211,150,140,0) 70%);
+  pointer-events: none;
+}
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: var(--stroke-width) solid var(--stroke);
+  box-shadow: 0 5rpx 0 var(--stroke);
+  margin-right: 28rpx;
+  flex-shrink: 0;
+}
+.user-info { flex: 1; }
+.user-name { display: block; font-size: 36rpx; font-weight: 700; color: #fff; }
+.user-sub { display: block; font-size: 24rpx; color: rgba(255,255,255,0.9); margin-top: 6rpx; }
+
+/* --- 菜单 --- */
+.menu { padding: 8rpx 32rpx; }
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 26rpx 0;
+  border-bottom: 2rpx dashed var(--divider);
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-ico {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--stroke-width) solid var(--stroke);
+  margin-right: 22rpx;
+  flex-shrink: 0;
+  box-shadow: 0 3rpx 0 var(--stroke);
+}
+/* 四个菜单图标分别用不同强调色 */
+.menu-item:nth-child(1) .menu-ico { background: var(--primary-light); }
+.menu-item:nth-child(2) .menu-ico { background: var(--alt-light); }
+.menu-item:nth-child(3) .menu-ico { background: var(--mid-light); }
+.menu-item:nth-child(4) .menu-ico { background: rgba(247, 244, 213, 0.85); }
+.menu-name { flex: 1; font-size: 28rpx; color: var(--text-main); font-weight: 500; }
+.menu-arrow { font-size: 44rpx; color: var(--text-light); }

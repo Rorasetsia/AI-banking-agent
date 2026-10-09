@@ -1,0 +1,11 @@
+<view class="preview-page">
+  <view class="stage">
+    <mascot-penguin size="{{520}}" state="{{state}}" bind:mascotTap="playJump" />
+  </view>
+  <view class="state-name">{{state}}</view>
+  <view class="actions">
+    <button class="action" data-state="idle" bindtap="setState">待机</button>
+    <button class="action" data-state="wave" bindtap="setState">挥翅</button>
+    <button class="action primary" data-state="jump" bindtap="setState">跳跃</button>
+  </view>
+</view>

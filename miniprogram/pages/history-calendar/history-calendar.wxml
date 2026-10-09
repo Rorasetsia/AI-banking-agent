@@ -1,0 +1,14 @@
+<view class="calendar-card">
+  <view class="calendar-head">
+    <view class="nav-btn tap" bindtap="prevMonth">‹</view>
+    <view class="month-title">{{monthLabel}}</view>
+    <view class="nav-btn tap" bindtap="nextMonth">›</view>
+  </view>
+  <view class="week-row"><text wx:for="{{weekdays}}" wx:key="*this">{{item}}</text></view>
+  <view class="day-grid">
+    <view class="day-cell {{item.blank ? 'blank' : ''}} {{item.future ? 'future' : ''}}" wx:for="{{days}}" wx:key="index" data-date="{{item.date}}" bindtap="selectDay">
+      <text wx:if="{{!item.blank}}">{{item.day}}</text>
+    </view>
+  </view>
+</view>
+<view class="tip">点击一个日期，返回该日历史订单</view>

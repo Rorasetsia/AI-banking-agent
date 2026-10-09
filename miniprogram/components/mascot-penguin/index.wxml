@@ -1,0 +1,33 @@
+<view
+  wx:if="{{!hidden}}"
+  class="mascot-shell state--{{activeState}}"
+  style="width: {{size}}rpx; height: {{size * 1.1606}}rpx; transform: translate3d({{dx}}px, {{dy}}px, 0);"
+  catchtouchstart="onTouchStart"
+  catchtouchmove="onTouchMove"
+  catchtouchend="onTouchEnd"
+>
+  <image class="layer shadow" src="/assets/mascot/penguin/cropped/shadow.png" mode="aspectFit" />
+  <view class="character">
+    <image class="layer wing-left" src="/assets/mascot/penguin/cropped/wing_left.png" mode="aspectFit" />
+    <image class="layer wing-right" src="/assets/mascot/penguin/cropped/wing_right.png" mode="aspectFit" />
+    <image class="layer feet" src="/assets/mascot/penguin/cropped/feet.png" mode="aspectFit" />
+    <image class="layer head" src="/assets/mascot/penguin/cropped/head.png" mode="aspectFit" />
+    <image class="layer belly" src="/assets/mascot/penguin/cropped/belly.png" mode="aspectFit" />
+  </view>
+  <view
+    class="mascot-hide"
+    data-action="hide"
+    catchtouchstart="onHideTouchStart"
+    catchtouchmove="noop"
+    catchtouchend="onHideTouchEnd"
+    catchtouchcancel="onHideTouchEnd"
+  >
+    <view class="mascot-hide-core">×</view>
+  </view>
+</view>
+<view
+  wx:else
+  class="mascot-recall"
+  style="transform: translate3d({{dx}}px, {{dy}}px, 0);"
+  catchtap="show"
+>显示企鹅</view>

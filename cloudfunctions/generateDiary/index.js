@@ -1,62 +1,120 @@
 const cloud = require('wx-server-sdk')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV, timeout: 60000 })
 const db = cloud.database()
+const MAX_DAILY_UPDATES = 5
 
 function today() {
-  const d = new Date()
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+  const d = new Date(Date.now() + 8 * 60 * 60 * 1000)
+  return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0')
 }
-
-exports.main = async (event) => {
-  const { date } = event
-  const { OPENID } = cloud.getWXContext()
-  const d = date || today()
-
-  // 1. 拉当天账目
-  const txRes = await db.collection('transactions').where({ _openid: OPENID, date: d }).limit(500).get()
+function escapeHtml(value) {
+  return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br/>')
+}
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)) }
+function isRateLimitError(error) {
+  const status = error && (error.statusCode || error.status || (error.response && error.response.status))
+  const text = String((error && (error.message || error.errMsg)) || error || '')
+  return status === 429 || text.includes('429') || text.toLowerCase().includes('too many requests')
+}
+async function safeGenerateText(model, payload) {
+  let lastError
+  for (let i = 0; i < 3; i++) {
+    try { return await model.generateText(payload) } catch (error) {
+      lastError = error
+      if (!isRateLimitError(error) || i === 2) throw error
+      await sleep(600 * Math.pow(2, i))
+    }
+  }
+  throw lastError
+}
+async function getDailyData(openid, date) {
+  const txRes = await db.collection('transactions').where({ _openid: openid, date }).limit(500).get()
+  const moodRes = await db.collection('moods').where({ _openid: openid, date }).get()
   const txList = txRes.data
+  const moodList = moodRes.data
   const expense = Math.round(txList.filter(x => x.amount < 0).reduce((s, x) => s + Math.abs(x.amount), 0) * 100) / 100
   const income = Math.round(txList.filter(x => x.amount > 0).reduce((s, x) => s + x.amount, 0) * 100) / 100
-
-  // 2. 拉当天心情
-  const mdRes = await db.collection('moods').where({ _openid: OPENID, date: d }).get()
-  const moodList = mdRes.data
-
-  // 3. 没数据则返回空提示
-  if (!txList.length && !moodList.length) {
-    return { success: true, diary: '今天还没有记录哦，去记一笔或选个心情吧～', empty: true, expense: 0, income: 0 }
+  const signature = JSON.stringify({ tx: txList.map(x => [x.amount, x.category, x.merchant || '', x.itemName || '', x.remark || '', x.rawText || '']), moods: moodList.map(x => [x.period, x.mood, x.customTag || '']) })
+  return { txList, moodList, expense, income, signature }
+}
+function shortSummary(data) {
+  const moodText = data.moodList.map(x => x.mood).filter(Boolean).join('、') || '未记录心情'
+  const details = data.txList.slice(0, 20).map(x => (x.merchant || x.itemName || x.remark || x.category) + ' ¥' + Math.abs(x.amount)).join('；')
+  return '支出 ' + data.expense + ' 元、收入 ' + data.income + ' 元，心情：' + moodText + (details ? '。' + details : '')
+}
+async function getDiary(openid, date) {
+  const res = await db.collection('diaries').where({ _openid: openid, date }).get()
+  return res.data[0] || null
+}
+async function saveDiary(openid, date, content, data, extra) {
+  const existing = await getDiary(openid, date)
+  const contentHtml = (extra && extra.contentHtml) || escapeHtml(content)
+  const payload = Object.assign({ title: (existing && existing.title) || date, content, contentHtml, moodSummary: data.moodList.map(x => x.mood).join('/'), expenseSummary: '支出 ' + data.expense + ' 元，收入 ' + data.income + ' 元', dataSignature: data.signature, lastGeneratedAt: db.serverDate(), updatedAt: db.serverDate() }, extra || {})
+  if (existing) {
+    await db.collection('diaries').doc(existing._id).update({ data: payload })
+    return Object.assign({}, existing, payload)
   }
-
-  // 4. 调混元生成日记（助手型：只陈述一手信息，不臆测不下判断）
-  const ai = cloud.ai()
-  const model = ai.createModel('cloudbase')
-  const summary = {
-    date: d,
-    expense, income,
-    transactions: txList.map(x => ({ amount: x.amount, category: x.category, remark: x.remark })),
-    moods: moodList.map(x => ({ period: x.period, mood: x.mood, customTag: x.customTag }))
+  const created = await db.collection('diaries').add({ data: Object.assign({}, payload, { date, _openid: openid, createdAt: db.serverDate() }) })
+  return Object.assign({ _id: created._id, date }, payload)
+}
+async function generateFor(openid, date, options) {
+  const data = await getDailyData(openid, date)
+  const existing = await getDiary(openid, date)
+  if (!data.txList.length && !data.moodList.length && !options.final) return { ok: true, empty: true, date, diary: null }
+  if (existing && existing.dataSignature === data.signature && !options.force) return { ok: true, unchanged: true, diary: existing }
+  if (existing && !options.final && Number(existing.updateCount || 0) >= MAX_DAILY_UPDATES) return { ok: true, pendingFinal: true, diary: existing }
+  const ai = cloud.ai(); const model = ai.createModel('cloudbase')
+  const summary = { date, expense: data.expense, income: data.income, transactions: data.txList.map(x => ({ amount: x.amount, category: x.category, merchant: x.merchant || '', itemName: x.itemName || '', remark: x.remark || '', rawText: x.rawText || '', tags: x.tags || [] })), moods: data.moodList.map(x => ({ period: x.period, mood: x.mood, customTag: x.customTag || '' })) }
+  let content
+  try {
+    const prior = existing && existing.manualEdited ? '已有内容（必须保留，不要删除或覆盖）：' + (existing.content || '') + '\n' : ''
+    const res = await safeGenerateText(model, { model: 'hy3', messages: [{ role: 'system', content: '你是 AI 财务管家。根据用户当天的账目和心情，写或扩展一篇温暖简洁的日记式总结（120字以内，第一人称"你"）。只陈述一手信息，不臆测心理、不做因果判断、不追问隐私。' }, { role: 'user', content: prior + '当天数据：' + JSON.stringify(summary) + '\n请写日记。' }] })
+    content = res.text || shortSummary(data)
+  } catch (error) {
+    console.error('generateDiary AI failed', error.message || error)
+    content = existing && existing.content && existing.manualEdited ? existing.content + '\n' + shortSummary(data) : shortSummary(data)
   }
-  const res = await model.generateText({
-    model: 'hy3',
-    messages: [
-      {
-        role: 'system',
-        content: '你是 AI 财务管家。根据用户当天的账目和心情，写一篇温暖简洁的日记式总结（120字以内，第一人称"你"）。规则：只陈述用户提供的账目与心情信息；不臆测心理、不做因果判断、不追问私人问题；金额与分类如实列出。语气像贴心朋友。'
-      },
-      { role: 'user', content: '当天数据：' + JSON.stringify(summary) + '\n请写日记。' }
-    ]
-  })
-  const diary = res.text || '今天过得如何？已经帮你记好啦。'
-
-  // 5. 存 diaries（同一天覆盖更新）
-  const moodSummary = moodList.map(x => x.mood).join('/')
-  const expenseSummary = '支出 ' + expense + ' 元，收入 ' + income + ' 元'
-  const exist = await db.collection('diaries').where({ _openid: OPENID, date: d }).get()
-  if (exist.data.length) {
-    await db.collection('diaries').doc(exist.data[0]._id).update({ data: { content: diary, moodSummary, expenseSummary } })
-  } else {
-    await db.collection('diaries').add({ data: { date: d, content: diary, moodSummary, expenseSummary, _openid: OPENID, createdAt: db.serverDate() } })
+  if (!data.txList.length && !data.moodList.length && options.final) content = '今天没有记账或心情记录，给自己留一段安静的时间吧。'
+  const saved = await saveDiary(openid, date, content, data, { updateCount: Number((existing && existing.updateCount) || 0) + 1, manualEdited: !!(existing && existing.manualEdited), finalized: !!options.final, generatedBy: options.final ? 'scheduler' : 'entry' })
+  return { ok: true, diary: saved, empty: !data.txList.length && !data.moodList.length }
+}
+exports.main = async (event) => {
+  const action = event.action || 'generate'
+  const { OPENID } = cloud.getWXContext()
+  const date = event.date || today()
+  if (action === 'diaries.list') {
+    const res = await db.collection('diaries').where({ _openid: OPENID }).limit(500).get()
+    return { ok: true, list: res.data.slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))) }
   }
-
-  return { success: true, diary, expense, income, moods: moodList, empty: false }
+  if (action === 'diaries.get') {
+    const existing = await getDiary(OPENID, date)
+    if (existing) {
+      const data = await getDailyData(OPENID, date)
+      if (existing.dataSignature === data.signature || Number(existing.updateCount || 0) >= MAX_DAILY_UPDATES) return { ok: true, diary: existing, unchanged: true, pendingFinal: Number(existing.updateCount || 0) >= MAX_DAILY_UPDATES }
+    }
+    return generateFor(OPENID, date, { reason: 'entry' })
+  }
+  if (action === 'diaries.generate') return generateFor(OPENID, date, { force: !!event.force, reason: event.reason || 'entry' })
+  if (action === 'diaries.polish') {
+    const content = String(event.content || '').trim()
+    if (!content) return { ok: false, error: '正文为空，无法润色' }
+    try {
+      const model = cloud.ai().createModel('cloudbase')
+      const result = await safeGenerateText(model, { model: 'hy3', messages: [{ role: 'system', content: '你是日记润色助手。保留原文事实、日期、金额、人物和心情，不添加新事实，不进行心理判断；只让文字更通顺自然。只输出润色后的正文。' }, { role: 'user', content }] })
+      return { ok: true, content: (result.text || content).trim() }
+    } catch (e) { return { ok: false, error: 'AI 润色失败：' + (e.message || '请稍后重试') } }
+  }
+  if (action === 'diaries.update') {
+    const existing = await getDiary(OPENID, date)
+    if (!existing) return { ok: false, error: '日记不存在' }
+    await db.collection('diaries').doc(existing._id).update({ data: { title: event.title !== undefined ? event.title : existing.title, content: event.content !== undefined ? event.content : existing.content, contentHtml: event.contentHtml !== undefined ? event.contentHtml : (existing.contentHtml || escapeHtml(event.content || existing.content)), manualEdited: true, updatedAt: db.serverDate() } })
+    return { ok: true }
+  }
+  if (action === 'diaries.delete') {
+    const existing = await getDiary(OPENID, date)
+    if (!existing) return { ok: false, error: '日记不存在' }
+    await db.collection('diaries').doc(existing._id).remove()
+    return { ok: true }
+  }
+  return generateFor(OPENID, date, { reason: 'entry' })
 }

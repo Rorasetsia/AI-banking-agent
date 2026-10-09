@@ -1,0 +1,12 @@
+.form-card { margin: 24rpx; padding: 28rpx 32rpx; background: #fff; border: var(--stroke-width) solid var(--stroke); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+.field { margin-bottom: 24rpx; }
+.field-row { display: flex; gap: 20rpx; }
+.field.half { flex: 1; }
+.label { display: block; margin-bottom: 10rpx; font-size: 24rpx; font-weight: 700; color: var(--text-main); }
+.input, .picker, .textarea { width: 100%; min-height: 72rpx; padding: 14rpx 22rpx; border: var(--stroke-width) solid var(--stroke); border-radius: 18rpx; background: var(--cream); font-size: 28rpx; color: var(--text-main); }
+.textarea { height: 150rpx; }
+.picker { line-height: 42rpx; }
+.actions { margin: 24rpx; display: flex; flex-direction: column; gap: 18rpx; }
+.btn { width: 100%; height: 78rpx; display: flex; align-items: center; justify-content: center; padding: 0; line-height: 1; border-radius: 999rpx; border: var(--stroke-width) solid var(--stroke); font-size: 28rpx; font-weight: 700; }
+.btn.primary { background: var(--primary); color: #fff; }
+.btn.danger { background: #fff; color: #D9534F; }

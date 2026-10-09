@@ -1,0 +1,1 @@
+<view class="settings-card"><text class="settings-title">{{title}}</text><text class="settings-text">{{description}}</text><view class="settings-note">该入口已接通，具体功能会按后续版本逐步补全。</view></view>

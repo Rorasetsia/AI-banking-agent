@@ -1,0 +1,200 @@
+.mascot-shell {
+  position: relative;
+  overflow: visible;
+  pointer-events: auto;
+}
+.layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.shadow {
+  transform-origin: 50% 68%;
+}
+.character {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 86%;
+}
+.wing-left {
+  transform-origin: 36% 52%;
+}
+.wing-right {
+  transform-origin: 66% 47%;
+}
+.feet {
+  transform-origin: 50% 68%;
+}
+
+/* 待机：身体有轻微挤压和回弹，翅膀不跟着整张图僵硬摆动 */
+.state--idle .character {
+  animation: penguin-idle 3.4s cubic-bezier(.45, .05, .55, .95) infinite;
+}
+.state--idle .wing-left {
+  animation: wing-breathe-left 3.4s ease-in-out infinite;
+}
+.state--idle .wing-right {
+  animation: wing-breathe-right 3.4s ease-in-out .35s infinite;
+}
+
+/* 挥翅：先收一下，再抬翅、回摆、二次补摆，最后回落 */
+.state--wave .character {
+  animation: penguin-wave-body 2.2s cubic-bezier(.45, .05, .55, .95);
+}
+.state--wave .wing-left {
+  animation: wing-wave-left 2.2s cubic-bezier(.45, .05, .55, .95);
+}
+.state--wave .wing-right {
+  animation: wing-wave-right 2.2s cubic-bezier(.45, .05, .55, .95);
+}
+.state--wave .feet {
+  animation: feet-wave 2.2s ease-in-out;
+}
+
+/* 跳跃：下蹲蓄力、起跳拉伸、空中收势、落地挤压 */
+.state--jump .character {
+  animation: penguin-jump .82s cubic-bezier(.36, .07, .19, .97);
+}
+.state--jump .shadow {
+  animation: shadow-jump .82s ease-out;
+}
+.state--jump .wing-left {
+  animation: wing-jump-left .82s ease-in-out;
+}
+.state--jump .wing-right {
+  animation: wing-jump-right .82s ease-in-out;
+}
+
+@keyframes penguin-idle {
+  0%, 100% { transform: translateY(0) scale(1, 1) rotate(0deg); }
+  35% { transform: translateY(-3rpx) scale(1.012, 1.018) rotate(.45deg); }
+  70% { transform: translateY(-1rpx) scale(.998, 1.004) rotate(-.35deg); }
+}
+@keyframes wing-breathe-left {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(2deg) translateY(-1rpx); }
+}
+@keyframes wing-breathe-right {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(-2deg) translateY(-1rpx); }
+}
+@keyframes penguin-wave-body {
+  0% { transform: translateY(0) scale(1, 1) rotate(0deg); }
+  12% { transform: translateY(2rpx) scale(1.025, .975) rotate(-.8deg); }
+  28% { transform: translateY(-3rpx) scale(.99, 1.02) rotate(1.1deg); }
+  48% { transform: translateY(-2rpx) scale(1.006, 1.01) rotate(.4deg); }
+  68% { transform: translateY(-3rpx) scale(.994, 1.018) rotate(1deg); }
+  86% { transform: translateY(1rpx) scale(1.012, .99) rotate(-.35deg); }
+  100% { transform: translateY(0) scale(1, 1) rotate(0deg); }
+}
+@keyframes wing-wave-left {
+  0%, 100% { transform: rotate(0deg); }
+  12% { transform: rotate(5deg); }
+  26% { transform: rotate(15deg); }
+  40% { transform: rotate(6deg); }
+  54% { transform: rotate(17deg); }
+  68% { transform: rotate(6deg); }
+  82% { transform: rotate(13deg); }
+}
+@keyframes wing-wave-right {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  12% { transform: rotate(-5deg) translateY(0); }
+  26% { transform: rotate(-15deg) translateY(-2rpx); }
+  40% { transform: rotate(-6deg) translateY(0); }
+  54% { transform: rotate(-17deg) translateY(-2rpx); }
+  68% { transform: rotate(-6deg) translateY(0); }
+  82% { transform: rotate(-13deg) translateY(-1rpx); }
+}
+@keyframes feet-wave {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  28% { transform: translateY(1rpx) scale(.98, .96); }
+  58% { transform: translateY(-2rpx) scale(1.02, 1.01); }
+  84% { transform: translateY(1rpx) scale(.99, .98); }
+}
+@keyframes penguin-jump {
+  0% { transform: translateY(0) scale(1, 1) rotate(0deg); }
+  16% { transform: translateY(5rpx) scale(1.055, .91) rotate(0deg); }
+  34% { transform: translateY(-34rpx) scale(.95, 1.1) rotate(-3deg); }
+  56% { transform: translateY(-26rpx) scale(1.03, 1.015) rotate(3deg); }
+  76% { transform: translateY(2rpx) scale(1.055, .94) rotate(-1deg); }
+  100% { transform: translateY(0) scale(1, 1) rotate(0deg); }
+}
+@keyframes shadow-jump {
+  0%, 100% { opacity: .92; transform: scale(1); }
+  16% { opacity: .8; transform: scale(.92); }
+  36% { opacity: .28; transform: scale(.62); }
+  58% { opacity: .4; transform: scale(.7); }
+  78% { opacity: 1; transform: scale(1.06); }
+}
+@keyframes wing-jump-left {
+  0%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(4deg); }
+  22% { transform: rotate(14deg); }
+  34% { transform: rotate(4deg); }
+  46% { transform: rotate(16deg); }
+  58% { transform: rotate(3deg); }
+  70% { transform: rotate(13deg); }
+  82% { transform: rotate(4deg); }
+}
+@keyframes wing-jump-right {
+  0%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(-4deg); }
+  22% { transform: rotate(-14deg); }
+  34% { transform: rotate(-4deg); }
+  46% { transform: rotate(-16deg); }
+  58% { transform: rotate(-3deg); }
+  70% { transform: rotate(-13deg); }
+  82% { transform: rotate(-4deg); }
+}
+
+
+.mascot-hide {
+  position: absolute;
+  right: -4rpx;
+  top: -4rpx;
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  z-index: 30;
+}
+.mascot-hide-core {
+  width: 46rpx;
+  height: 46rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,.98);
+  color: #0A3323;
+  border: 3rpx solid #0A3323;
+  font-size: 32rpx;
+  line-height: 1;
+  font-weight: 700;
+  box-shadow: 0 4rpx 0 rgba(10,51,35,.18);
+}
+
+.mascot-recall {
+  pointer-events: auto;
+  width: 152rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999rpx;
+  background: #fff;
+  color: #0A3323;
+  border: 3rpx solid #0A3323;
+  box-shadow: 0 5rpx 0 rgba(10,51,35,.14);
+  font-size: 24rpx;
+  font-weight: 700;
+  white-space: nowrap;
+}

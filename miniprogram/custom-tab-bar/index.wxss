@@ -1,0 +1,88 @@
+@import "../icons.wxss";
+
+@keyframes tabPop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+.tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  height: 100rpx;
+  box-sizing: content-box;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: #ffffff;
+  border-top: var(--stroke-width) solid var(--stroke);
+  box-shadow: 0 -4rpx 0 rgba(10, 51, 35, 0.05);
+  z-index: 999;
+}
+
+.tab-item {
+  flex: 1;
+  height: 100rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* 选中态背景固定在图标正后方，避免压住文字 */
+.tab-item.active::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 5rpx;
+  width: 50rpx;
+  height: 50rpx;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: rgba(211, 150, 140, 0.18);
+  border: var(--stroke-width) solid var(--stroke);
+  pointer-events: none;
+}
+
+.tab-icon {
+  position: relative;
+  width: 46rpx;
+  height: 46rpx;
+  margin-bottom: 4rpx;
+  flex-shrink: 0;
+}
+
+.tab-icon .iico {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 46rpx;
+  height: 46rpx;
+  transition: opacity .16s ease;
+}
+
+.tab-icon .on {
+  opacity: 0;
+}
+
+.tab-item.active .tab-icon .on {
+  opacity: 1;
+  animation: tabPop .22s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.tab-text {
+  display: block;
+  height: 22rpx;
+  font-size: 20rpx;
+  line-height: 22rpx;
+  color: rgba(131, 153, 88, 0.70);
+  transition: color .16s ease;
+}
+
+.tab-item.active .tab-text {
+  color: var(--primary);
+  font-weight: 700;
+}
+

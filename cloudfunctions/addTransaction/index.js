@@ -1,10 +1,14 @@
 const cloud = require('wx-server-sdk')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV, timeout: 60000 })
 
+function chinaToday() {
+  const d = new Date(Date.now() + 8 * 60 * 60 * 1000)
+  return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0')
+}
 const CATEGORIES = ['餐饮', '交通', '购物', '娱乐', '居住', '医疗', '教育', '其他']
 
 exports.main = async (event) => {
-  const { amount, category, accountId, remark, date, time, source } = event
+  const { amount, category, accountId, title, merchant, itemName, remark, rawText, tags, people, relationship, socialAction, occasion, memo, date, time, source } = event
   const { OPENID } = cloud.getWXContext()
 
   // 1. 校验必填
@@ -42,13 +46,23 @@ exports.main = async (event) => {
   const data = {
     amount: Number(amount),
     category: finalCategory,
+    title: title || '',
     accountId: accountId || '',
+    merchant: merchant || '',
+    itemName: itemName || '',
     remark: remark || '',
-    date: date || new Date().toISOString().slice(0, 10),
+    rawText: rawText || remark || '',
+    tags: Array.isArray(tags) ? tags : [],
+    people: Array.isArray(people) ? people : [],
+    relationship: relationship || '',
+    socialAction: socialAction || '',
+    occasion: occasion || '',
+    memo: memo || '',
+    date: date || chinaToday(),
     time: time || '',
     source: source || 'chat',
-    merchant: '',
     _openid: OPENID,
+    timezone: 'Asia/Shanghai',
     createdAt: db.serverDate()
   }
   const res = await db.collection('transactions').add({ data })

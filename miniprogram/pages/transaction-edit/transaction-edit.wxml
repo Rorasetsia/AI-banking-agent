@@ -1,0 +1,32 @@
+<view class="form-card">
+  <view class="field">
+    <text class="label">类型</text>
+    <view class="segment">
+      <view class="seg-item {{form.direction === 'expense' ? 'active' : ''}}" data-value="expense" bindtap="pickDirection">支出</view>
+      <view class="seg-item {{form.direction === 'income' ? 'active' : ''}}" data-value="income" bindtap="pickDirection">收入</view>
+    </view>
+  </view>
+  <view class="field"><text class="label">金额</text><input class="input" type="digit" value="{{form.amount}}" data-field="amount" bindinput="onInput" placeholder="例如 35.00" /></view>
+  <view class="field"><text class="label">分类</text><picker mode="selector" range="{{categories}}" bindchange="pickCategory"><view class="picker">{{form.category}}</view></picker></view>
+  <view class="field"><text class="label">标题</text><input class="input" value="{{form.title}}" data-field="title" bindinput="onInput" placeholder="自动概括，可手动修改" /></view>
+  <view class="field"><text class="label">商户</text><input class="input" value="{{form.merchant}}" data-field="merchant" bindinput="onInput" placeholder="例如 喜茶、八合里" /></view>
+  <view class="field"><text class="label">消费内容</text><input class="input" value="{{form.itemName}}" data-field="itemName" bindinput="onInput" placeholder="例如 波波奶茶、聚餐" /></view>
+  <view class="field"><text class="label">备注</text><input class="input" value="{{form.remark}}" data-field="remark" bindinput="onInput" placeholder="简短说明" /></view>
+  <view class="field"><text class="label">同行人</text><input class="input" value="{{form.peopleText}}" data-field="peopleText" bindinput="onInput" placeholder="例如 女朋友、朋友、同事" /></view>
+  <view class="field-row">
+    <view class="field half"><text class="label">关系</text><input class="input" value="{{form.relationship}}" data-field="relationship" bindinput="onInput" placeholder="女朋友" /></view>
+    <view class="field half"><text class="label">社交行为</text><input class="input" value="{{form.socialAction}}" data-field="socialAction" bindinput="onInput" placeholder="请客/聚餐/AA" /></view>
+  </view>
+  <view class="field"><text class="label">场合</text><input class="input" value="{{form.occasion}}" data-field="occasion" bindinput="onInput" placeholder="生日、纪念日、约会" /></view>
+  <view class="field"><text class="label">回忆标签</text><input class="input" value="{{form.tagsText}}" data-field="tagsText" bindinput="onInput" placeholder="多个标签用逗号分隔，如 和朋友，生日" /></view>
+  <view class="field"><text class="label">长备注</text><textarea class="textarea" value="{{form.memo}}" data-field="memo" bindinput="onInput" placeholder="想长期保留的回忆或说明" /></view>
+  <view class="field-row">
+    <view class="field half"><text class="label">日期</text><picker mode="date" value="{{form.date}}" bindchange="pickDate"><view class="picker">{{form.date}}</view></picker></view>
+    <view class="field half"><text class="label">时间</text><picker mode="time" value="{{form.time}}" bindchange="pickTime"><view class="picker">{{form.time || '选择时间'}}</view></picker></view>
+  </view>
+  <view class="field"><text class="label">用户原话</text><input class="input" value="{{form.rawText}}" data-field="rawText" bindinput="onInput" placeholder="AI 原始识别文本，可修改" /></view>
+</view>
+<view class="actions">
+  <button class="btn primary" bindtap="save">保存</button>
+  <button wx:if="{{mode === 'edit'}}" class="btn danger" bindtap="remove">删除记录</button>
+</view>

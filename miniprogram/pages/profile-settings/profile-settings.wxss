@@ -1,0 +1,4 @@
+.settings-card { margin: 24rpx; padding: 34rpx; background: #fff; border: var(--stroke-width) solid var(--stroke); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+.settings-title { display: block; font-size: 34rpx; font-weight: 700; color: var(--text-main); }
+.settings-text { display: block; margin-top: 18rpx; color: var(--text-sub); font-size: 26rpx; line-height: 1.7; }
+.settings-note { margin-top: 28rpx; padding: 20rpx; border-radius: 18rpx; background: var(--cream); color: var(--primary-mid); font-size: 23rpx; }

@@ -1,43 +1,88 @@
-/* 全局设计变量（UI 规范详见 docs/10_UI设计规范.md） */
+@import "icons.wxss";
+
+/* =========================================================
+   全局设计变量 · 森林系描边卡片
+   ========================================================= */
 page {
-  --primary: #3a7afe;
-  --primary-light: #eaf0ff;
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --text-main: #1f2329;
-  --text-sub: #6b7280;
-  --text-light: #9aa0a6;
-  --bg-page: #f7f8fa;
-  --bg-card: #ffffff;
-  --radius: 16rpx;
-  background-color: var(--bg-page);
+  --primary: #839958;
+  --primary-mid: #105666;
+  --primary-light: rgba(131, 153, 88, 0.16);
+  --alt-light: rgba(211, 150, 140, 0.18);
+  --mid-light: rgba(16, 86, 102, 0.12);
+  --cream: #f7f4d5;
+  --stroke: #0a3323;
+  --stroke-width: 3rpx;
+  --text-main: #0a3323;
+  --text-sub: #66756a;
+  --text-light: #98a39b;
+  --divider: rgba(10, 51, 35, 0.12);
+  --radius-lg: 32rpx;
+  --radius-md: 24rpx;
+  --shadow-card: 0 6rpx 0 rgba(10, 51, 35, 0.10);
+  --shadow-float: 0 10rpx 0 rgba(10, 51, 35, 0.16);
+
+  background: #fdf9f5;
   color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 28rpx;
   line-height: 1.6;
 }
 
-/* 通用卡片 */
+view,
+text,
+image,
+input,
+button,
+scroll-view {
+  box-sizing: border-box;
+}
+
+button::after {
+  border: none;
+}
+
+/* 通用描边卡片 */
 .card {
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  padding: 24rpx;
-  margin: 16rpx 24rpx;
-  box-shadow: 0 2rpx 12rpx rgba(31,35,41,0.04);
+  margin: 24rpx;
+  background: #fff;
+  border: var(--stroke-width) solid var(--stroke);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 
-/* 通用按钮 */
-.btn-primary {
-  background: var(--primary);
-  color: #fff;
-  border-radius: 48rpx;
-  padding: 20rpx 48rpx;
-  font-size: 30rpx;
-  text-align: center;
+/* 可点击元素统一按压反馈 */
+.tap {
+  transition: transform .12s ease, opacity .12s ease;
 }
-.btn-primary:active { opacity: 0.85; }
+.tap:active {
+  transform: scale(.96);
+  opacity: .9;
+}
 
-/* 文本工具类 */
-.t-main { color: var(--text-main); }
-.t-sub { color: var(--text-sub); }
-.t-light { color: var(--text-light); }
+/* 入场动画 */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(12rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anim-rise {
+  animation: riseIn .28s ease both;
+}
+.d-0 { animation-delay: 0s; }
+.d-1 { animation-delay: .03s; }
+.d-2 { animation-delay: .06s; }
+.d-3 { animation-delay: .09s; }
+
+/* 自定义 tabBar 底部占位 */
+.tab-safe {
+  height: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+/* 企鹅 IP：各页面统一右下角悬浮 */
+.penguin-float {
+  position: fixed;
+  right: 20rpx;
+  bottom: calc(62rpx + env(safe-area-inset-bottom));
+  z-index: 998;
+  line-height: 0;
+  pointer-events: auto;
+}

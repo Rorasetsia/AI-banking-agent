@@ -1,0 +1,8 @@
+<view class="history-card card">
+  <view class="history-row" wx:for="{{list}}" wx:key="_id">
+    <view class="row-main"><text class="row-name">{{item.name}}</text><text class="row-meta">金额 ¥{{item.amount}} / {{item.cycle}} · 来源 {{item.sourceText}}</text><text class="row-meta">初次订阅 {{item.startDate || '未记录'}} · 结束于历史</text></view>
+    <text class="row-status">已取消</text>
+  </view>
+  <view wx:if="{{!loading && list.length === 0}}" class="empty">暂无历史订阅</view>
+  <view wx:if="{{loading}}" class="loading">加载中…</view>
+</view>

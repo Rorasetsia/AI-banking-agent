@@ -1,4 +1,6 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "mascot-penguin": "/components/mascot-penguin/index"
+  },
   "navigationBarTitleText": "对话记账"
 }

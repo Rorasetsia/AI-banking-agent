@@ -1,0 +1,17 @@
+<view class="diary-card card" wx:if="{{diary && mode === 'read'}}">
+  <image class="read-decor" src="/assets/decorations/reading.png" mode="aspectFit" /><view class="read-head"><text class="read-title">{{title}}</text><text class="date-line">{{date}}</text></view>
+  <scroll-view scroll-y class="read-content {{expanded ? 'expanded' : ''}}"><rich-text nodes="{{contentHtml}}"></rich-text></scroll-view>
+  <view wx:if="{{isLong}}" class="expand-toggle tap" bindtap="toggleExpanded">{{expanded ? '收起正文' : '展开全文'}}</view>
+</view>
+<view class="diary-card card edit-card" wx:if="{{diary && mode === 'edit'}}">
+  <input class="title-input" value="{{title}}" bindinput="onTitle" placeholder="给这篇日记起个名字" />
+  <view class="toolbar"><view class="tool-btn tap" data-type="bold" catchtouchend="format"><text class="tool-bold">B</text></view><view class="tool-btn tap" catchtouchend="chooseFontSize">字号</view><view class="tool-btn tap" catchtouchend="undo">撤销</view><view class="tool-btn polish-btn tap" bindtap="polish">AI润色</view></view>
+  <view class="color-row"><view class="color-dot tap" wx:for="{{colors}}" wx:key="*this" data-color="{{item}}" style="background:{{item}}" catchtouchend="setColor"></view></view>
+  <editor id="diaryEditor" class="editor" placeholder="写下今天的记录…" bindready="initEditor" bindinput="onEditorInput"></editor>
+  <view class="edit-footer"><view class="trash-btn tap" bindtap="remove">🗑</view><button class="btn ghost small" bindtap="cancelEdit">取消</button><button class="btn primary small" bindtap="save" loading="{{saving}}">保存</button></view>
+  <view class="edit-tip">手动编辑后可以再次点击“AI润色”，并选择是否采用结果。</view>
+</view>
+<view class="read-actions" wx:if="{{diary && mode === 'read'}}"><button class="btn primary" bindtap="enterEdit">编辑日记</button><button class="btn ghost" bindtap="exportDiary">导出</button></view>
+<view class="empty" wx:if="{{empty}}"><text>今天还没有消费或心情记录</text><button class="empty-btn" bindtap="goList">查看历史日记</button></view>
+<view class="loading" wx:if="{{loading}}">正在生成日记，请稍候…</view>
+<view class="polish-mask" wx:if="{{showPolish}}" catchtouchmove="noop"><view class="polish-card"><text class="polish-title">AI 润色对比</text><text class="polish-label">润色前</text><scroll-view scroll-y class="polish-box"><text>{{originalText}}</text></scroll-view><text class="polish-label">润色后</text><scroll-view scroll-y class="polish-box polished"><text>{{polishedText}}</text></scroll-view><view class="polish-actions"><button class="btn ghost small" bindtap="keepOriginal">保留原文</button><button class="btn primary small" bindtap="applyPolish">采用润色</button></view></view></view>

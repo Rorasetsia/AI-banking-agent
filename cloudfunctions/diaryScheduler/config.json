@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "openapi": []
+  },
+  "triggers": [
+    {
+      "name": "dailyDiaryFinalize",
+      "type": "timer",
+      "config": "0 0 23 * * * *"
+    }
+  ],
+  "timeout": 60
+}

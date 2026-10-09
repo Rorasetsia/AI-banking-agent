@@ -1,11 +1,75 @@
-<view class="card summary">
-  <text class="s-label">本月支出</text>
-  <text class="s-amount">¥{{monthExpense}}</text>
-</view>
-<view class="card">
-  <view class="row" wx:for="{{list}}" wx:key="index">
-    <text>{{item.name}}</text><text>{{item.amount}}</text>
+<!-- 本月概览 -->
+<view class="summary anim-rise d-0">
+  <view class="summary-orb"></view>
+  <image class="decor decor-walking" src="/assets/decorations/walking.png" mode="aspectFit" />
+  <view class="s-label">{{tab === 'personal' ? '个人账本' : '共同账本'}} · {{viewDateLabel}}支出</view>
+  <view class="s-amount"><text class="cny">¥</text>{{expense}}</view>
+  <view class="s-sub">理性消费，未来更从容 · 收入 ¥{{income}} · 共 {{total}} 笔</view>
+  <view class="month-summary">
+    <text>本月支出 ¥{{monthExpense}} · {{monthCount}} 笔</text>
+    <view class="budget-row" bindtap="openBudgetGoals"><view class="budget-chip tap" bindtap="openBudgetGoals">月预算 {{budgetMonth || '未设置'}}</view><view class="budget-chip tap" bindtap="openBudgetGoals">日预算 {{budgetDay || '未设置'}}</view></view>
   </view>
-  <view wx:if="{{list.length === 0}}" class="empty">暂无流水，去「记一笔」说句话吧</view>
 </view>
-<view class="ask-ai" bindtap="askAI">💬 用自然语言问账（如：这月吃饭花了多少）</view>
+
+<!-- 账本切换 -->
+<view class="ledger-tabs">
+  <view class="ledger-tab {{tab === 'personal' ? 'active' : ''}}" data-tab="personal" bindtap="switchTab">个人账本</view>
+  <view class="ledger-tab {{tab === 'shared' ? 'active' : ''}}" data-tab="shared" bindtap="switchTab">共同账本</view>
+</view>
+
+<block wx:if="{{tab === 'personal' || hasShared}}">
+  <!-- 筛选 -->
+  <view class="filter-card">
+    <picker mode="date" value="{{viewDate}}" end="{{today}}" bindchange="onDateChange"><view class="filter-pill">{{viewDateLabel}}</view></picker>
+    <picker mode="selector" range="{{categories}}" value="{{categoryIndex}}" bindchange="onCategoryChange"><view class="filter-pill">{{categories[categoryIndex]}}</view></picker>
+    <input class="filter-input" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="search" placeholder="商户、商品、备注" />
+    <view class="search-btn tap" bindtap="search">查询</view>
+  </view>
+
+  <!-- 共同账本邀请 -->
+  <view wx:if="{{tab === 'shared' && hasShared}}" class="invite-card">
+    <view class="invite-main"><text class="invite-label">邀请码</text><text class="invite-code">{{sharedLedger.inviteCode}}</text><text class="member-text">{{memberText}} · {{relationshipText}}</text></view>
+    <view class="invite-actions">
+      <view class="invite-btn tap" bindtap="copyCode">复制</view>
+      <button class="invite-btn share-btn" open-type="share">分享</button>
+      <view class="invite-btn tap" bindtap="setRelationship">关系</view>
+      <view class="invite-btn danger tap" bindtap="leaveLedger">退出</view>
+    </view>
+  </view>
+
+  <view class="history-entry tap" bindtap="openHistory">查看更多历史订单</view>
+
+  <!-- 流水列表 -->
+  <view class="add-entry tap" bindtap="addTransaction">＋ 手动记一笔</view>
+
+  <view class="card list-card anim-rise d-1">
+    <view class="row tap" wx:for="{{list}}" wx:key="_id" data-id="{{item._id}}" bindtap="openItem">
+      <view class="row-main">
+        <view class="row-top"><text class="row-name">{{item.title || item.merchant || item.itemName || item.remark || item.category}}</text><text class="row-amount {{item.amount > 0 ? 'income' : ''}}">{{item.amountText}}</text></view>
+        <view class="row-meta">{{item.date}} {{item.time}} · {{item.category}} · {{item.sourceText}}</view>
+        <view wx:if="{{item.itemName || item.remark}}" class="row-note">{{item.itemName}}{{item.remark && item.itemName ? ' · ' : ''}}{{item.remark}}</view>
+        <view wx:if="{{item.contextText}}" class="row-note">{{item.contextText}}</view>
+        <view wx:if="{{item.tags.length}}" class="row-tags"><text class="tag" wx:for="{{item.tags}}" wx:key="*this">{{item}}</text></view>
+      </view>
+    </view>
+    <view wx:if="{{!loading && list.length === 0}}" class="empty">
+      <view class="empty-ico"><view class="iico iico-lg file-inactive"></view></view>
+      <text class="empty-text">暂无流水，去「记一笔」说句话吧</text>
+    </view>
+    <view wx:if="{{loading}}" class="loading">加载中…</view>
+  </view>
+
+</block>
+
+<!-- 无共同账本 -->
+<view wx:else class="shared-empty">
+  <view class="empty-ico"><view class="iico iico-lg user-active"></view></view>
+  <text class="empty-title">还没有共同账本</text>
+  <text class="empty-sub">创建后可以邀请另一个人一起记账</text>
+  <view class="primary-btn tap" bindtap="createLedger">去创建共同账本</view>
+  <view class="join-box"><input class="join-input" value="{{inviteInput}}" bindinput="onInviteInput" placeholder="输入邀请码加入共同账本" /><view class="join-btn tap" bindtap="joinByCode">加入</view></view>
+</view>
+
+<!-- 企鹅 IP -->
+<view class="penguin-float"><mascot-penguin size="{{256}}" /></view>
+<view class="tab-safe"></view>

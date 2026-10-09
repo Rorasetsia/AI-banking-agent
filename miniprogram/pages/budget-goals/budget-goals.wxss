@@ -1,0 +1,24 @@
+.tabs { display: flex; gap: 16rpx; margin: 24rpx; padding: 8rpx; background: rgba(10,51,35,.06); border-radius: 999rpx; }
+.tab { flex: 1; height: 66rpx; display: flex; align-items: center; justify-content: center; border-radius: 999rpx; color: var(--text-sub); font-size: 26rpx; font-weight: 700; }
+.tab.active { background: #fff; color: var(--primary-mid); border: var(--stroke-width) solid var(--stroke); box-shadow: 0 4rpx 0 rgba(10,51,35,.12); }
+.total-card, .category-card, .goal-card { padding: 28rpx; }
+.section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18rpx; }
+.section-title { font-size: 30rpx; font-weight: 700; color: var(--text-main); }
+.add-link, .link { color: var(--primary-mid); font-size: 23rpx; font-weight: 700; }
+.link.danger { color: #D9534F; }
+.total-row { display: flex; gap: 18rpx; }
+.total-item { flex: 1; padding: 22rpx; background: var(--cream); border: 2rpx solid var(--stroke); border-radius: 20rpx; display: flex; flex-direction: column; }
+.total-item .label { font-size: 22rpx; color: var(--text-sub); }
+.total-item .value { margin-top: 8rpx; font-size: 34rpx; font-weight: 700; color: var(--primary-mid); }
+.small-btn { margin-top: 14rpx; padding: 9rpx 12rpx; text-align: center; border-radius: 999rpx; background: var(--primary); color: #fff; font-size: 21rpx; }
+.hint { margin-top: 16rpx; color: var(--text-light); font-size: 21rpx; line-height: 1.5; }
+.category-row, .goal-item { padding: 18rpx 0; border-bottom: 1rpx solid var(--divider); }
+.category-row { display: flex; justify-content: space-between; }
+.category-name, .goal-name { display: block; font-size: 27rpx; font-weight: 700; color: var(--text-main); }
+.category-meta, .goal-meta { display: block; margin-top: 6rpx; font-size: 21rpx; color: var(--text-light); }
+.actions { display: flex; gap: 18rpx; align-items: center; }
+.goal-top { display: flex; justify-content: space-between; }
+.goal-money { font-size: 23rpx; color: var(--primary-mid); font-weight: 700; }
+.progress { height: 14rpx; margin-top: 16rpx; background: rgba(10,51,35,.08); border-radius: 999rpx; overflow: hidden; }
+.progress-inner { height: 100%; background: var(--primary); border-radius: 999rpx; }
+.empty { padding: 40rpx 0; text-align: center; color: var(--text-light); font-size: 23rpx; }

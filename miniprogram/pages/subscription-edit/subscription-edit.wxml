@@ -1,0 +1,18 @@
+<view class="form-card">
+  <view class="field"><text class="label">订阅名称</text><input class="input" value="{{form.name}}" data-field="name" bindinput="onInput" placeholder="例如 腾讯视频 VIP" /></view>
+  <view class="field"><text class="label">商户/服务商</text><input class="input" value="{{form.merchant}}" data-field="merchant" bindinput="onInput" placeholder="例如 腾讯视频" /></view>
+  <view class="field"><text class="label">金额</text><input class="input" type="digit" value="{{form.amount}}" data-field="amount" bindinput="onInput" placeholder="每期金额" /></view>
+  <view class="field"><text class="label">扣费周期</text><picker mode="selector" range="{{cycleLabels}}" value="{{cycleIndex}}" bindchange="onCycleChange"><view class="picker">{{cycleLabels[cycleIndex]}}</view></picker></view>
+  <view class="field-row">
+    <view class="field half"><text class="label">开始日期</text><picker mode="date" value="{{form.startDate}}" bindchange="pickStartDate"><view class="picker">{{form.startDate || '选择日期'}}</view></picker></view>
+    <view class="field half"><text class="label">下次扣费</text><picker mode="date" value="{{form.nextDate}}" bindchange="pickNextDate"><view class="picker">{{form.nextDate || '自动计算'}}</view></picker></view>
+  </view>
+  <view class="field"><text class="label">状态</text><switch checked="{{form.status !== 'cancelled'}}" color="#839958" bindchange="onStatusChange" /></view>
+  <view class="field"><text class="label">自动续费</text><switch checked="{{form.autoRenew}}" color="#839958" bindchange="onAutoRenewChange" /></view>
+  <view class="field"><text class="label">标签</text><input class="input" value="{{form.tagsText}}" data-field="tagsText" bindinput="onInput" placeholder="例如 娱乐，常用" /></view>
+  <view class="field"><text class="label">备注</text><textarea class="textarea" value="{{form.notes}}" data-field="notes" bindinput="onInput" placeholder="补充说明" /></view>
+</view>
+<view class="actions">
+  <button class="btn primary" bindtap="save">保存</button>
+  <button wx:if="{{mode === 'edit' && form.status !== 'cancelled'}}" class="btn danger" bindtap="cancel">取消订阅</button>
+</view>
