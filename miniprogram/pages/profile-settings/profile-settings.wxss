@@ -1,4 +1,12 @@
 .settings-card { margin: 24rpx; padding: 34rpx; background: #fff; border: var(--stroke-width) solid var(--stroke); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
-.settings-title { display: block; font-size: 34rpx; font-weight: 700; color: var(--text-main); }
-.settings-text { display: block; margin-top: 18rpx; color: var(--text-sub); font-size: 26rpx; line-height: 1.7; }
+.settings-title { display: block; font-size: 34rpx; font-weight: 700; color: var(--text-main); text-align: center; }
+.settings-text { display: block; margin-top: 14rpx; color: var(--text-sub); font-size: 24rpx; line-height: 1.6; text-align: center; }
+.doc-tabs { display: flex; gap: 14rpx; margin: 26rpx 0; padding: 8rpx; background: rgba(10,51,35,.06); border-radius: 999rpx; }
+.doc-tab { flex: 1; height: 62rpx; display: flex; align-items: center; justify-content: center; border-radius: 999rpx; color: var(--text-sub); font-size: 24rpx; font-weight: 700; }
+.doc-tab.active { background: #fff; color: var(--primary-mid); border: 2rpx solid var(--stroke); }
+.doc-content { margin-top: 8rpx; }
+.doc-section { padding: 20rpx 0; border-bottom: 1rpx solid var(--divider); }
+.doc-section-title { display: block; font-size: 27rpx; font-weight: 700; color: var(--text-main); }
+.doc-section-text { display: block; margin-top: 9rpx; font-size: 24rpx; line-height: 1.75; color: var(--text-sub); }
+.doc-note { display: block; margin-top: 24rpx; color: var(--text-light); font-size: 21rpx; line-height: 1.5; }
 .settings-note { margin-top: 28rpx; padding: 20rpx; border-radius: 18rpx; background: var(--cream); color: var(--primary-mid); font-size: 23rpx; }

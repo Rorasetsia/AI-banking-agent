@@ -1,1 +1,5 @@
-<view class="settings-card"><text class="settings-title">{{title}}</text><text class="settings-text">{{description}}</text><view class="settings-note">该入口已接通，具体功能会按后续版本逐步补全。</view></view>
+<view class="settings-card"><text class="settings-title">{{title}}</text><text class="settings-text">{{description}}</text>
+  <view wx:if="{{type === 'privacy'}}" class="doc-tabs"><view class="doc-tab {{docType === 'privacy' ? 'active' : ''}}" data-doc="privacy" bindtap="switchDoc">隐私政策</view><view class="doc-tab {{docType === 'agreement' ? 'active' : ''}}" data-doc="agreement" bindtap="switchDoc">用户协议</view></view>
+  <view wx:if="{{type === 'privacy'}}" class="doc-content"><view class="doc-section" wx:for="{{sections}}" wx:key="title"><text class="doc-section-title">{{item.title}}</text><text class="doc-section-text">{{item.text}}</text></view><text class="doc-note">以上为项目提审草案，正式发布前请由项目成员确认联系方式和最终条款。</text></view>
+  <view wx:else class="settings-note">该入口已接通，具体功能会按后续版本逐步补全。</view>
+</view>
