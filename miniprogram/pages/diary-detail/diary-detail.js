@@ -1,6 +1,6 @@
 function escapeHtml(value) { return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br/>') }
 Page({
-  data: { date: '', diary: null, title: '', content: '', contentHtml: '', mode: 'read', isLong: false, expanded: false, loading: true, saving: false, empty: false, showPolish: false, polishedText: '', originalText: '', colors: ['#0A3323', '#839958', '#105666', '#D3968C', '#D9534F', '#8B6F47'] },
+  data: { date: '', diary: null, title: '', highlight: '', content: '', contentHtml: '', mode: 'read', isLong: false, expanded: false, loading: true, saving: false, empty: false, showPolish: false, polishedText: '', originalText: '', colors: ['#0A3323', '#839958', '#105666', '#D3968C', '#D9534F', '#8B6F47'] },
   onLoad(options) { const date = options.date || this.today(); this.setData({ date }); this.loadDiary(date) },
   today() { const d = new Date(Date.now() + 8 * 60 * 60 * 1000); return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0') },
   loadDiary(date) {
@@ -9,7 +9,7 @@ Page({
       wx.hideLoading(); const result = res.result || {}; const diary = result.diary
       if (!diary) return this.setData({ loading: false, empty: true })
       const content = diary.content || ''; const contentHtml = diary.contentHtml || escapeHtml(content)
-      this.setData({ diary, title: diary.title || date, content, contentHtml, isLong: content.length > 260 || content.split('\n').length > 6, loading: false, empty: false })
+      this.setData({ diary, title: diary.title || date, highlight: diary.highlight || '', content, contentHtml, isLong: content.length > 260 || content.split('\n').length > 6, loading: false, empty: false })
     }).catch(() => { wx.hideLoading(); this.setData({ loading: false }); wx.showToast({ title: '日记加载失败', icon: 'none' }) })
   },
   toggleExpanded() { this.setData({ expanded: !this.data.expanded }) },
@@ -29,6 +29,7 @@ Page({
     }).exec()
   },
   onTitle(e) { this.setData({ title: e.detail.value }) },
+  onHighlight(e) { this.setData({ highlight: e.detail.value }) },
   pushUndo() {
     if (!this._lastEditorHtml) return
     this.undoStack = this.undoStack || []
@@ -72,7 +73,7 @@ Page({
   save() {
     this.getEditorContent().then(({ html, text }) => {
       this.setData({ saving: true })
-      wx.cloud.callFunction({ name: 'generateDiary', data: { action: 'diaries.update', date: this.data.date, title: this.data.title, content: text, contentHtml: html } }).then(res => {
+      wx.cloud.callFunction({ name: 'generateDiary', data: { action: 'diaries.update', date: this.data.date, title: this.data.title, highlight: this.data.highlight, content: text, contentHtml: html } }).then(res => {
         const result = res.result || {}; this.setData({ saving: false })
         if (!result.ok) return wx.showToast({ title: result.error || '保存失败', icon: 'none' })
         this.setData({ mode: 'read', content: text, contentHtml: html, isLong: text.length > 260 || text.split('\n').length > 6 })

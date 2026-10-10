@@ -32,7 +32,7 @@
   <view class="mood-row {{item === 'morning' ? 'mood-row-first' : item === 'noon' ? 'mood-row-middle' : 'mood-row-last'}}" wx:for="{{['morning','noon','night']}}" wx:key="*this">
     <view class="mood-period">{{item === 'morning' ? '早' : item === 'noon' ? '中' : '晚'}}</view>
     <view wx:if="{{moodValues[item]}}" class="mood-selected anim-rise">
-      <text class="mood-selected-text">{{item === 'morning' ? '今早' : item === 'noon' ? '今天中午' : '今晚'}}心情：{{moodValues[item]}}</text>
+      <text class="mood-selected-text">{{item === 'morning' ? '今早' : item === 'noon' ? '今天下午' : '今晚'}}心情：{{moodValues[item]}}</text>
       <text class="mood-reset" data-period="{{item}}" bindtap="resetMood">重选</text>
     </view>
     <view wx:else class="mood-tags">
@@ -55,6 +55,13 @@
     <text class="q-name">今日日记</text>
   </view>
   <image class="decor decor-cake" src="/assets/decorations/cake.png" mode="aspectFit" />
+</view>
+
+<!-- 今日大事记 -->
+<view class="card highlight-card anim-rise d-2">
+  <view class="highlight-head"><text class="sec-title">今日大事记</text><text class="highlight-hint">一句话概括今天做了什么</text></view>
+  <textarea class="highlight-input" value="{{highlight}}" bindinput="onHighlightInput" maxlength="120" placeholder="例如：今天和朋友去吃了一家很好吃的店" />
+  <view class="highlight-actions"><text class="highlight-tip">会同步到今日日记</text><view class="highlight-save tap" bindtap="saveHighlight">{{highlightSaving ? '保存中' : '保存'}}</view></view>
 </view>
 
 <!-- 企鹅 IP：右下角固定 -->

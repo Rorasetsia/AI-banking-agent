@@ -5,6 +5,7 @@
 </view>
 <view class="diary-card card edit-card" wx:if="{{diary && mode === 'edit'}}">
   <input class="title-input" value="{{title}}" bindinput="onTitle" placeholder="给这篇日记起个名字" />
+  <input class="highlight-input" value="{{highlight}}" bindinput="onHighlight" placeholder="今日大事记：一句话概括今天做了什么" />
   <view class="toolbar"><view class="tool-btn tap" data-type="bold" catchtouchend="format"><text class="tool-bold">B</text></view><view class="tool-btn tap" catchtouchend="chooseFontSize">字号</view><view class="tool-btn tap" catchtouchend="undo">撤销</view><view class="tool-btn polish-btn tap" bindtap="polish">AI润色</view></view>
   <view class="color-row"><view class="color-dot tap" wx:for="{{colors}}" wx:key="*this" data-color="{{item}}" style="background:{{item}}" catchtouchend="setColor"></view></view>
   <editor id="diaryEditor" class="editor" placeholder="写下今天的记录…" bindready="initEditor" bindinput="onEditorInput"></editor>

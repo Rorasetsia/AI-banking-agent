@@ -104,9 +104,21 @@ async function listTransactions(event, openid) {
   const current = event.data || event
   const ledgerId = current.ledgerId || ''
   if (!(await checkLedgerMember(openid, ledgerId))) return { ok: false, error: '无权访问该共同账本' }
-  const where = ledgerId ? { ledgerId } : { _openid: openid }
-  const res = await db.collection('transactions').where(where).limit(1000).get()
-  let list = res.data.filter(item => transactionVisible(item, openid, ledgerId))
+  let list = []
+  if (ledgerId) {
+    const res = await db.collection('transactions').where({ ledgerId }).limit(1000).get()
+    list = res.data.filter(item => transactionVisible(item, openid, ledgerId))
+  } else {
+    const personalRes = await db.collection('transactions').where({ _openid: openid }).limit(1000).get()
+    list = personalRes.data.filter(item => transactionVisible(item, openid, ''))
+    if (current.includeShared) {
+      const ledgers = await db.collection('ledgers').where({ members: openid }).get()
+      for (const ledger of ledgers.data) {
+        const sharedRes = await db.collection('transactions').where({ ledgerId: ledger._id }).limit(1000).get()
+        list = list.concat(sharedRes.data)
+      }
+    }
+  }
   const range = current.startDate && current.endDate ? { start: current.startDate, end: current.endDate } : periodRange(current.period || 'month')
   if (range) list = list.filter(item => item.date >= range.start && item.date <= range.end)
   if (current.category) list = list.filter(item => item.category === current.category)

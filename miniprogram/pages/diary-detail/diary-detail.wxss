@@ -33,3 +33,7 @@
 
 .color-row { display: flex; flex-wrap: wrap; gap: 18rpx; margin: 4rpx 0 18rpx; padding: 14rpx 18rpx; background: #fff; border: 2rpx solid var(--divider); border-radius: 18rpx; }
 .color-dot { width: 44rpx; height: 44rpx; border-radius: 50%; border: 3rpx solid #fff; box-shadow: 0 0 0 2rpx rgba(10,51,35,.35); box-sizing: border-box; }
+
+.read-highlight { margin: 22rpx 0; padding: 18rpx 22rpx; border-radius: 18rpx; background: var(--primary-light); color: var(--text-main); font-size: 24rpx; line-height: 1.6; }
+.read-highlight-label { display: block; margin-bottom: 6rpx; color: var(--primary-mid); font-size: 21rpx; font-weight: 700; }
+.highlight-input { width: 100%; height: 76rpx; margin-top: 14rpx; padding: 0 18rpx; background: var(--cream); border: var(--stroke-width) solid var(--stroke); border-radius: 18rpx; font-size: 24rpx; box-sizing: border-box; }

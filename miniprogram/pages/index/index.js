@@ -6,7 +6,9 @@ Page({
     moodValues: { morning: '', noon: '', night: '' },
     morning: '', noon: '', night: '',
     customMoods: { morning: '', noon: '', night: '' },
-    reminders: []
+    reminders: [],
+    highlight: '',
+    highlightSaving: false
   },
   onLoad() {
     const customMoods = wx.getStorageSync('customMoods') || {};
@@ -24,6 +26,32 @@ Page({
     if (tabBar && tabBar.data.selected !== 0) {
       tabBar.setData({ selected: 0 });
     }
+    this.loadTodaySummary();
+    this.loadHighlight();
+  },
+  loadTodaySummary() {
+    const date = this.today();
+    wx.cloud.callFunction({ name: 'ledgerService', data: { action: 'transactions.list', includeShared: true, startDate: date, endDate: date, limit: 1000 } }).then(res => {
+      const result = res.result || {};
+      if (!result.ok) return;
+      this.setData({ todayExpense: Number(result.expense || 0).toFixed(2), todayIncome: Number(result.income || 0).toFixed(2) });
+    }).catch(() => {});
+  },
+  loadHighlight() {
+    wx.cloud.callFunction({ name: 'generateDiary', data: { action: 'diaries.peek', date: this.today() } }).then(res => {
+      const diary = (res.result || {}).diary;
+      if (diary) this.setData({ highlight: diary.highlight || '' });
+    }).catch(() => {});
+  },
+  onHighlightInput(e) { this.setData({ highlight: e.detail.value }); },
+  saveHighlight() {
+    this.setData({ highlightSaving: true });
+    wx.cloud.callFunction({ name: 'generateDiary', data: { action: 'diaries.highlight', date: this.today(), highlight: this.data.highlight } }).then(res => {
+      const result = res.result || {};
+      this.setData({ highlightSaving: false });
+      if (!result.ok) return wx.showToast({ title: '保存失败', icon: 'none' });
+      wx.showToast({ title: '今日大事记已保存', icon: 'success' });
+    }).catch(() => { this.setData({ highlightSaving: false }); wx.showToast({ title: '保存失败', icon: 'none' }); });
   },
   loadReminders() {
     const db = wx.cloud.database();

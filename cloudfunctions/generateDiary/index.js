@@ -49,7 +49,7 @@ async function getDiary(openid, date) {
 async function saveDiary(openid, date, content, data, extra) {
   const existing = await getDiary(openid, date)
   const contentHtml = (extra && extra.contentHtml) || escapeHtml(content)
-  const payload = Object.assign({ title: (existing && existing.title) || date, content, contentHtml, moodSummary: data.moodList.map(x => x.mood).join('/'), expenseSummary: '支出 ' + data.expense + ' 元，收入 ' + data.income + ' 元', dataSignature: data.signature, lastGeneratedAt: db.serverDate(), updatedAt: db.serverDate() }, extra || {})
+  const payload = Object.assign({ title: (existing && existing.title) || date, highlight: (extra && extra.highlight !== undefined) ? extra.highlight : ((existing && existing.highlight) || ''), content, contentHtml, moodSummary: data.moodList.map(x => x.mood).join('/'), expenseSummary: '支出 ' + data.expense + ' 元，收入 ' + data.income + ' 元', dataSignature: data.signature, lastGeneratedAt: db.serverDate(), updatedAt: db.serverDate() }, extra || {})
   if (existing) {
     await db.collection('diaries').doc(existing._id).update({ data: payload })
     return Object.assign({}, existing, payload)
@@ -64,7 +64,8 @@ async function generateFor(openid, date, options) {
   if (existing && existing.dataSignature === data.signature && !options.force) return { ok: true, unchanged: true, diary: existing }
   if (existing && !options.final && Number(existing.updateCount || 0) >= MAX_DAILY_UPDATES) return { ok: true, pendingFinal: true, diary: existing }
   const ai = cloud.ai(); const model = ai.createModel('cloudbase')
-  const summary = { date, expense: data.expense, income: data.income, transactions: data.txList.map(x => ({ amount: x.amount, category: x.category, merchant: x.merchant || '', itemName: x.itemName || '', remark: x.remark || '', rawText: x.rawText || '', tags: x.tags || [] })), moods: data.moodList.map(x => ({ period: x.period, mood: x.mood, customTag: x.customTag || '' })) }
+  const summary = { date, expense: data.expense, income: data.income, highlight: (existing && existing.highlight) || '',
+    transactions: data.txList.map(x => ({ amount: x.amount, category: x.category, merchant: x.merchant || '', itemName: x.itemName || '', remark: x.remark || '', rawText: x.rawText || '', tags: x.tags || [] })), moods: data.moodList.map(x => ({ period: x.period, mood: x.mood, customTag: x.customTag || '' })) }
   let content
   try {
     const prior = existing && existing.manualEdited ? '已有内容（必须保留，不要删除或覆盖）：' + (existing.content || '') + '\n' : ''
@@ -82,6 +83,21 @@ exports.main = async (event) => {
   const action = event.action || 'generate'
   const { OPENID } = cloud.getWXContext()
   const date = event.date || today()
+  if (action === 'diaries.peek') {
+    const existing = await getDiary(OPENID, date)
+    return { ok: true, diary: existing }
+  }
+  if (action === 'diaries.highlight') {
+    const highlight = String(event.highlight || '').trim()
+    const existing = await getDiary(OPENID, date)
+    if (existing) {
+      await db.collection('diaries').doc(existing._id).update({ data: { highlight, manualEdited: true, updatedAt: db.serverDate() } })
+    } else {
+      const data = await getDailyData(OPENID, date)
+      await saveDiary(OPENID, date, '', data, { highlight, manualEdited: true, updateCount: 0, finalized: false, generatedBy: 'user-highlight' })
+    }
+    return { ok: true, highlight }
+  }
   if (action === 'diaries.list') {
     const res = await db.collection('diaries').where({ _openid: OPENID }).limit(500).get()
     return { ok: true, list: res.data.slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))) }
@@ -107,7 +123,7 @@ exports.main = async (event) => {
   if (action === 'diaries.update') {
     const existing = await getDiary(OPENID, date)
     if (!existing) return { ok: false, error: '日记不存在' }
-    await db.collection('diaries').doc(existing._id).update({ data: { title: event.title !== undefined ? event.title : existing.title, content: event.content !== undefined ? event.content : existing.content, contentHtml: event.contentHtml !== undefined ? event.contentHtml : (existing.contentHtml || escapeHtml(event.content || existing.content)), manualEdited: true, updatedAt: db.serverDate() } })
+    await db.collection('diaries').doc(existing._id).update({ data: { title: event.title !== undefined ? event.title : existing.title, highlight: event.highlight !== undefined ? event.highlight : existing.highlight, content: event.content !== undefined ? event.content : existing.content, contentHtml: event.contentHtml !== undefined ? event.contentHtml : (existing.contentHtml || escapeHtml(event.content || existing.content)), manualEdited: true, updatedAt: db.serverDate() } })
     return { ok: true }
   }
   if (action === 'diaries.delete') {

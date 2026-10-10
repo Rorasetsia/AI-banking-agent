@@ -32,6 +32,7 @@ exports.main = async (event) => {
     if (!tx.length && !moods.length && existing) continue
     const payload = {
       title: (existing && existing.title) || date,
+      highlight: (existing && existing.highlight) || '',
       content: existing && existing.manualEdited && existing.content ? existing.content + '\n\n今日补充：\n' + content : content,
       moodSummary: moods.map(x => x.mood).join('/'),
       expenseSummary: '支出 ' + (tx.filter(x => x.amount < 0).reduce((s, x) => s + Math.abs(x.amount), 0)) + ' 元',
