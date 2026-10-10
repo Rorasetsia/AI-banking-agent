@@ -1,0 +1,30 @@
+<view class="page">
+  <view class="intro-card card">
+    <view class="intro-orb"></view>
+    <text class="intro-kicker">TODAY'S MOMENT</text>
+    <text class="intro-title">今天，最想记住什么？</text>
+    <text class="intro-date">{{displayDate}}</text>
+  </view>
+
+  <view class="editor-card card">
+    <view class="editor-head">
+      <text class="editor-label">写下今天的一件事</text>
+      <text class="editor-count {{count >= maxLength ? 'at-limit' : ''}}">{{count}} / {{maxLength}}</text>
+    </view>
+    <textarea
+      class="editor"
+      value="{{highlight}}"
+      bindinput="onInput"
+      maxlength="{{maxLength}}"
+      placeholder="例如：和朋友去吃了一家很好吃的店"
+      placeholder-class="editor-placeholder"
+    />
+    <view class="editor-tip">只写一句最想留下的话就好，之后还可以回来修改。</view>
+  </view>
+
+  <view class="actions">
+    <button class="btn primary" bindtap="save" loading="{{saving}}" disabled="{{saving}}">{{originalHighlight ? '保存修改' : '保存大事记'}}</button>
+    <button class="btn ghost" wx:if="{{originalHighlight}}" bindtap="clearHighlight" disabled="{{saving}}">清空</button>
+    <button class="btn plain" bindtap="goBack" disabled="{{saving}}">取消</button>
+  </view>
+</view>

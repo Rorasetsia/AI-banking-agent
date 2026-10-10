@@ -4,13 +4,7 @@
   <view class="sum-sub">{{count}} 个生效订阅</view>
 </view>
 
-<view class="scan-card tap anim-rise d-1" bindtap="scan">
-  <view class="scan-ico"><view class="iico iico-md search-white"></view></view>
-  <view class="scan-body"><text class="scan-title">订阅体检</text><text class="scan-sub">自动识别你的订阅扣费，生成体检报告</text></view>
-  <image class="decor decor-cycling" src="/assets/decorations/cycling.png" mode="aspectFit" />
-</view>
-
-<view class="card sub-list anim-rise d-2">
+<view class="card sub-list anim-rise d-1">
   <view class="row tap" wx:for="{{list}}" wx:key="_id" data-id="{{item._id}}" bindtap="openItem">
     <view class="row-main">
       <view class="row-top"><text class="row-name">{{item.name}}</text><text class="row-amount">¥{{item.amount}} / {{item.cycle}}</text></view>

@@ -1,0 +1,108 @@
+.page {
+  min-height: 100vh;
+  padding: 24rpx 24rpx calc(48rpx + env(safe-area-inset-bottom));
+  background: #fdf9f5;
+}
+
+.intro-card.card {
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 24rpx;
+  padding: 38rpx 34rpx 34rpx;
+  background: #105666;
+  color: #fff;
+}
+.intro-orb {
+  position: absolute;
+  right: -60rpx;
+  top: -90rpx;
+  width: 240rpx;
+  height: 240rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(211,150,140,.75) 0%, rgba(211,150,140,0) 68%);
+  pointer-events: none;
+}
+.intro-kicker {
+  position: relative;
+  display: block;
+  color: rgba(255,255,255,.72);
+  font-size: 20rpx;
+  font-weight: 700;
+  letter-spacing: 3rpx;
+}
+.intro-title {
+  position: relative;
+  display: block;
+  margin-top: 14rpx;
+  font-size: 38rpx;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.intro-date {
+  position: relative;
+  display: block;
+  margin-top: 18rpx;
+  color: rgba(255,255,255,.82);
+  font-size: 23rpx;
+}
+
+.editor-card.card {
+  margin: 0;
+  padding: 28rpx;
+}
+.editor-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 18rpx;
+}
+.editor-label { color: var(--text-main); font-size: 28rpx; font-weight: 700; }
+.editor-count { color: var(--text-light); font-size: 21rpx; font-variant-numeric: tabular-nums; }
+.editor-count.at-limit { color: #D9534F; }
+.editor {
+  width: 100%;
+  height: 300rpx;
+  padding: 22rpx;
+  background: var(--cream);
+  border: var(--stroke-width) solid var(--stroke);
+  border-radius: 22rpx;
+  color: var(--text-main);
+  font-size: 28rpx;
+  line-height: 1.7;
+  box-sizing: border-box;
+}
+.editor-placeholder { color: #98a39b; }
+.editor-tip {
+  margin-top: 16rpx;
+  color: var(--text-light);
+  font-size: 21rpx;
+  line-height: 1.55;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+  margin-top: 28rpx;
+}
+.btn {
+  width: 100%;
+  height: 82rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: var(--stroke-width) solid var(--stroke);
+  border-radius: 999rpx;
+  font-size: 27rpx;
+  font-weight: 700;
+  line-height: 1;
+  box-sizing: border-box;
+}
+.btn::after { border: none; }
+.btn.primary { background: var(--primary); color: #fff; box-shadow: 0 6rpx 0 var(--stroke); }
+.btn.ghost { background: #fff; color: #D9534F; }
+.btn.plain { height: 70rpx; border-color: transparent; background: transparent; color: var(--text-light); font-size: 24rpx; font-weight: 500; }
+.btn[disabled] { opacity: .58; }

@@ -3,26 +3,16 @@
   <view class="user-orb"></view>
   <view class="avatar"><view class="iico iico-md user-active"></view></view>
   <view class="user-info">
-    <text class="user-name">未登录</text>
-    <text class="user-sub">登录后同步账本</text>
+    <text class="user-name">云同步已开启</text>
+    <text class="user-sub">数据仅当前微信账号可见</text>
   </view>
 </view>
 
 <!-- 菜单 -->
 <view class="card menu anim-rise d-1">
-  <view class="menu-item" data-route="/pages/profile-settings/profile-settings?type=accounts" bindtap="goPage">
-    <view class="menu-ico"><view class="iico iico-sm card-active"></view></view>
-    <text class="menu-name">账户与支付方式</text>
-    <text class="menu-arrow">›</text>
-  </view>
   <view class="menu-item" data-route="/pages/budget-goals/budget-goals" bindtap="goPage">
     <view class="menu-ico"><view class="iico iico-sm target-active"></view></view>
     <text class="menu-name">预算与攒钱目标</text>
-    <text class="menu-arrow">›</text>
-  </view>
-  <view class="menu-item" data-route="/pages/profile-settings/profile-settings?type=preferences" bindtap="goPage">
-    <view class="menu-ico"><view class="iico iico-sm tag-active"></view></view>
-    <text class="menu-name">分类偏好</text>
     <text class="menu-arrow">›</text>
   </view>
   <view class="menu-item" data-route="/pages/profile-settings/profile-settings?type=privacy" bindtap="goPage">

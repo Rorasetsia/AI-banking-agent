@@ -40,7 +40,8 @@ async function getDailyData(openid, date) {
 function shortSummary(data) {
   const moodText = data.moodList.map(x => x.mood).filter(Boolean).join('、') || '未记录心情'
   const details = data.txList.slice(0, 20).map(x => (x.merchant || x.itemName || x.remark || x.category) + ' ¥' + Math.abs(x.amount)).join('；')
-  return '支出 ' + data.expense + ' 元、收入 ' + data.income + ' 元，心情：' + moodText + (details ? '。' + details : '')
+  const highlightText = data.highlight ? '今日大事记：' + data.highlight + '。' : ''
+  return highlightText + '支出 ' + data.expense + ' 元、收入 ' + data.income + ' 元，心情：' + moodText + (details ? '。' + details : '')
 }
 async function getDiary(openid, date) {
   const res = await db.collection('diaries').where({ _openid: openid, date }).get()
@@ -49,7 +50,7 @@ async function getDiary(openid, date) {
 async function saveDiary(openid, date, content, data, extra) {
   const existing = await getDiary(openid, date)
   const contentHtml = (extra && extra.contentHtml) || escapeHtml(content)
-  const payload = Object.assign({ title: (existing && existing.title) || date, highlight: (extra && extra.highlight !== undefined) ? extra.highlight : ((existing && existing.highlight) || ''), content, contentHtml, moodSummary: data.moodList.map(x => x.mood).join('/'), expenseSummary: '支出 ' + data.expense + ' 元，收入 ' + data.income + ' 元', dataSignature: data.signature, lastGeneratedAt: db.serverDate(), updatedAt: db.serverDate() }, extra || {})
+  const payload = Object.assign({ title: (existing && existing.title) || date, highlight: (extra && extra.highlight !== undefined) ? extra.highlight : ((existing && existing.highlight) || ''), content, contentHtml, moodSummary: data.moodList.map(x => x.mood).join('/'), expenseSummary: '支出 ' + data.expense + ' 元，收入 ' + data.income + ' 元', dataSignature: data.signature, highlightDirty: false, lastGeneratedAt: db.serverDate(), updatedAt: db.serverDate() }, extra || {})
   if (existing) {
     await db.collection('diaries').doc(existing._id).update({ data: payload })
     return Object.assign({}, existing, payload)
@@ -60,11 +61,15 @@ async function saveDiary(openid, date, content, data, extra) {
 async function generateFor(openid, date, options) {
   const data = await getDailyData(openid, date)
   const existing = await getDiary(openid, date)
-  if (!data.txList.length && !data.moodList.length && !options.final) return { ok: true, empty: true, date, diary: null }
-  if (existing && existing.dataSignature === data.signature && !options.force) return { ok: true, unchanged: true, diary: existing }
+  data.highlight = (existing && existing.highlight) || ''
+  if (!data.txList.length && !data.moodList.length && !data.highlight && !options.final) {
+    if (existing && !existing.manualEdited) await db.collection('diaries').doc(existing._id).remove()
+    return { ok: true, empty: true, date, diary: null }
+  }
+  if (existing && existing.dataSignature === data.signature && !options.force && !existing.highlightDirty) return { ok: true, unchanged: true, diary: existing }
   if (existing && !options.final && Number(existing.updateCount || 0) >= MAX_DAILY_UPDATES) return { ok: true, pendingFinal: true, diary: existing }
   const ai = cloud.ai(); const model = ai.createModel('cloudbase')
-  const summary = { date, expense: data.expense, income: data.income, highlight: (existing && existing.highlight) || '',
+  const summary = { date, expense: data.expense, income: data.income, highlight: data.highlight,
     transactions: data.txList.map(x => ({ amount: x.amount, category: x.category, merchant: x.merchant || '', itemName: x.itemName || '', remark: x.remark || '', rawText: x.rawText || '', tags: x.tags || [] })), moods: data.moodList.map(x => ({ period: x.period, mood: x.mood, customTag: x.customTag || '' })) }
   let content
   try {
@@ -76,7 +81,7 @@ async function generateFor(openid, date, options) {
     content = existing && existing.content && existing.manualEdited ? existing.content + '\n' + shortSummary(data) : shortSummary(data)
   }
   if (!data.txList.length && !data.moodList.length && options.final) content = '今天没有记账或心情记录，给自己留一段安静的时间吧。'
-  const saved = await saveDiary(openid, date, content, data, { updateCount: Number((existing && existing.updateCount) || 0) + 1, manualEdited: !!(existing && existing.manualEdited), finalized: !!options.final, generatedBy: options.final ? 'scheduler' : 'entry' })
+  const saved = await saveDiary(openid, date, content, data, { updateCount: Number((existing && existing.updateCount) || 0) + 1, manualEdited: !!(existing && existing.manualEdited), finalized: !!options.final, generatedBy: options.final ? 'scheduler' : 'entry', highlightDirty: false })
   return { ok: true, diary: saved, empty: !data.txList.length && !data.moodList.length }
 }
 exports.main = async (event) => {
@@ -88,13 +93,13 @@ exports.main = async (event) => {
     return { ok: true, diary: existing }
   }
   if (action === 'diaries.highlight') {
-    const highlight = String(event.highlight || '').trim()
+    const highlight = String(event.highlight || '').trim().slice(0, 120)
     const existing = await getDiary(OPENID, date)
     if (existing) {
-      await db.collection('diaries').doc(existing._id).update({ data: { highlight, manualEdited: true, updatedAt: db.serverDate() } })
+      await db.collection('diaries').doc(existing._id).update({ data: { highlight, highlightDirty: true, updatedAt: db.serverDate() } })
     } else {
       const data = await getDailyData(OPENID, date)
-      await saveDiary(OPENID, date, '', data, { highlight, manualEdited: true, updateCount: 0, finalized: false, generatedBy: 'user-highlight' })
+      await saveDiary(OPENID, date, '', data, { highlight, highlightDirty: true, updateCount: 0, finalized: false, generatedBy: 'user-highlight' })
     }
     return { ok: true, highlight }
   }
@@ -106,7 +111,7 @@ exports.main = async (event) => {
     const existing = await getDiary(OPENID, date)
     if (existing) {
       const data = await getDailyData(OPENID, date)
-      if (existing.dataSignature === data.signature || Number(existing.updateCount || 0) >= MAX_DAILY_UPDATES) return { ok: true, diary: existing, unchanged: true, pendingFinal: Number(existing.updateCount || 0) >= MAX_DAILY_UPDATES }
+      if ((existing.dataSignature === data.signature && !existing.highlightDirty) || Number(existing.updateCount || 0) >= MAX_DAILY_UPDATES) return { ok: true, diary: existing, unchanged: true, pendingFinal: Number(existing.updateCount || 0) >= MAX_DAILY_UPDATES }
     }
     return generateFor(OPENID, date, { reason: 'entry' })
   }

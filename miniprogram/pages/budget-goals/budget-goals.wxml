@@ -1,8 +1,79 @@
-<view class="tabs"><view class="tab {{tab === 'budget' ? 'active' : ''}}" data-tab="budget" bindtap="switchTab">预算设置</view><view class="tab {{tab === 'goal' ? 'active' : ''}}" data-tab="goal" bindtap="switchTab">攒钱目标</view></view>
+<view class="tabs">
+  <view class="tab {{tab === 'budget' ? 'active' : ''}}" data-tab="budget" bindtap="switchTab">预算设置</view>
+  <view class="tab {{tab === 'goal' ? 'active' : ''}}" data-tab="goal" bindtap="switchTab">攒钱目标</view>
+</view>
+
 <block wx:if="{{tab === 'budget'}}">
-  <view class="card total-card"><view class="section-title">总预算 · {{month}}</view><view class="total-row"><view class="total-item"><text class="label">月预算</text><text class="value">¥{{total.monthlyAmount || '未设置'}}</text><view class="small-btn tap" data-period="month" bindtap="editTotal">设置月预算</view></view><view class="total-item"><text class="label">日预算</text><text class="value">¥{{total.dailyAmount || '未设置'}}</text><view class="small-btn tap" data-period="day" bindtap="editTotal">设置日预算</view></view></view><view class="hint">设置任一项后，会按 {{month}} 的实际天数自动推算另一项。</view></view>
-  <view class="card category-card"><view class="section-head"><text class="section-title">分类细预算</text><text class="add-link" bindtap="addCategory">＋ 添加分类</text></view><view class="category-row" wx:for="{{categories}}" wx:key="_id"><view><text class="category-name">{{item.category}}</text><text class="category-meta">月 ¥{{item.monthlyText}} · 日 ¥{{item.dailyText}}</text></view><view class="actions"><text class="link" data-index="{{index}}" bindtap="editCategory">编辑</text><text class="link danger" data-index="{{index}}" bindtap="deleteCategory">删除</text></view></view><view wx:if="{{categories.length === 0}}" class="empty">暂无分类预算</view></view>
+  <view class="scope-bar">
+    <view class="scope-tab {{budgetScope === 'personal' ? 'active' : ''}}" data-scope="personal" bindtap="switchBudgetScope">个人账本</view>
+    <view class="scope-tab {{budgetScope === 'shared' ? 'active' : ''}}" data-scope="shared" bindtap="switchBudgetScope">共同账本</view>
+  </view>
+
+  <view wx:if="{{budgetScope === 'shared' && ledgers.length}}" class="ledger-picker card">
+    <text class="picker-label">当前共同账本</text>
+    <picker mode="selector" range="{{ledgers}}" range-key="name" value="{{ledgerIndex}}" bindchange="onLedgerChange">
+      <view class="picker-value">{{selectedLedger.name || '共同账本'}} <text>切换</text></view>
+    </picker>
+  </view>
+
+  <view wx:if="{{budgetScope === 'shared' && !selectedLedger}}" class="card empty-shared">
+    <text class="empty-title">还没有共同账本</text>
+    <text class="empty-sub">先创建共同账本，再设置双方共享的预算和提醒阈值。</text>
+    <view class="primary-btn tap" bindtap="goBill">去账单页创建</view>
+  </view>
+
+  <block wx:else>
+    <view class="scope-note">{{budgetScope === 'personal' ? '仅统计你的个人账本本月支出' : '统计该共同账本内全部成员的本月支出'}}</view>
+    <view class="card total-card">
+      <view class="section-head">
+        <text class="section-title">{{budgetScope === 'personal' ? '我的总预算' : '共同总预算'}} · {{month}}</text>
+        <text wx:if="{{total}}" class="threshold-link" data-index="total" bindtap="editThreshold">提醒 ≥{{total.reminderThreshold || 80}}%</text>
+      </view>
+      <view class="total-row">
+        <view class="total-item">
+          <text class="label">月预算</text>
+          <text class="value">¥{{total ? total.monthlyText : '未设置'}}</text>
+          <view class="small-btn tap" data-period="month" bindtap="editTotal">设置月预算</view>
+        </view>
+        <view class="total-item">
+          <text class="label">日预算</text>
+          <text class="value">¥{{total ? total.dailyText : '未设置'}}</text>
+          <view class="small-btn tap" data-period="day" bindtap="editTotal">设置日预算</view>
+        </view>
+      </view>
+      <view class="hint">设置任一项后，会按 {{month}} 的实际天数自动推算另一项。</view>
+    </view>
+
+    <view class="card category-card">
+      <view class="section-head">
+        <text class="section-title">分类细预算</text>
+        <text class="add-link" bindtap="addCategory">＋ 添加分类</text>
+      </view>
+      <view class="category-row" wx:for="{{categories}}" wx:key="_id">
+        <view>
+          <text class="category-name">{{item.category}}</text>
+          <text class="category-meta">月 ¥{{item.monthlyText}} · 日 ¥{{item.dailyText}} · 提醒 ≥{{item.reminderThreshold}}%</text>
+        </view>
+        <view class="actions">
+          <text class="link" data-index="{{index}}" bindtap="editThreshold">阈值</text>
+          <text class="link" data-index="{{index}}" bindtap="editCategory">编辑</text>
+          <text class="link danger" data-index="{{index}}" bindtap="deleteCategory">删除</text>
+        </view>
+      </view>
+      <view wx:if="{{categories.length === 0}}" class="empty">暂无分类预算</view>
+    </view>
+  </block>
 </block>
+
 <block wx:else>
-  <view class="card goal-card"><view class="section-head"><text class="section-title">我的攒钱目标</text><text class="add-link" bindtap="addGoal">＋ 新建目标</text></view><view class="goal-item" wx:for="{{goals}}" wx:key="_id"><view class="goal-top"><text class="goal-name">{{item.name}}</text><text class="goal-money">¥{{item.savedAmount}} / ¥{{item.targetAmount}}</text></view><view class="progress"><view class="progress-inner" style="width: {{item.progress}}%"></view></view><text class="goal-meta">{{item.deadline || '未设置截止日期'}} · 已完成 {{item.progress}}%</text><view class="actions"><text class="link" data-index="{{index}}" bindtap="editGoal">编辑</text><text class="link danger" data-index="{{index}}" bindtap="deleteGoal">删除</text></view></view><view wx:if="{{goals.length === 0}}" class="empty">还没有攒钱目标</view></view>
+  <view class="card goal-card">
+    <view class="section-head"><text class="section-title">我的攒钱目标</text><text class="add-link" bindtap="addGoal">＋ 新建目标</text></view>
+    <view class="goal-item" wx:for="{{goals}}" wx:key="_id">
+      <view class="goal-top"><text class="goal-name">{{item.name}}</text><text class="goal-money">¥{{item.savedAmount}} / ¥{{item.targetAmount}}</text></view>
+      <view class="progress"><view class="progress-inner" style="width: {{item.progress}}%"></view></view>
+      <text class="goal-meta">{{item.deadline || '未设置截止日期'}} · 已完成 {{item.progress}}%</text>
+      <view class="actions"><text class="link" data-index="{{index}}" bindtap="editGoal">编辑</text><text class="link danger" data-index="{{index}}" bindtap="deleteGoal">删除</text></view>
+    </view>
+    <view wx:if="{{goals.length === 0}}" class="empty">还没有攒钱目标</view>
+  </view>
 </block>

@@ -3,23 +3,21 @@ Page({
     todayExpense: '0.00',
     todayIncome: '0.00',
     moods: ['很开心', '开心', '平静', '心情一般', '难过'],
-    moodValues: { morning: '', noon: '', night: '' },
-    morning: '', noon: '', night: '',
-    customMoods: { morning: '', noon: '', night: '' },
+    moodValues: { morning: '', afternoon: '', night: '' },
+    morning: '', afternoon: '', night: '',
+    customMoods: { morning: '', afternoon: '', night: '' },
     reminders: [],
-    highlight: '',
-    highlightSaving: false
+    highlight: ''
   },
   onLoad() {
     const customMoods = wx.getStorageSync('customMoods') || {};
     this.setData({
       customMoods: {
         morning: customMoods.morning || '',
-        noon: customMoods.noon || '',
+        afternoon: customMoods.afternoon || '',
         night: customMoods.night || ''
       }
     });
-    this.loadReminders();
   },
   onShow() {
     const tabBar = typeof this.getTabBar === 'function' ? this.getTabBar() : null;
@@ -28,6 +26,17 @@ Page({
     }
     this.loadTodaySummary();
     this.loadHighlight();
+    this.loadTodayMoods();
+    this.loadReminders();
+  },
+  loadTodayMoods() {
+    wx.cloud.database().collection('moods').where({ date: this.today() }).get().then(res => {
+      const moodValues = { morning: '', afternoon: '', night: '' };
+      (res.data || []).forEach(item => {
+        if (moodValues[item.period] !== undefined) moodValues[item.period] = item.mood || '';
+      });
+      this.setData({ moodValues });
+    }).catch(() => {});
   },
   loadTodaySummary() {
     const date = this.today();
@@ -40,24 +49,36 @@ Page({
   loadHighlight() {
     wx.cloud.callFunction({ name: 'generateDiary', data: { action: 'diaries.peek', date: this.today() } }).then(res => {
       const diary = (res.result || {}).diary;
-      if (diary) this.setData({ highlight: diary.highlight || '' });
+      this.setData({ highlight: (diary && diary.highlight) || '' });
     }).catch(() => {});
   },
-  onHighlightInput(e) { this.setData({ highlight: e.detail.value }); },
-  saveHighlight() {
-    this.setData({ highlightSaving: true });
-    wx.cloud.callFunction({ name: 'generateDiary', data: { action: 'diaries.highlight', date: this.today(), highlight: this.data.highlight } }).then(res => {
-      const result = res.result || {};
-      this.setData({ highlightSaving: false });
-      if (!result.ok) return wx.showToast({ title: '保存失败', icon: 'none' });
-      wx.showToast({ title: '今日大事记已保存', icon: 'success' });
-    }).catch(() => { this.setData({ highlightSaving: false }); wx.showToast({ title: '保存失败', icon: 'none' }); });
-  },
+  goHighlight() { wx.navigateTo({ url: '/pages/daily-highlight/daily-highlight?date=' + this.today() }) },
   loadReminders() {
     const db = wx.cloud.database();
-    db.collection('reminders').where({ read: false }).orderBy('createdAt', 'desc').limit(5).get()
-      .then(res => this.setData({ reminders: res.data }))
+    db.collection('reminders').where({ read: false }).orderBy('createdAt', 'desc').limit(50).get()
+      .then(res => {
+        const seen = {};
+        const reminders = [];
+        (res.data || []).forEach(item => {
+          const key = this.reminderKey(item);
+          if (seen[key]) return;
+          seen[key] = true;
+          reminders.push(item);
+        });
+        this.setData({ reminders: reminders.slice(0, 5) });
+      })
       .catch(() => {});
+  },
+  reminderKey(item) {
+    if (item.dedupeKey) return item.dedupeKey;
+    if (item.type === 'budget') {
+      const match = String(item.content || '').match(/预算「([^」]+)」/);
+      const category = item.budgetCategory || (match && match[1]) || '';
+      const month = item.budgetMonth || String(item.date || '').slice(0, 7);
+      const owner = item.budgetLedgerId ? 'shared:' + item.budgetLedgerId : 'personal';
+      return 'budget:' + month + ':' + owner + ':' + category;
+    }
+    return String(item.type || 'reminder') + ':' + String(item.content || '');
   },
   today() {
     const d = new Date();

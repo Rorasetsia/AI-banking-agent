@@ -1,11 +1,20 @@
 .tabs { display: flex; gap: 16rpx; margin: 24rpx; padding: 8rpx; background: rgba(10,51,35,.06); border-radius: 999rpx; }
 .tab { flex: 1; height: 66rpx; display: flex; align-items: center; justify-content: center; border-radius: 999rpx; color: var(--text-sub); font-size: 26rpx; font-weight: 700; }
 .tab.active { background: #fff; color: var(--primary-mid); border: var(--stroke-width) solid var(--stroke); box-shadow: 0 4rpx 0 rgba(10,51,35,.12); }
+.scope-bar { display: flex; gap: 12rpx; margin: 0 24rpx 16rpx; }
+.scope-tab { flex: 1; height: 64rpx; display: flex; align-items: center; justify-content: center; border-radius: 18rpx; background: rgba(16,86,102,.08); color: var(--text-sub); font-size: 24rpx; font-weight: 700; }
+.scope-tab.active { background: var(--primary-mid); color: #fff; border: var(--stroke-width) solid var(--stroke); }
+.scope-note { margin: 0 28rpx 12rpx; color: var(--text-light); font-size: 21rpx; }
+.ledger-picker.card { display: flex; align-items: center; justify-content: space-between; margin-top: 0; padding: 20rpx 24rpx; }
+.picker-label { color: var(--text-sub); font-size: 22rpx; }
+.picker-value { color: var(--primary-mid); font-size: 24rpx; font-weight: 700; }
+.picker-value text { margin-left: 10rpx; color: var(--text-light); font-size: 20rpx; font-weight: 500; }
 .total-card, .category-card, .goal-card { padding: 28rpx; }
 .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18rpx; }
 .section-title { font-size: 30rpx; font-weight: 700; color: var(--text-main); }
 .add-link, .link { color: var(--primary-mid); font-size: 23rpx; font-weight: 700; }
 .link.danger { color: #D9534F; }
+.threshold-link { color: var(--primary-mid); font-size: 21rpx; font-weight: 700; }
 .total-row { display: flex; gap: 18rpx; }
 .total-item { flex: 1; padding: 22rpx; background: var(--cream); border: 2rpx solid var(--stroke); border-radius: 20rpx; display: flex; flex-direction: column; }
 .total-item .label { font-size: 22rpx; color: var(--text-sub); }
@@ -22,3 +31,7 @@
 .progress { height: 14rpx; margin-top: 16rpx; background: rgba(10,51,35,.08); border-radius: 999rpx; overflow: hidden; }
 .progress-inner { height: 100%; background: var(--primary); border-radius: 999rpx; }
 .empty { padding: 40rpx 0; text-align: center; color: var(--text-light); font-size: 23rpx; }
+.empty-shared { padding: 46rpx 30rpx; text-align: center; }
+.empty-shared .empty-title { display: block; color: var(--text-main); font-size: 30rpx; font-weight: 700; }
+.empty-shared .empty-sub { display: block; margin-top: 12rpx; color: var(--text-light); font-size: 22rpx; line-height: 1.6; }
+.primary-btn { width: 300rpx; height: 72rpx; display: flex; align-items: center; justify-content: center; margin: 26rpx auto 0; border-radius: 999rpx; background: var(--primary); color: #fff; border: var(--stroke-width) solid var(--stroke); font-size: 24rpx; font-weight: 700; }

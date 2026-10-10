@@ -8,13 +8,12 @@
     </view>
     <view class="bubble">{{item.text}}</view>
   </view>
+  <view wx:if="{{loading}}" class="msg ai"><view class="avatar"><view class="avatar-core"></view><view class="avatar-spark s1"></view><view class="avatar-spark s2"></view></view><view class="bubble">正在处理，请稍候…</view></view>
 </scroll-view>
 
 <view class="back-bottom" wx:if="{{showBackBottom}}" bindtap="goBottom">↓ 回到底部</view>
 
 <view class="input-bar" style="{{inputBarStyle}}">
-  <view class="tool tap" bindtap="voice"><view class="iico iico-sm mic-active"></view></view>
-  <view class="tool tap" bindtap="photo"><view class="iico iico-sm camera-active"></view></view>
   <input class="input" value="{{input}}" bindinput="onInput" bindfocus="onInputFocus" bindblur="onInputBlur" adjust-position="{{false}}" cursor-spacing="24" confirm-type="send" bindconfirm="send" placeholder="说一句话记账…" />
   <view class="send-btn tap" bindtap="send">发送</view>
 </view>

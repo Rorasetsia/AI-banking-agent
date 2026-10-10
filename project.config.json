@@ -35,7 +35,12 @@
   "condition": {},
   "simulatorPluginLibVersion": {},
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      {
+        "type": "folder",
+        "value": "pages/penguin-preview"
+      }
+    ],
     "include": []
   },
   "editorSetting": {}

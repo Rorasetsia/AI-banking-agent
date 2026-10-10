@@ -104,7 +104,5 @@ Page({
     } finally {
       this.setData({ loading: false });
     }
-  },
-  voice() { wx.showToast({ title: '语音记账开发中', icon: 'none' }); },
-  photo() { wx.showToast({ title: '拍照记账开发中', icon: 'none' }); }
+  }
 });

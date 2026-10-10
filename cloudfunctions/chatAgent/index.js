@@ -479,6 +479,7 @@ function ruleParseIntent(message, context) {
   }
   const transaction = buildTransactionIntent(message)
   if (transaction) return transaction
+  if (/查看|看看|查询/.test(text) && /共同账本/.test(text) && /预算/.test(text)) return { type: 'queryBudget', slots: { ledgerScope: 'shared', rawText: message }, fallback: true }
   if (/共同账本/.test(text)) return { type: 'ledgerAdd', slots: { rawText: message, remark: message }, fallback: true }
   if (/查看.*订阅|看看.*订阅|我的订阅|订阅列表/.test(text)) return { type: 'querySubscription', slots: {}, fallback: true }
   if (/查看.*预算|看看.*预算|我的预算/.test(text)) return { type: 'queryBudget', slots: {}, fallback: true }
@@ -510,11 +511,12 @@ function fallbackReply(exec) {
   if (exec.type === 'add') return '已记录：' + (nameOf(exec) || exec.category || '一笔交易') + ' ¥' + Math.abs(exec.amount || 0) + '，分类：' + (exec.category || '其他') + '。'
   if (exec.type === 'querySub') return '当前有 ' + (exec.count || 0) + ' 个有效订阅，合计每月约 ¥' + (exec.totalMonthly || 0) + '。'
   if (exec.type === 'queryBudget') {
-    const total = exec.total ? '总预算月 ¥' + exec.total.monthlyAmount + '，日 ¥' + exec.total.dailyAmount + '，已用 ¥' + exec.total.spent : '未设置总预算'
-    const categories = (exec.categories || []).map(x => x.category + '月 ¥' + x.monthlyAmount + '，日 ¥' + x.dailyAmount).join('；')
-    return total + (categories ? '；分类预算：' + categories : '')
+    const scopeLabel = exec.scope === 'shared' ? '共同账本' + (exec.ledgerName ? '「' + exec.ledgerName + '」' : '') : '个人账本'
+    const total = exec.total ? '总预算月 ¥' + exec.total.monthlyAmount + '，日 ¥' + exec.total.dailyAmount + '，已用 ¥' + exec.total.spent + '，提醒阈值 ' + (exec.total.reminderThreshold || 80) + '%' : '未设置总预算'
+    const categories = (exec.categories || []).map(x => x.category + '月 ¥' + x.monthlyAmount + '，日 ¥' + x.dailyAmount + '，已用 ¥' + x.spent + '，阈值 ' + (x.reminderThreshold || 80) + '%').join('；')
+    return scopeLabel + '：' + total + (categories ? '；分类预算：' + categories : '')
   }
-  if (exec.type === 'setBudget') return '已设置' + (exec.category && exec.category !== '全部' ? exec.category + '分类' : '总') + '预算：月 ¥' + exec.monthlyAmount + '，日 ¥' + exec.dailyAmount + '（按' + exec.month + '共' + exec.daysInMonth + '天推算）。'
+  if (exec.type === 'setBudget') return '已设置' + (exec.scope === 'shared' ? '共同账本' + (exec.ledgerName ? '「' + exec.ledgerName + '」' : '') : '个人账本') + (exec.category && exec.category !== '全部' ? exec.category + '分类' : '总') + '预算：月 ¥' + exec.monthlyAmount + '，日 ¥' + exec.dailyAmount + '，提醒阈值 ' + (exec.reminderThreshold || 80) + '%。'
   if (exec.type === 'addSub') return '已记录订阅「' + exec.name + '」，金额 ¥' + exec.amount + '，下次扣费 ' + exec.nextDate + '。'
   if (exec.type === 'cancelSub') return '已取消订阅「' + exec.name + '」。'
   if (exec.type === 'aaSplit') return '已记共同消费 ¥' + exec.amount + '，' + exec.people + ' 人每人约 ¥' + exec.per + '。'
@@ -538,16 +540,16 @@ async function parseIntent(model, message, history, context) {
     '- addSubscription：{"name":"订阅名","amount":数字,"cycle":"monthly"或"yearly"或"weekly","startDate":"开始/订阅日期 YYYY-MM-DD 或 null","nextDate":"明确的下次扣费日期 YYYY-MM-DD 或 null"}\n' +
     '- querySubscription：{}\n' +
     '- cancelSubscription：{"name":"订阅名"}\n' +
-    '- setBudget：{"type":"total"或"category","category":"分类/null","amount":数字,"period":"day"或"month","month":"YYYY-MM/null"}\n' +
-    '- queryBudget：{"month":"YYYY-MM 或 null","category":"分类 或 null"}\n' +
+    '- setBudget：{"type":"total"或"category","category":"分类/null","amount":数字或null,"period":"day"或"month","month":"YYYY-MM/null","ledgerScope":"personal"或"shared"或null,"reminderThreshold":1到100的整数或null}\n' +
+    '- queryBudget：{"month":"YYYY-MM 或 null","category":"分类 或 null","ledgerScope":"personal"或"shared"或null}\n' +
     '- aaSplit：{"amount":数字,"remark":"内容","people":人数,"category":"分类 或 null"}\n' +
     '- createLedger：{}\n' +
     '- joinLedger：{"inviteCode":"邀请码"}\n' +
     '- ledgerAdd：{"amount":数字,"remark":"内容","category":"分类 或 null"}\n' +
     '- ledgerQuery：{"period":"month"或"lastMonth"或"year"或"all"}\n' +
-    '- updateLast：{"patch":{"amount":数字或null,"direction":"expense"或"income"或null,"merchant":"商户或null","itemName":"具体内容或null","remark":"内容或null","rawText":"原话或null","tags":["标签"]或null,"people":["同行人"]或null,"relationship":"关系或null","socialAction":"请客/聚餐/AA或null","occasion":"场合或null","memo":"长备注或null","category":"分类或null","date":"日期或null","time":"时间或null","name":"订阅名或null","cycle":"monthly"或"yearly"或"weekly"或null,"startDate":"日期或null","nextDate":"日期或null","period":"monthly"或"yearly"或null,"aaPeople":人数或null}}\n' +
-    '- updateRecord：{"recordId":"context.recentActions 或 pendingAction.candidates 中的 recordId","patch":{"amount":数字或null,"direction":"expense"或"income"或null,"merchant":"商户或null","itemName":"具体内容或null","remark":"内容或null","rawText":"原话或null","tags":["标签"]或null,"people":["同行人"]或null,"relationship":"关系或null","socialAction":"请客/聚餐/AA或null","occasion":"场合或null","memo":"长备注或null","category":"分类或null","date":"日期或null","time":"时间或null","name":"订阅名或null","cycle":"monthly"或"yearly"或"weekly"或null,"startDate":"日期或null","nextDate":"日期或null","period":"monthly"或"yearly"或null,"aaPeople":人数或null}}\n' +
-    '- findAndUpdate：{"kind":"transaction"或"subscription"或"budget"或"ledger","target":{"keyword":"备注或名称关键词或null","merchant":"商户或null","itemName":"商品或null","category":"分类或null","dateRange":{"start":"YYYY-MM-DD","end":"YYYY-MM-DD"}或null},"patch":{"amount":数字或null,"direction":"expense"或"income"或null,"merchant":"商户或null","itemName":"具体内容或null","remark":"内容或null","rawText":"原话或null","tags":["标签"]或null,"memo":"长备注或null","category":"分类或null","date":"日期或null","time":"时间或null","name":"订阅名或null","cycle":"monthly"或"yearly"或"weekly"或null,"startDate":"日期或null","nextDate":"日期或null","period":"monthly"或"yearly"或null,"aaPeople":人数或null}}\n' +
+    '- updateLast：{"patch":{"amount":数字或null,"direction":"expense"或"income"或null,"merchant":"商户或null","itemName":"具体内容或null","remark":"内容或null","rawText":"原话或null","tags":["标签"]或null,"people":["同行人"]或null,"relationship":"关系或null","socialAction":"请客/聚餐/AA或null","occasion":"场合或null","memo":"长备注或null","category":"分类或null","date":"日期或null","time":"时间或null","name":"订阅名或null","cycle":"monthly"或"yearly"或"weekly"或null,"startDate":"日期或null","nextDate":"日期或null","period":"monthly"或"yearly"或null,"reminderThreshold":1到100的整数或null,"aaPeople":人数或null}}\n' +
+    '- updateRecord：{"recordId":"context.recentActions 或 pendingAction.candidates 中的 recordId","patch":{"amount":数字或null,"direction":"expense"或"income"或null,"merchant":"商户或null","itemName":"具体内容或null","remark":"内容或null","rawText":"原话或null","tags":["标签"]或null,"people":["同行人"]或null,"relationship":"关系或null","socialAction":"请客/聚餐/AA或null","occasion":"场合或null","memo":"长备注或null","category":"分类或null","date":"日期或null","time":"时间或null","name":"订阅名或null","cycle":"monthly"或"yearly"或"weekly"或null,"startDate":"日期或null","nextDate":"日期或null","period":"monthly"或"yearly"或null,"reminderThreshold":1到100的整数或null,"aaPeople":人数或null}}\n' +
+    '- findAndUpdate：{"kind":"transaction"或"subscription"或"budget"或"ledger","target":{"keyword":"备注或名称关键词或null","merchant":"商户或null","itemName":"商品或null","category":"分类或null","ledgerScope":"personal"或"shared"或null,"dateRange":{"start":"YYYY-MM-DD","end":"YYYY-MM-DD"}或null},"patch":{"amount":数字或null,"direction":"expense"或"income"或null,"merchant":"商户或null","itemName":"具体内容或null","remark":"内容或null","rawText":"原话或null","tags":["标签"]或null,"memo":"长备注或null","category":"分类或null","date":"日期或null","time":"时间或null","name":"订阅名或null","cycle":"monthly"或"yearly"或"weekly"或null,"startDate":"日期或null","nextDate":"日期或null","period":"monthly"或"yearly"或null,"reminderThreshold":1到100的整数或null,"aaPeople":人数或null}}\n' +
     '- chat：{}\n' +
     '示例：\n' +
     '用户"中午喝了晨光酸奶，花了5块" -> {"type":"addTransaction","slots":{"amount":5,"direction":"expense","merchant":null,"itemName":"晨光酸奶","remark":"晨光酸奶","rawText":"中午喝了晨光酸奶，花了5块","tags":[],"memo":null,"category":null,"date":null,"time":null}}\n' +
@@ -565,7 +567,11 @@ async function parseIntent(model, message, history, context) {
     '用户"设置日预算100元" -> {"type":"setBudget","slots":{"type":"total","category":null,"amount":100,"period":"day","month":null}}\n' +
     '用户"设置本月月预算3000元" -> {"type":"setBudget","slots":{"type":"total","category":null,"amount":3000,"period":"month","month":null}}\n' +
     '用户"设置餐饮月预算800元" -> {"type":"setBudget","slots":{"type":"category","category":"餐饮","amount":800,"period":"month","month":null}}\n' +
+    '用户"在共同账本设置餐饮月预算800元，提醒阈值80%" -> {"type":"setBudget","slots":{"type":"category","category":"餐饮","amount":800,"period":"month","month":null,"ledgerScope":"shared","reminderThreshold":80}}\n' +
+    '用户"把个人账本餐饮预算提醒阈值改成60%" -> {"type":"setBudget","slots":{"type":"category","category":"餐饮","amount":null,"period":"month","month":null,"ledgerScope":"personal","reminderThreshold":60}}\n' +
+    '用户"把共同账本餐饮预算提醒阈值改成70%" -> {"type":"setBudget","slots":{"type":"category","category":"餐饮","amount":null,"period":"month","month":null,"ledgerScope":"shared","reminderThreshold":70}}\n' +
     '用户"查看本月预算" -> {"type":"queryBudget","slots":{"month":null,"category":null}}\n' +
+    '用户"查看共同账本本月预算" -> {"type":"queryBudget","slots":{"month":null,"category":null,"ledgerScope":"shared"}}\n' +
     '用户"腾讯视频月费25，10月1号订阅的" -> {"type":"addSubscription","slots":{"name":"腾讯视频","amount":25,"cycle":"monthly","startDate":"2026-10-01","nextDate":null}}\n' +
     '用户"腾讯视频下次扣费改成11月1号" -> {"type":"updateLast","slots":{"patch":{"nextDate":"2026-11-01"}}}\n' +
     '用户"不是5块，是6块" -> {"type":"updateLast","slots":{"patch":{"amount":6}}}\n' +
@@ -789,50 +795,131 @@ function monthDays(month) {
   const m = Number(parts[1]) || new Date().getMonth() + 1
   return new Date(y, m, 0).getDate()
 }
+function budgetRecordTime(item) {
+  const value = item && (item.updatedAt || item.createdAt)
+  const time = value ? new Date(value).getTime() : 0
+  return Number.isFinite(time) ? time : 0
+}
+function dedupeBudgets(list, fallbackMonth) {
+  const grouped = {}
+  for (const item of list) {
+    const type = item.type === 'category' || (item.category && item.category !== '全部') ? 'category' : 'total'
+    const category = type === 'category' ? String(item.category || '').trim() : '全部'
+    const owner = item.ledgerId ? 'shared:' + item.ledgerId : 'personal:' + item._openid
+    const key = owner + '|' + (item.month || fallbackMonth) + '|' + type + '|' + category
+    if (!grouped[key] || budgetRecordTime(item) > budgetRecordTime(grouped[key])) grouped[key] = item
+  }
+  return Object.values(grouped)
+}
 function buildBudgetAmounts(amount, period, month) {
   const days = monthDays(month)
   const value = Number(amount)
   if (period === 'day') return { amount: value, dailyAmount: value, monthlyAmount: Math.round(value * days * 100) / 100, daysInMonth: days }
   return { amount: value, monthlyAmount: value, dailyAmount: Math.round(value / days * 100) / 100, daysInMonth: days }
 }
+async function fetchAllExpenses(openid, startDate, endDate, ledgerId) {
+  const pageSize = 1000
+  const list = []
+  let offset = 0
+  while (offset < 10000) {
+    const where = Object.assign(ledgerId ? { ledgerId } : { _openid: openid }, {
+      amount: _.lt(0),
+      date: _.gte(startDate).and(_.lte(endDate))
+    })
+    const res = await db.collection('transactions').where(where).skip(offset).limit(pageSize).get()
+    list.push(...res.data)
+    if (res.data.length < pageSize) break
+    offset += pageSize
+  }
+  return ledgerId ? list.filter(x => x.ledgerId === ledgerId) : list.filter(x => !x.ledgerId)
+}
+async function resolveBudgetLedger(openid, slots) {
+  const explicitId = String(slots.ledgerId || '').trim()
+  if (explicitId) {
+    try {
+      const ledger = (await db.collection('ledgers').doc(explicitId).get()).data
+      if (!ledger || !Array.isArray(ledger.members) || !ledger.members.includes(openid)) return { ok: false, error: '无权访问该共同账本' }
+      return { ok: true, scope: 'shared', ledgerId: explicitId, ledgerName: ledger.name || '共同账本' }
+    } catch (e) { return { ok: false, error: '共同账本不存在' } }
+  }
+  const wantsShared = slots.ledgerScope === 'shared' || /共同账本|共同账单|共同账户/.test(String(slots.rawText || ''))
+  if (!wantsShared) return { ok: true, scope: 'personal', ledgerId: '', ledgerName: '个人账本' }
+  const res = await db.collection('ledgers').where({ members: openid }).get()
+  if (!res.data.length) return { ok: false, needsInfo: true, msg: '还没有共同账本，请先创建共同账本。' }
+  if (res.data.length > 1 && !slots.ledgerName) return { ok: false, needsInfo: true, msg: '你有多个共同账本，请告诉我要操作哪一个。' }
+  const ledger = slots.ledgerName ? (res.data.find(item => String(item.name || '').includes(String(slots.ledgerName))) || res.data[0]) : res.data[0]
+  return { ok: true, scope: 'shared', ledgerId: ledger._id, ledgerName: ledger.name || '共同账本' }
+}
 async function doSetBudget(openid, slots) {
+  const scopeInfo = await resolveBudgetLedger(openid, slots)
+  if (!scopeInfo.ok) return scopeInfo
   const month = slots.month || today().slice(0, 7)
   const period = slots.period === 'day' ? 'day' : 'month'
   const category = (slots.category || '').trim()
   const type = slots.type === 'category' || (category && category !== '全部') ? 'category' : 'total'
   if (type === 'category' && !category) return { ok: false, needsInfo: true, msg: '请告诉我要设置哪个分类的预算', pendingAction: { type: 'setBudget', slots } }
-  const amount = Number(slots.amount)
-  if (!amount || amount <= 0) return { ok: false, needsInfo: true, msg: '请告诉我要设置的预算金额', pendingAction: { type: 'setBudget', slots } }
-  const amounts = buildBudgetAmounts(amount, period, month)
   const finalCategory = type === 'category' ? category : '全部'
-  const exist = await db.collection('budgets').where({ _openid: openid, month, type, category: finalCategory }).get()
-  const data = Object.assign({ month, type, category: finalCategory, period, source: 'chat', updatedAt: db.serverDate() }, amounts)
+  const requestedAmount = Number(slots.amount)
+  const existRes = scopeInfo.ledgerId
+    ? await db.collection('budgets').where({ ledgerId: scopeInfo.ledgerId, month, type, category: finalCategory }).get()
+    : await db.collection('budgets').where({ _openid: openid, month, type, category: finalCategory }).get()
+  const exist = scopeInfo.ledgerId ? existRes.data : existRes.data.filter(item => !item.ledgerId)
+  const sorted = exist.slice().sort((a, b) => budgetRecordTime(b) - budgetRecordTime(a))
+  const latest = sorted[0] || null
+  const requestedThreshold = Number(slots.reminderThreshold)
+  const reminderThreshold = requestedThreshold >= 1 && requestedThreshold <= 100 ? Math.round(requestedThreshold) : Number((latest && latest.reminderThreshold) || 80)
+  let data
+  let amount
+  let monthlyAmount
+  let dailyAmount
+  let daysInMonth
+  if (!requestedAmount || requestedAmount <= 0) {
+    if (!latest) return { ok: false, needsInfo: true, msg: '这个预算还没有设置金额，请告诉我要设置的预算金额', pendingAction: { type: 'setBudget', slots } }
+    if (!(requestedThreshold >= 1 && requestedThreshold <= 100)) return { ok: false, needsInfo: true, msg: '请告诉我要设置的提醒阈值，范围 1-100', pendingAction: { type: 'setBudget', slots } }
+    data = { reminderThreshold, source: 'chat', updatedAt: db.serverDate() }
+    amount = Number(latest.amount || latest.monthlyAmount || 0)
+    monthlyAmount = Number(latest.monthlyAmount || latest.amount || 0)
+    dailyAmount = Number(latest.dailyAmount || 0)
+    daysInMonth = Number(latest.daysInMonth || monthDays(month))
+  } else {
+    const amounts = buildBudgetAmounts(requestedAmount, period, month)
+    amount = requestedAmount
+    monthlyAmount = amounts.monthlyAmount
+    dailyAmount = amounts.dailyAmount
+    daysInMonth = amounts.daysInMonth
+    data = Object.assign({ month, type, category: finalCategory, period, ledgerId: scopeInfo.ledgerId, scope: scopeInfo.scope, reminderThreshold, source: 'chat', updatedAt: db.serverDate() }, amounts)
+  }
   let recordId = ''
-  if (exist.data.length) {
-    recordId = exist.data[0]._id
+  if (latest) {
+    recordId = latest._id
     await db.collection('budgets').doc(recordId).update({ data })
+    for (const duplicate of sorted.slice(1)) await db.collection('budgets').doc(duplicate._id).remove()
   } else {
     const created = await db.collection('budgets').add({ data: Object.assign({}, data, { _openid: openid, createdAt: db.serverDate() }) })
     recordId = created._id
   }
-  return { ok: true, type: 'setBudget', _id: recordId, month, type, category: finalCategory, period, amount, monthlyAmount: amounts.monthlyAmount, dailyAmount: amounts.dailyAmount, daysInMonth: amounts.daysInMonth, lastAction: { kind: 'budget', recordId, data: { month, type, category: finalCategory, period, amount, monthlyAmount: amounts.monthlyAmount, dailyAmount: amounts.dailyAmount } } }
+  return { ok: true, type: 'setBudget', _id: recordId, scope: scopeInfo.scope, ledgerId: scopeInfo.ledgerId, ledgerName: scopeInfo.ledgerName, month, type, category: finalCategory, period, amount, reminderThreshold, monthlyAmount, dailyAmount, daysInMonth, lastAction: { kind: 'budget', recordId, data: { month, type, category: finalCategory, period, amount, reminderThreshold, ledgerId: scopeInfo.ledgerId, monthlyAmount, dailyAmount } } }
 }
 async function doQueryBudget(openid, slots) {
+  const scopeInfo = await resolveBudgetLedger(openid, slots)
+  if (!scopeInfo.ok) return scopeInfo
   const month = slots.month || today().slice(0, 7)
-  const bRes = await db.collection('budgets').where({ _openid: openid }).get()
-  const budgets = bRes.data.filter(b => !b.month || b.month === month)
+  const bRes = scopeInfo.ledgerId
+    ? await db.collection('budgets').where({ ledgerId: scopeInfo.ledgerId }).get()
+    : await db.collection('budgets').where({ _openid: openid }).get()
+  const source = scopeInfo.ledgerId ? bRes.data : bRes.data.filter(b => !b.ledgerId)
+  const budgets = dedupeBudgets(source.filter(b => !b.month || b.month === month), month)
   const range = { start: month + '-01', end: String(month) + '-' + String(monthDays(month)).padStart(2, '0') }
-  const txRes = await db.collection('transactions').where({ _openid: openid, amount: _.lt(0), date: _.gte(range.start).and(_.lte(range.end)) }).limit(1000).get()
-  const txList = txRes.data
+  const txList = await fetchAllExpenses(openid, range.start, range.end, scopeInfo.ledgerId)
   const totalBudget = budgets.find(b => b.type === 'total' || (!b.type && (!b.category || b.category === '全部'))) || null
   const categories = budgets.filter(b => b.type === 'category').map(b => {
     const spent = txList.filter(x => x.category === b.category).reduce((s, x) => s + Math.abs(x.amount), 0)
     const monthlyAmount = Number(b.monthlyAmount || b.amount || 0)
-    return { category: b.category, monthlyAmount, dailyAmount: Number(b.dailyAmount || 0), spent: Math.round(spent * 100) / 100, remaining: Math.round((monthlyAmount - spent) * 100) / 100, ratio: monthlyAmount ? Math.round(spent / monthlyAmount * 100) : 0 }
+    return { category: b.category, monthlyAmount, dailyAmount: Number(b.dailyAmount || 0), reminderThreshold: Number(b.reminderThreshold || 80), spent: Math.round(spent * 100) / 100, remaining: Math.round((monthlyAmount - spent) * 100) / 100, ratio: monthlyAmount ? Math.round(spent / monthlyAmount * 100) : 0 }
   })
   const totalSpent = txList.reduce((s, x) => s + Math.abs(x.amount), 0)
-  const total = totalBudget ? { monthlyAmount: Number(totalBudget.monthlyAmount || totalBudget.amount || 0), dailyAmount: Number(totalBudget.dailyAmount || 0), spent: Math.round(totalSpent * 100) / 100, ratio: Number(totalBudget.monthlyAmount || totalBudget.amount) ? Math.round(totalSpent / Number(totalBudget.monthlyAmount || totalBudget.amount) * 100) : 0 } : null
-  return { ok: true, type: 'queryBudget', month, total, categories, list: categories }
+  const total = totalBudget ? { monthlyAmount: Number(totalBudget.monthlyAmount || totalBudget.amount || 0), dailyAmount: Number(totalBudget.dailyAmount || 0), reminderThreshold: Number(totalBudget.reminderThreshold || 80), spent: Math.round(totalSpent * 100) / 100, ratio: Number(totalBudget.monthlyAmount || totalBudget.amount) ? Math.round(totalSpent / Number(totalBudget.monthlyAmount || totalBudget.amount) * 100) : 0 } : null
+  return { ok: true, type: 'queryBudget', scope: scopeInfo.scope, ledgerId: scopeInfo.ledgerId, ledgerName: scopeInfo.ledgerName, month, total, categories, list: categories }
 }
 
 async function doAASplit(openid, slots, model) {
@@ -937,8 +1024,10 @@ async function doFindAndUpdate(openid, slots, context) {
   } else if (kind === 'budget') {
     const key = normalizeText(target.category || target.keyword)
     if (!key) return { ok: false, needsInfo: true, msg: '请告诉我要修改哪类预算', pendingAction: { type: 'findAndUpdate', slots: { kind, target, patch } } }
-    const res = await db.collection('budgets').where({ _openid: openid }).get()
-    source = res.data.filter(item => normalizeText(item.category).includes(key) || key.includes(normalizeText(item.category)))
+    const scopeInfo = await resolveBudgetLedger(openid, { ledgerScope: target.ledgerScope || slots.ledgerScope, rawText: target.rawText || slots.rawText })
+    if (!scopeInfo.ok) return scopeInfo
+    const res = scopeInfo.ledgerId ? await db.collection('budgets').where({ ledgerId: scopeInfo.ledgerId }).get() : await db.collection('budgets').where({ _openid: openid }).get()
+    source = res.data.filter(item => (scopeInfo.ledgerId ? item.ledgerId === scopeInfo.ledgerId : !item.ledgerId) && (normalizeText(item.category).includes(key) || key.includes(normalizeText(item.category))))
   } else if (kind === 'ledger') {
     const key = normalizeText(target.name || target.keyword)
     const res = await db.collection('ledgers').where({ members: openid }).get()
@@ -965,6 +1054,18 @@ async function getOwnedRecord(collectionName, recordId, openid) {
     const res = await db.collection(collectionName).doc(recordId).get()
     if (!res.data || res.data._openid !== openid) return null
     return res.data
+  } catch (e) {
+    return null
+  }
+}
+async function getAccessibleBudgetRecord(recordId, openid) {
+  if (!recordId) return null
+  try {
+    const current = (await db.collection('budgets').doc(recordId).get()).data
+    if (!current) return null
+    if (!current.ledgerId) return current._openid === openid ? current : null
+    const ledger = (await db.collection('ledgers').doc(current.ledgerId).get()).data
+    return ledger && Array.isArray(ledger.members) && ledger.members.includes(openid) ? current : null
   } catch (e) {
     return null
   }
@@ -1045,18 +1146,20 @@ async function doUpdateLast(openid, slots, context) {
   }
 
   if (last.kind === 'budget') {
-    const current = await getOwnedRecord('budgets', last.recordId, openid)
-    if (!current) return { ok: false, msg: '这条预算不存在或不属于当前用户' }
+    const current = await getAccessibleBudgetRecord(last.recordId, openid)
+    if (!current) return { ok: false, msg: '这条预算不存在或无权修改' }
     const month = patch.month || current.month || today().slice(0, 7)
     const type = patch.type || current.type || ((patch.category || current.category) && (patch.category || current.category) !== '全部' ? 'category' : 'total')
     const category = type === 'category' ? ((patch.category !== undefined && patch.category !== null ? patch.category : current.category) || '') : '全部'
     const amount = patch.amount !== undefined && patch.amount !== null ? Number(patch.amount) : Number(current.amount)
     const period = patch.period || current.period || 'month'
+    const requestedThreshold = patch.reminderThreshold !== undefined && patch.reminderThreshold !== null ? Number(patch.reminderThreshold) : Number(current.reminderThreshold || 80)
+    const reminderThreshold = requestedThreshold >= 1 && requestedThreshold <= 100 ? Math.round(requestedThreshold) : 80
     if ((type === 'category' && !category) || !amount) return { ok: false, needsInfo: true, msg: '预算分类和金额不能为空', pendingAction: { type: 'updateLast', slots: { patch } } }
     const amounts = buildBudgetAmounts(amount, period, month)
-    const data = Object.assign({ month, type, category, period, updatedAt: db.serverDate() }, amounts)
+    const data = Object.assign({ month, type, category, period, reminderThreshold, updatedAt: db.serverDate() }, amounts)
     await db.collection('budgets').doc(last.recordId).update({ data })
-    return { ok: true, type: 'updateLast', kind: 'budget', _id: last.recordId, data: { month, type, category, period, amount, monthlyAmount: amounts.monthlyAmount, dailyAmount: amounts.dailyAmount }, lastAction: { kind: 'budget', recordId: last.recordId, data: { month, type, category, period, amount, monthlyAmount: amounts.monthlyAmount, dailyAmount: amounts.dailyAmount } } }
+    return { ok: true, type: 'updateLast', kind: 'budget', _id: last.recordId, scope: current.ledgerId ? 'shared' : 'personal', ledgerId: current.ledgerId || '', data: { month, type, category, period, amount, reminderThreshold, monthlyAmount: amounts.monthlyAmount, dailyAmount: amounts.dailyAmount }, lastAction: { kind: 'budget', recordId: last.recordId, data: { month, type, category, period, amount, reminderThreshold, ledgerId: current.ledgerId || '', monthlyAmount: amounts.monthlyAmount, dailyAmount: amounts.dailyAmount } } }
   }
 
   if (last.kind === 'ledger') {

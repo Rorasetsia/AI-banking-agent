@@ -1,11 +1,11 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/daily-highlight/daily-highlight",
     "pages/bill/bill",
     "pages/chat/chat",
     "pages/subscription/subscription",
     "pages/profile/profile",
-    "pages/penguin-preview/penguin-preview",
     "pages/transaction-edit/transaction-edit",
     "pages/subscription-edit/subscription-edit",
     "pages/history-calendar/history-calendar",

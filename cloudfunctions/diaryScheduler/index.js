@@ -7,6 +7,24 @@ function today() {
   const d = new Date(Date.now() + 8 * 60 * 60 * 1000)
   return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0')
 }
+function buildContent(tx, moods, highlight) {
+  const expense = Math.round(tx.filter(x => x.amount < 0).reduce((sum, x) => sum + Math.abs(x.amount), 0) * 100) / 100
+  const income = Math.round(tx.filter(x => x.amount > 0).reduce((sum, x) => sum + x.amount, 0) * 100) / 100
+  const moodText = moods.map(x => x.mood).filter(Boolean).join('、')
+  const details = tx.slice(0, 12).map(x => (x.merchant || x.itemName || x.remark || x.category || '一笔记录') + ' ¥' + Math.abs(x.amount)).join('；')
+  const parts = []
+  if (highlight) parts.push('今日大事记：' + highlight)
+  parts.push('今天支出 ' + expense + ' 元' + (income ? '、收入 ' + income + ' 元' : '') + '。')
+  if (moodText) parts.push('心情记录：' + moodText + '。')
+  if (details) parts.push('账单小记：' + details + '。')
+  return parts.join('').slice(0, 500)
+}
+function signature(tx, moods) {
+  return JSON.stringify({
+    tx: tx.map(x => [x.amount, x.category, x.merchant || '', x.itemName || '', x.remark || '', x.rawText || '']),
+    moods: moods.map(x => [x.period, x.mood, x.customTag || ''])
+  })
+}
 async function collectOpenids(date) {
   const ids = new Set()
   const txRes = await db.collection('transactions').where({ date }).limit(1000).get()
@@ -26,10 +44,10 @@ exports.main = async (event) => {
   for (const openid of collected.ids) {
     const tx = txAll.filter(x => x._openid === openid)
     const moods = moodAll.filter(x => x._openid === openid)
-    const content = buildContent(tx, moods)
     const existingRes = await db.collection('diaries').where({ _openid: openid, date }).get()
     const existing = existingRes.data[0]
-    if (!tx.length && !moods.length && existing) continue
+    if (!tx.length && !moods.length && existing && !existing.highlightDirty) continue
+    const content = buildContent(tx, moods, existing && existing.highlight)
     const payload = {
       title: (existing && existing.title) || date,
       highlight: (existing && existing.highlight) || '',
@@ -37,6 +55,7 @@ exports.main = async (event) => {
       moodSummary: moods.map(x => x.mood).join('/'),
       expenseSummary: '支出 ' + (tx.filter(x => x.amount < 0).reduce((s, x) => s + Math.abs(x.amount), 0)) + ' 元',
       dataSignature: signature(tx, moods),
+      highlightDirty: false,
       finalized: true,
       generatedBy: 'scheduler',
       lastGeneratedAt: db.serverDate(),

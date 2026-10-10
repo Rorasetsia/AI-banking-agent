@@ -29,10 +29,10 @@
 <view class="card mood-card anim-rise d-1">
   <view class="sec-title">今天心情如何？</view>
   <image class="decor decor-reading" src="/assets/decorations/reading.png" mode="aspectFit" />
-  <view class="mood-row {{item === 'morning' ? 'mood-row-first' : item === 'noon' ? 'mood-row-middle' : 'mood-row-last'}}" wx:for="{{['morning','noon','night']}}" wx:key="*this">
-    <view class="mood-period">{{item === 'morning' ? '早' : item === 'noon' ? '中' : '晚'}}</view>
+  <view class="mood-row {{item === 'morning' ? 'mood-row-first' : item === 'afternoon' ? 'mood-row-middle' : 'mood-row-last'}}" wx:for="{{['morning','afternoon','night']}}" wx:key="*this">
+    <view class="mood-period">{{item === 'morning' ? '早上' : item === 'afternoon' ? '下午' : '晚上'}}</view>
     <view wx:if="{{moodValues[item]}}" class="mood-selected anim-rise">
-      <text class="mood-selected-text">{{item === 'morning' ? '今早' : item === 'noon' ? '今天下午' : '今晚'}}心情：{{moodValues[item]}}</text>
+      <text class="mood-selected-text">{{item === 'morning' ? '早上' : item === 'afternoon' ? '下午' : '晚上'}}心情：{{moodValues[item]}}</text>
       <text class="mood-reset" data-period="{{item}}" bindtap="resetMood">重选</text>
     </view>
     <view wx:else class="mood-tags">
@@ -58,10 +58,16 @@
 </view>
 
 <!-- 今日大事记 -->
-<view class="card highlight-card anim-rise d-2">
-  <view class="highlight-head"><text class="sec-title">今日大事记</text><text class="highlight-hint">一句话概括今天做了什么</text></view>
-  <textarea class="highlight-input" value="{{highlight}}" bindinput="onHighlightInput" maxlength="120" placeholder="例如：今天和朋友去吃了一家很好吃的店" />
-  <view class="highlight-actions"><text class="highlight-tip">会同步到今日日记</text><view class="highlight-save tap" bindtap="saveHighlight">{{highlightSaving ? '保存中' : '保存'}}</view></view>
+<view class="card highlight-card anim-rise d-2 tap" bindtap="goHighlight">
+  <view class="highlight-head">
+    <text class="sec-title">今日大事记</text>
+    <text class="highlight-hint">{{highlight ? '点击编辑' : '一句话，留住今天'}}</text>
+  </view>
+  <view class="highlight-entry {{highlight ? 'has-content' : 'is-empty'}}">
+    <view class="highlight-mark">{{highlight ? '“' : '＋'}}</view>
+    <text class="highlight-preview">{{highlight || '今天还没有记录呢，点击写入吧'}}</text>
+    <view class="highlight-arrow">›</view>
+  </view>
 </view>
 
 <!-- 企鹅 IP：右下角固定 -->

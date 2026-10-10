@@ -238,6 +238,25 @@ function monthDays(month) {
   const m = Number(parts[1]) || new Date().getMonth() + 1
   return new Date(year, m, 0).getDate()
 }
+function budgetRecordTime(item) {
+  const value = item && (item.updatedAt || item.createdAt)
+  const time = value ? new Date(value).getTime() : 0
+  return Number.isFinite(time) ? time : 0
+}
+function budgetLogicalKey(item, fallbackMonth) {
+  const type = item.type === 'category' || (item.category && item.category !== '全部') ? 'category' : 'total'
+  const category = type === 'category' ? cleanText(item.category) : '全部'
+  const owner = item.ledgerId ? 'shared:' + item.ledgerId : 'personal:' + item._openid
+  return owner + '|' + (item.month || fallbackMonth) + '|' + type + '|' + category
+}
+function dedupeBudgets(list, fallbackMonth) {
+  const grouped = {}
+  for (const item of list) {
+    const key = budgetLogicalKey(item, fallbackMonth)
+    if (!grouped[key] || budgetRecordTime(item) > budgetRecordTime(grouped[key])) grouped[key] = item
+  }
+  return Object.values(grouped)
+}
 function normalizeBudgetAmounts(amount, period, month) {
   const days = monthDays(month)
   const value = Number(amount)
@@ -246,6 +265,8 @@ function normalizeBudgetAmounts(amount, period, month) {
 }
 async function setBudget(event, openid) {
   const current = event.data || event
+  const ledgerId = cleanText(current.ledgerId)
+  if (ledgerId && !(await checkLedgerMember(openid, ledgerId))) return { ok: false, error: '无权设置该共同账本预算' }
   const period = current.period === 'day' ? 'day' : 'month'
   const month = current.month || today().slice(0, 7)
   const type = current.type === 'category' ? 'category' : 'total'
@@ -254,36 +275,54 @@ async function setBudget(event, openid) {
   const amount = Number(current.amount)
   if (!amount || amount <= 0) return { ok: false, error: '预算金额必须大于 0' }
   const amounts = normalizeBudgetAmounts(amount, period, month)
-  const exist = await db.collection('budgets').where({ _openid: openid, month, type, category }).get()
-  const data = Object.assign({ month, type, category, period, source: current.source || 'manual', updatedAt: db.serverDate() }, amounts)
+  const existRes = ledgerId
+    ? await db.collection('budgets').where({ ledgerId, month, type, category }).get()
+    : await db.collection('budgets').where({ _openid: openid, month, type, category }).get()
+  const exist = ledgerId ? existRes.data : existRes.data.filter(item => !item.ledgerId)
+  const latest = exist.slice().sort((a, b) => budgetRecordTime(b) - budgetRecordTime(a))[0] || null
+  const requestedThreshold = Number(current.reminderThreshold)
+  const reminderThreshold = requestedThreshold >= 1 && requestedThreshold <= 100
+    ? Math.round(requestedThreshold)
+    : Number((latest && latest.reminderThreshold) || 80)
+  const data = Object.assign({ month, type, category, period, ledgerId, scope: ledgerId ? 'shared' : 'personal', reminderThreshold, source: current.source || 'manual', updatedAt: db.serverDate() }, amounts)
   let id = ''
-  if (exist.data.length) {
-    id = exist.data[0]._id
+  if (exist.length) {
+    const sorted = exist.slice().sort((a, b) => budgetRecordTime(b) - budgetRecordTime(a))
+    id = sorted[0]._id
     await db.collection('budgets').doc(id).update({ data })
+    for (const duplicate of sorted.slice(1)) await db.collection('budgets').doc(duplicate._id).remove()
   } else {
     const created = await db.collection('budgets').add({ data: Object.assign({}, data, { _openid: openid, createdAt: db.serverDate() }) })
     id = created._id
   }
-  return { ok: true, _id: id, month, type, category, period, amount, monthlyAmount: amounts.monthlyAmount, dailyAmount: amounts.dailyAmount, daysInMonth: amounts.daysInMonth }
+  return { ok: true, _id: id, month, type, category, period, ledgerId, scope: ledgerId ? 'shared' : 'personal', reminderThreshold, amount, monthlyAmount: amounts.monthlyAmount, dailyAmount: amounts.dailyAmount, daysInMonth: amounts.daysInMonth }
 }
 async function listBudgets(event, openid) {
-  const month = (event.data || event).month || today().slice(0, 7)
-  const res = await db.collection('budgets').where({ _openid: openid }).get()
-  const list = res.data.filter(item => !item.month || item.month === month)
+  const current = event.data || event
+  const month = current.month || today().slice(0, 7)
+  const ledgerId = cleanText(current.ledgerId)
+  if (ledgerId && !(await checkLedgerMember(openid, ledgerId))) return { ok: false, error: '无权查看该共同账本预算' }
+  const res = ledgerId
+    ? await db.collection('budgets').where({ ledgerId }).get()
+    : await db.collection('budgets').where({ _openid: openid }).get()
+  const source = ledgerId ? res.data : res.data.filter(item => !item.ledgerId)
+  const list = dedupeBudgets(source.filter(item => !item.month || item.month === month), month)
   const total = list.find(item => item.type === 'total' || (!item.type && (!item.category || item.category === '全部'))) || null
   const categories = list.filter(item => item.type === 'category').map(item => Object.assign({}, item, {
     dailyAmount: item.dailyAmount !== undefined ? item.dailyAmount : Math.round(Number(item.amount || 0) / monthDays(item.month || month) * 100) / 100,
     monthlyAmount: item.monthlyAmount !== undefined ? item.monthlyAmount : Number(item.amount || 0),
     daysInMonth: item.daysInMonth || monthDays(item.month || month)
   }))
-  return { ok: true, month, total, categories }
+  return { ok: true, month, ledgerId, scope: ledgerId ? 'shared' : 'personal', total, categories }
 }
 async function deleteBudget(event, openid) {
   const id = (event.data || event).recordId || (event.data || event)._id
   if (!id) return { ok: false, error: '缺少预算 ID' }
   let doc
   try { doc = (await db.collection('budgets').doc(id).get()).data } catch (e) { return { ok: false, error: '预算不存在' } }
-  if (doc._openid !== openid) return { ok: false, error: '无权删除该预算' }
+  if (doc.ledgerId) {
+    if (!(await checkLedgerMember(openid, doc.ledgerId))) return { ok: false, error: '无权删除该共同账本预算' }
+  } else if (doc._openid !== openid) return { ok: false, error: '无权删除该预算' }
   await db.collection('budgets').doc(id).remove()
   return { ok: true }
 }

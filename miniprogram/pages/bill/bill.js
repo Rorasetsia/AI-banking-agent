@@ -99,7 +99,7 @@ Page({
       }))
       this.setData({ list, total: res.total || 0, expense: Number(res.expense || 0).toFixed(2), income: Number(res.income || 0).toFixed(2) })
       this.loadMonthSummary(ledgerId || '')
-      this.loadBudgets()
+      this.loadBudgets(ledgerId || '')
     }).catch(() => { this.setData({ loading: false }); wx.showToast({ title: '账单加载失败', icon: 'none' }) })
   },
   switchTab(e) {
@@ -115,8 +115,9 @@ Page({
       if (res.ok) this.setData({ monthExpense: Number(res.expense || 0).toFixed(2), monthCount: res.total || 0 })
     })
   },
-  loadBudgets() {
-    this.callService('budgets.list').then(res => {
+  budgetLedgerId() { return this.data.tab === 'shared' && this.data.sharedLedger ? this.data.sharedLedger._id : '' },
+  loadBudgets(ledgerId) {
+    this.callService('budgets.list', { ledgerId: ledgerId || this.budgetLedgerId() }).then(res => {
       if (!res.ok) return
       const total = res.total || null
       const categories = (res.categories || []).map(item => Object.assign({}, item, {
@@ -137,14 +138,17 @@ Page({
       if (!res.confirm) return
       const amount = Number(res.content)
       if (!amount || amount <= 0) return wx.showToast({ title: '请输入有效金额', icon: 'none' })
-      this.callService('budgets.set', { month: this.data.viewDate.slice(0, 7), type: 'total', period, amount }).then(result => {
+      this.callService('budgets.set', { month: this.data.viewDate.slice(0, 7), ledgerId: this.budgetLedgerId(), type: 'total', period, amount }).then(result => {
         if (!result.ok) return wx.showToast({ title: result.error || '保存失败', icon: 'none' })
         wx.showToast({ title: '预算已保存：月 ¥' + result.monthlyAmount + ' / 日 ¥' + result.dailyAmount, icon: 'none' })
         this.loadBudgets()
       })
     } })
   },
-  openBudgetGoals() { wx.navigateTo({ url: '/pages/budget-goals/budget-goals' }) },
+  openBudgetGoals() {
+    const ledgerId = this.budgetLedgerId()
+    wx.navigateTo({ url: '/pages/budget-goals/budget-goals?scope=' + (ledgerId ? 'shared' : 'personal') + '&ledgerId=' + ledgerId })
+  },
   addCategoryBudget() {
     wx.showModal({ title: '分类预算', editable: true, placeholderText: '请输入分类，例如 餐饮', confirmText: '下一步', success: res => {
       if (!res.confirm) return
@@ -154,10 +158,10 @@ Page({
         if (!amountRes.confirm) return
         const amount = Number(amountRes.content)
         if (!amount || amount <= 0) return wx.showToast({ title: '请输入有效金额', icon: 'none' })
-        this.callService('budgets.set', { month: this.data.viewDate.slice(0, 7), type: 'category', category, period: 'month', amount }).then(result => {
+        this.callService('budgets.set', { month: this.data.viewDate.slice(0, 7), ledgerId: this.budgetLedgerId(), type: 'category', category, period: 'month', amount }).then(result => {
           if (!result.ok) return wx.showToast({ title: result.error || '保存失败', icon: 'none' })
           wx.showToast({ title: '分类预算已保存', icon: 'success' })
-          this.loadBudgets()
+          this.loadBudgets(this.budgetLedgerId())
         })
       } })
     } })
@@ -169,10 +173,10 @@ Page({
       if (!res.confirm) return
       const amount = Number(res.content)
       if (!amount || amount <= 0) return wx.showToast({ title: '请输入有效金额', icon: 'none' })
-      this.callService('budgets.set', { month: this.data.viewDate.slice(0, 7), type: 'category', category: item.category, period: 'month', amount }).then(result => {
+      this.callService('budgets.set', { month: this.data.viewDate.slice(0, 7), ledgerId: this.budgetLedgerId(), type: 'category', category: item.category, period: 'month', amount }).then(result => {
         if (!result.ok) return wx.showToast({ title: result.error || '保存失败', icon: 'none' })
         wx.showToast({ title: '已更新', icon: 'success' })
-        this.loadBudgets()
+        this.loadBudgets(this.budgetLedgerId())
       })
     } })
   },
@@ -181,10 +185,10 @@ Page({
     if (!item) return
     wx.showModal({ title: '删除分类预算', content: '确认删除' + item.category + '预算吗？', confirmColor: '#D9534F', success: res => {
       if (!res.confirm) return
-      this.callService('budgets.delete', { recordId: item._id }).then(result => {
+      this.callService('budgets.delete', { recordId: item._id, ledgerId: this.budgetLedgerId() }).then(result => {
         if (!result.ok) return wx.showToast({ title: result.error || '删除失败', icon: 'none' })
         wx.showToast({ title: '已删除', icon: 'success' })
-        this.loadBudgets()
+        this.loadBudgets(this.budgetLedgerId())
       })
     } })
   },

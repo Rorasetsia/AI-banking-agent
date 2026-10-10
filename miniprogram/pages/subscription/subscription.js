@@ -52,5 +52,5 @@ Page({
       })
     } })
   },
-  scan() { wx.showToast({ title: '自动识别扣费开发中', icon: 'none' }) }
+
 })
