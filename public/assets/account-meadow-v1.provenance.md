@@ -1,0 +1,10 @@
+# 账户草甸卡片 v1
+
+- 日期2026-10-22，内置image_gen参考生图1次，无CLI/API fallback。
+- 用户“下载 (3).jpg”作为草甸类型、光影、花草和写实细节参考，另构横幅草坡/树木布局，未直接使用原附件。
+- 原稿output/imagegen/account-meadow-v1.png，2172×724；网页public/assets/account-meadow-v1.webp，1,952,222字节，无损转换、RGB逐像素核验相等。
+- 独立提示词文件output/imagegen/account-meadow-v1-prompt.txt；以下为完整最终提示词。未声称法律版权审查或排他性。
+
+## Final prompt
+
+Create a NEW independently composed photorealistic spring meadow landscape photograph, using the attached image only as a reference for the natural landscape type, flowers, greenery and lighting. This is a wide background photograph for an existing banking account balance card, panoramic 3:1, high resolution. Preserve the reference's soft luminous daylight, rolling and interlocking rounded green hills, sunlit ridgelines and deep green soft-edged valley shadows, fresh individual grass blades, tiny white meadow blossoms, low flowering bushes and a few small leafy trees. Layer the hills into depth, with subtle natural atmospheric perspective. A small band of pale blue sky with soft white cumulus clouds at the top, while the majority is rolling wildflower grassland. Foreground grass and small white flowers have natural shallow depth of field, realistic fine detail, a gentle fresh breeze implied by the grass, not artificial plastic texture. Keep the original kind of light: warm soft sunlight from upper left, glow on grassy slopes, quiet shaded valleys, luminous but controlled highlights. Compose a different natural arrangement of ridges and trees, not an exact copy. Make it serene and believable as a real high-quality nature photograph, not a cartoon or fantasy painting. The left-center will have light financial text over a separate dark green UI tint, so provide a shaded low-contrast grassy slope there; place the brightest meadow ridges and white flowers mostly towards the right and foreground margins. Maintain authentic vegetation and light, without making an empty flat green gradient. Full bleed landscape only, no text, no numbers, no logo, no UI, no people, no buildings, no roads, no fence, no border.

@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.tools/
+.runs/
+data/
+.env
+.playwright-cli/
+*.log
+output/playwright/*.zip
+__pycache__/
+*.pyc

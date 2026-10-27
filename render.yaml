@@ -1,0 +1,26 @@
+# Standalone repository: upload only fintech-ai-banking, without data or .runs.
+# Free preview: fixed URL, cold starts, synthetic data resets are accepted.
+services:
+  - type: web
+    name: moss-banking-preview
+    runtime: node
+    plan: free
+    region: singapore
+    numInstances: 1
+    buildCommand: npm ci --no-audit --no-fund && npm run build
+    startCommand: node scripts/start-hosted.mjs
+    healthCheckPath: /api/health
+    autoDeployTrigger: 'off'
+    envVars:
+      - key: NODE_VERSION
+        value: '24'
+      - key: NODE_ENV
+        value: production
+      - key: BANK_DB_PATH
+        value: data/hosted-preview.sqlite
+      - key: BANK_EPHEMERAL_PREVIEW
+        value: '1'
+      - key: BANK_MODEL_DAILY_LIMIT
+        value: '100'
+      - key: DEEPSEEK_API_KEY
+        sync: false

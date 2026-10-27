@@ -1,0 +1,64 @@
+/* Quiet paper surface; the chat remains the visual focus. */
+.hosted-preview-notice{margin:0 0 12px;padding:8px 12px;border:1px solid #dce4d5;border-radius:10px;background:#f1f5eb;color:#6b7b60;font-size:11px;line-height:1.6}
+.assistant.assistant--surface:not(.assistant--compact){position:relative;isolation:isolate;height:clamp(610px,calc(100dvh - 185px),920px);min-height:500px;gap:14px;padding:22px 24px 16px;border:1px solid #dfe4d9;border-radius:20px;background:linear-gradient(145deg,#f9faf5,#f1f4ec);box-shadow:0 12px 32px -24px #263e2c3d;filter:none}
+.overview .assistant.assistant--surface.assistant--conversation{height:540px;min-height:540px;gap:12px}
+.assistant--surface .assistant-output{display:flex;flex-direction:column;gap:14px;flex:1;min-height:0;min-width:0}
+.assistant--surface .assistant-head{padding-bottom:11px;border-bottom:1px solid #d3d9c86b;flex-shrink:0}
+.assistant--surface .assistant-orb{width:32px;height:32px;flex-basis:32px;border-radius:50%;color:#536a3d;background:#e0e8d6}
+.assistant--surface .assistant-orb::after{display:none}
+.assistant--surface .assistant-identity h2{font-size:14px;color:#263122}
+.assistant--surface .assistant-identity p{font-size:11px;color:#6c795f;margin-top:2px}
+.conversation-tools{display:flex;align-items:center;gap:7px;margin-left:auto}
+.conversation-tools button{display:inline-flex;align-items:center;justify-content:center;gap:2px;min-height:28px;padding:3px 4px;border-radius:7px;color:#657451;font-size:10px;background:transparent}
+.conversation-tools button:hover{background:#e2e9d7;color:#34432a}
+.assistant--surface .assistant-messages{flex:1;min-height:0;gap:17px;padding:5px 4px 7px 0;scrollbar-color:#c2cbb5 transparent}
+.assistant--surface .chat-avatar{width:25px;height:25px;flex:0 0 25px;border-radius:50%;background:#e2e9d6;color:#567042}
+.assistant--surface .chat-avatar--user{background:#d3dfbf;color:#4b6335}
+.assistant--surface .chat-bubble{background:#fff;border:1px solid #e4e8dd;border-radius:16px 16px 16px 5px;padding:11px 14px;max-width:87%;box-shadow:0 3px 8px -6px #35432b32}
+.assistant--surface .chat-row--user .chat-bubble{background:#dfead1;border-color:#d4e2c1;border-radius:16px 16px 5px 16px}
+.assistant--surface .chat-text{font-size:15px;font-weight:500;color:#294637;line-height:1.85}
+.assistant--surface .chat-row--enter .chat-bubble{transform-origin:left bottom;animation:chat-spring .52s cubic-bezier(.16,1.2,.36,1) both}
+.assistant--surface .chat-row--user.chat-row--enter .chat-bubble{transform-origin:right bottom}
+.assistant--surface .chat-time{color:#89917e}
+.assistant--surface .chat-meta{gap:5px}
+.assistant--surface .assistant-pending{max-height:170px;overflow:auto;flex-shrink:0}
+.assistant--surface .assistant-error{max-height:160px;overflow:auto;flex-wrap:wrap;flex-shrink:0}
+.assistant--surface .assistant-composer{flex-shrink:0;margin-top:0}
+.assistant--surface .composer-box{padding:11px 13px;background:#ffffffeb;border-radius:16px;border:1px solid #d8dece;box-shadow:0 4px 12px -10px #334d242e}
+.assistant--surface .composer-box:focus-within{border-color:#95a77c;box-shadow:0 0 0 3px #91aa6914}
+.assistant--surface .composer-box textarea{min-height:43px;max-height:100px;resize:none;font-size:13px;line-height:1.7}
+.assistant--surface .composer-hint{font-size:11px;color:#6b7864}
+.assistant--surface .assistant-send{height:32px;min-height:32px;padding:0 13px;border-radius:18px;background:var(--wallet-green);font-size:11px;margin-left:auto}
+.assistant--surface>.assistant-footnote{font-size:11px;color:#6b7864;text-align:center;flex-shrink:0}
+.assistant--surface .assistant-quick{flex-wrap:wrap;overflow:visible;flex-shrink:0}
+.assistant--surface .assistant-quick button{white-space:normal;text-align:left;flex:0 1 auto}
+.assistant-quick-menu{flex-shrink:0;font-size:11px;color:#718365}.assistant-quick-menu summary{cursor:pointer;padding:3px 0;min-height:26px}.assistant-quick-menu[open] .assistant-quick{max-height:110px;overflow:auto;padding-top:5px}
+.assistant--surface .assistant-empty{padding:15px 12px;background:transparent;border:0}
+.assistant--surface .assistant-empty-icon{display:none}
+.assistant--surface .assistant-empty h3{font-size:16px;font-weight:500}
+.assistant--surface .assistant-example{background:#fff}
+.assistant--surface .conversation-greeting{align-self:flex-start;max-width:90%;margin:8px 0 0;padding:16px 18px;background:#fff;border:1px solid #e4e8dd;border-radius:17px 17px 17px 5px;font-size:16px;font-weight:400;line-height:1.8;color:#69755e;box-shadow:0 4px 12px -10px #34412936}
+.conversation-suggestions{display:flex;flex-wrap:wrap;gap:5px;flex-shrink:0}
+.conversation-suggestions button{display:inline-flex;align-items:center;gap:2px;padding:3px 7px;border:1px solid #dce2d2;border-radius:15px;background:#ffffff90;color:#738162;font-size:10px}
+.conversation-suggestions button:hover{background:#e5ecd9}
+@keyframes chat-spring{0%{opacity:0;transform:translateY(9px) scale(.82)}65%{opacity:1;transform:translateY(-1px) scale(1.025)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:600px){
+ .assistant.assistant--surface:not(.assistant--compact){height:calc(100dvh - 177px);min-height:490px;padding:16px 13px 12px;border-width:1px;border-radius:16px;gap:12px}
+ .overview .assistant.assistant--surface.assistant--conversation{height:520px;min-height:520px}
+ .assistant--surface .assistant-identity{gap:6px}.assistant--surface .assistant-identity h2{font-size:12px}.assistant--surface .assistant-identity p{display:none}
+ .conversation-tools{gap:2px}.conversation-tools button{font-size:9px}
+ .assistant--surface .chat-avatar{display:none}.assistant--surface .chat-bubble{max-width:94%;padding:10px 12px}
+ .assistant--surface .chat-text{font-size:14px}.assistant--surface .conversation-greeting{font-size:15px;padding:13px}
+ .assistant--surface .composer-box textarea{font-size:16px;min-height:48px}
+ .assistant--surface .composer-hint{display:block;max-width:165px;font-size:10px}
+ .assistant--surface .composer-footer{align-items:flex-end}
+ .assistant--surface .assistant-example{padding:7px 9px}.assistant--surface .example-text{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){.assistant--surface .chat-row--enter .chat-bubble{animation:none}}
+
+/* Honest model waiting feedback, no fabricated execution progress. */
+.assistant-waiting{display:flex;align-items:center;gap:13px;max-width:100%;width:430px;padding:17px 18px;background:#fffefa;border:1px solid #dce3d5;border-radius:17px 17px 17px 5px;box-shadow:0 7px 24px -20px #234535;color:#294d37}
+.assistant-waiting>div{min-width:0;flex:1}.assistant-waiting strong{font-size:13px;font-weight:600;line-height:1.6}.assistant-waiting p{font-size:11px;line-height:1.7;color:#718167;margin:5px 0 10px}.waiting-orbit{position:relative;display:grid;place-items:center;flex-shrink:0;width:42px;height:42px;border-radius:50%;background:#edf2e7;color:#537449}.waiting-orbit i{position:absolute;inset:-3px;border:1px solid #cbd8bd;border-top-color:#426d4b;border-right-color:#426d4b;border-radius:50%;animation:waiting-orbit 2s linear infinite}.waiting-dots{display:inline-flex;gap:3px;margin-left:5px}.waiting-dots i{width:3px;height:3px;background:#5e7c4b;border-radius:50%;animation:waiting-dot 1.4s ease-in-out infinite}.waiting-dots i:nth-child(2){animation-delay:.16s}.waiting-dots i:nth-child(3){animation-delay:.32s}.waiting-line{height:3px;width:100%;max-width:240px;overflow:hidden;background:#e8eddf;border-radius:3px}.waiting-line:after{content:'';display:block;width:42%;height:100%;border-radius:3px;background:linear-gradient(90deg,transparent,#9bb78a,transparent);animation:waiting-line 2.2s ease-in-out infinite}.chat-row--waiting{padding:5px 0 7px}
+@keyframes waiting-orbit{to{transform:rotate(360deg)}}@keyframes waiting-dot{0%,70%,100%{opacity:.35;transform:translateY(0)}35%{opacity:1;transform:translateY(-3px)}}@keyframes waiting-line{from{transform:translateX(-100%)}to{transform:translateX(340%)}}
+@media(max-width:600px){.assistant-waiting{padding:14px 13px;gap:11px;width:100%}.assistant-waiting strong{font-size:12px}.waiting-orbit{width:32px;height:32px}.assistant-waiting p{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.waiting-orbit i,.waiting-dots i,.waiting-line:after{animation:none}.waiting-line:after{width:100%;background:#a6ba94}}

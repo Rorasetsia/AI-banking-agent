@@ -1,0 +1,41 @@
+/* Keep the sculpted split and reuse the workspace's existing forest palette. */
+.account-home .account-wallet-stack{padding-bottom:13px}
+.account-home .account-wallet-stack::before{display:block;inset:20px 0 5px;border-radius:26px;background:linear-gradient(115deg,var(--forest-deep),var(--green-bright) 48%,var(--green) 80%,var(--forest));box-shadow:0 6px 0 #0a1510,0 20px 30px -24px #153d3280}
+.account-home .account-wallet-card{padding:9px 9px 24px;border:1px solid var(--forest-deep);border-radius:26px;background:radial-gradient(ellipse at 5% 20%,color-mix(in srgb,var(--forest-soft) 24%,transparent),transparent 70%),linear-gradient(120deg,color-mix(in srgb,var(--forest-deep) 50%,#080c0a),color-mix(in srgb,var(--forest-deep) 25%,#080c0a) 75%);color:#f3f5ed;box-shadow:inset 0 1px 0 #ffffff0d,0 1px 0 var(--forest-deep)}
+.account-home .account-wallet-crown{min-height:190px;align-items:flex-start;gap:24px;padding:25px 22px 45px;border:0}
+.account-home .account-crown-surface{background:var(--prism-material);border-radius:0;box-shadow:inset 0 1px 0 #e4efe426}
+.account-home .account-crown-edge{position:absolute;inset:0;z-index:-2;transform:translateY(2px);background:#64cdbb;pointer-events:none}
+.account-home .account-brand-sign{padding-top:0;gap:12px}
+.account-home .account-brand-sign>span{border-color:#e4efe45c;color:var(--mint);background:#e4efe40a;box-shadow:none}
+.account-home .account-brand-sign strong{font-size:29px;font-weight:500;color:#f3f6eb}
+.account-home .account-brand-sign small{font-size:12px;letter-spacing:.2em;color:var(--mint);margin-top:7px}
+.account-home .account-wallet-balance{align-self:flex-start}
+.account-home .account-wallet-label-row{color:var(--mint);font-size:16px;letter-spacing:.04em}
+.account-home .account-wallet-amount-row{margin-top:7px}
+.account-home .account-wallet-amount-row strong{font-family:var(--font);font-size:clamp(42px,4.8vw,64px);font-weight:500;letter-spacing:-.025em;color:#f7f8ef;font-variant-numeric:tabular-nums;line-height:1.2}
+.account-home .account-eye{color:var(--mint)}
+.account-home .account-wallet-head{min-height:62px;margin-top:-27px;padding:0 22px;align-items:center}
+.account-home .account-wallet-head h2{font-size:24px;font-weight:500;color:#f3f5ec}
+.account-home .account-wallet-tag{color:#d1ded5;font-size:14px;margin-top:5px;letter-spacing:.02em}
+.account-home .account-brand-badge{align-self:flex-end;margin:0 0 4px;color:#d1ded5;font-size:14px;letter-spacing:.02em}
+.account-home .account-wallet-meta{padding:22px 22px 0;gap:20px}
+.account-home .account-wallet-meta dt{color:#d1ded5;font-size:15px;margin-bottom:7px}
+.account-home .account-wallet-meta dd{font-size:26px;font-weight:500;color:#edf2e4;font-variant-numeric:tabular-nums}
+.account-home .account-quick-actions{margin:24px 22px 0;padding-top:18px;gap:12px;border-top:1px solid #e4efe426}
+.account-home .account-quick-actions button{min-height:50px;border-radius:12px;border-color:#e4efe429;background:#e4efe407;color:var(--mint);font-size:16px;gap:7px}
+.account-home .account-action-icon{background:transparent;color:#c2d2c8;box-shadow:none}
+.account-home .account-quick-actions button:hover{background:#e4efe412;border-color:color-mix(in srgb,var(--green-bright) 65%,transparent);transform:translateY(-1px)}
+/* Pixel-sized corner controls avoid stretching radii with the card's aspect ratio. */
+@supports(clip-path:shape(from 0 0,line to 100% 0,line to 100% 100%,close)){
+ .account-home :is(.account-crown-surface,.account-crown-edge){clip-path:shape(from 22px 0,hline to calc(100% - 22px),curve to 100% 22px with 100% 0,vline to calc(100% - 22px),curve to calc(100% - 22px) 100% with 100% 100%,hline to 60%,curve to 44% 75% with 53% 100% / 51% 75%,hline to 22px,curve to 0 calc(75% - 22px) with 0 75%,vline to 22px,curve to 22px 0 with 0 0,close)!important}
+}
+@media(max-width:600px){
+ .account-home .account-wallet-card{padding:7px 7px 18px;border-radius:23px}
+ .account-home .account-wallet-stack::before{border-radius:23px}
+ .account-home .account-wallet-crown{min-height:238px;flex-wrap:wrap;gap:16px;padding:18px 13px 42px}
+ .account-home .account-brand-sign{gap:9px}.account-home .account-brand-sign>span{width:34px;height:34px}.account-home .account-brand-sign strong{font-size:24px}.account-home .account-brand-sign small{font-size:11px;margin-top:4px}
+ .account-home .account-wallet-balance{flex-basis:100%;margin:0}.account-home .account-wallet-label-row{font-size:14px}.account-home .account-wallet-amount-row{margin-top:4px}.account-home .account-wallet-amount-row strong{font-size:40px}
+ .account-home .account-wallet-head{padding:0 13px;min-height:66px;margin-top:-24px;align-items:flex-start;flex-wrap:wrap;gap:5px}.account-home .account-wallet-head h2{font-size:21px}.account-home .account-wallet-tag{font-size:12px}.account-home .account-brand-badge{font-size:12px;align-self:flex-end;margin:0 0 3px}
+ .account-home .account-wallet-meta{padding:20px 13px 0;gap:8px}.account-home .account-wallet-meta dt{font-size:13px}.account-home .account-wallet-meta dd{font-size:18px}
+ .account-home .account-quick-actions{margin:20px 7px 0;padding-top:14px;gap:7px}.account-home .account-quick-actions button{font-size:14px;border-radius:10px;min-height:70px;gap:4px}.account-home .account-action-icon{width:28px;height:28px;flex-basis:28px}
+}

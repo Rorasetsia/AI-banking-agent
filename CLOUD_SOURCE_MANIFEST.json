@@ -1,0 +1,565 @@
+{
+  "version": "0.8.3",
+  "files": [
+    {
+      "path": ".gitignore",
+      "sha256": "8745564f59eacf4927b3f79f339f72ef11ae8272a81b90ceddb6c976620faaf7",
+      "bytes": 112
+    },
+    {
+      "path": "docs/26_免费在线试用部署_2026-10-27.md",
+      "sha256": "d5d31c98434a723ae4c1a68411c7722844dcc03e728550715c9188627ed840f7",
+      "bytes": 6534
+    },
+    {
+      "path": "docs/27_AI确认表单与模型接入_2026-10-27.md",
+      "sha256": "a233b08f918a067b2b984b4dff83b5a9b1f66d782779987067fab919a88e9037",
+      "bytes": 3190
+    },
+    {
+      "path": "docs/28_通用自适应追问与条件折叠_2026-10-27.md",
+      "sha256": "fc9e2c035903b631f91b93d15bb2f047c9237ff20a4f28151d96a916e26e0e46",
+      "bytes": 3672
+    },
+    {
+      "path": "docs/29_储蓄可行性决策与理财情景_2026-10-27.md",
+      "sha256": "0e4ba5e5422d8d470035f3ae4244e0d9259f016d0deba3cda6b4bc38b127236c",
+      "bytes": 4008
+    },
+    {
+      "path": "index.html",
+      "sha256": "717e7f6c95f7b252601f7a03853cf112035f6cd4a539e7938064919db216531b",
+      "bytes": 710
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "ad935bae05e5cdf3faee36e0918220fc177701f6c646258357ef0ffb09d2d64c",
+      "bytes": 54892
+    },
+    {
+      "path": "package.json",
+      "sha256": "94fb2edac294e944f3e73fc541438e25f0eb89bb5edbf93d5c4134416beded7e",
+      "bytes": 779
+    },
+    {
+      "path": "public/assets/account-forest-v1.webp",
+      "sha256": "661deebb075af4218b225243d0c8c4401ad22a448cbf40c2f96521bc8670da27",
+      "bytes": 2496892
+    },
+    {
+      "path": "public/assets/account-meadow-v1.provenance.md",
+      "sha256": "6c3e01a457451dfe9fbe216198486415f3b19fa99ca62ec9027548dc68b19db0",
+      "bytes": 2313
+    },
+    {
+      "path": "public/assets/account-meadow-v1.webp",
+      "sha256": "b06b4a0b09ee8002be7b900473e74c8e61fe712c717774881720dcb75a63ac06",
+      "bytes": 1952222
+    },
+    {
+      "path": "public/assets/balance-moss-v1.webp",
+      "sha256": "5b4d3ac4d9ae862b390f4a46391fb7723f63ba4792912dff39cae35cb2b1471a",
+      "bytes": 1792558
+    },
+    {
+      "path": "public/assets/chat-metal-frame-v1.webp",
+      "sha256": "0bff1630da48589fc68b2b68830c4d461e092b01ff6d1081caddff0c4068972a",
+      "bytes": 354990
+    },
+    {
+      "path": "public/assets/forest-v1.png",
+      "sha256": "1f7ab0684450b583985cfbbeaa162815c272c219ef4bd59e9fc52becf22abbc7",
+      "bytes": 3088280
+    },
+    {
+      "path": "public/assets/forest-v1.provenance.md",
+      "sha256": "ed2882a93f2e64ad3a7cc15fcbda294d428220c6d5f10fc44441a47183682c4f",
+      "bytes": 757
+    },
+    {
+      "path": "public/assets/metal-risk-v1.provenance.md",
+      "sha256": "9aaaa25012d43cb491334de801b7d18a5aecc5a1885bb318dd93f5912bed3df8",
+      "bytes": 4225
+    },
+    {
+      "path": "public/assets/nature-cards-v1.provenance.md",
+      "sha256": "d315073c9c9bfa628acbb81671be65fa327678b6ca2651ee575b2982c6ea68f9",
+      "bytes": 1262
+    },
+    {
+      "path": "public/assets/risk-journal-v1.webp",
+      "sha256": "0b30bc5285a2c4718ee65a88a32f28625d7d08c96ab6171bacacc75691ca4e3e",
+      "bytes": 725176
+    },
+    {
+      "path": "public/assets/workspace-marble-v1.provenance.md",
+      "sha256": "b3a3993ee0dbf4831ea7728a729624b59f4e69caa8968134163bb037b82f8e0a",
+      "bytes": 721
+    },
+    {
+      "path": "public/assets/workspace-marble-v1.webp",
+      "sha256": "bc4910117ddc9b491436c0b946371aab95857c3848b0a19a2b6932e8d4cd696d",
+      "bytes": 1119728
+    },
+    {
+      "path": "render.yaml",
+      "sha256": "d09ec72f43f8955a327faa6a58c6d60c09c08d0f2712f80d7957cfc27bb6c3e3",
+      "bytes": 796
+    },
+    {
+      "path": "scripts/package-hosted.py",
+      "sha256": "5a85f2eb2a1b781c811183eeaa4be4b49765a2da7286094ff563bd7276c340b6",
+      "bytes": 2552
+    },
+    {
+      "path": "scripts/start-hosted.mjs",
+      "sha256": "e2577989a9d7d4c4c7c01b8eac8edf1c671ee9c14aa3e29d70dfeb74a463725d",
+      "bytes": 859
+    },
+    {
+      "path": "server/agent-tools.mjs",
+      "sha256": "11627f1e9f74a5149f06e69a4911d479ff4f7bc72f1c0f455d4e661414f059aa",
+      "bytes": 10660
+    },
+    {
+      "path": "server/analytics.mjs",
+      "sha256": "61d74486ee8c9f6dbed65d275cfea473c6ec65891e80587e091283b6ffd31309",
+      "bytes": 8642
+    },
+    {
+      "path": "server/clarification-ui.mjs",
+      "sha256": "8d100cf551a775a4360ccab01a04802d0a4a335f49e03b3008a385206003beab",
+      "bytes": 2858
+    },
+    {
+      "path": "server/conversation.mjs",
+      "sha256": "d5bbbb3a712efa424b2393966bbe1666ade0651acd77a52e0948286397689484",
+      "bytes": 10677
+    },
+    {
+      "path": "server/engine.mjs",
+      "sha256": "f3bf1a00aa4addf57adbffed7674ff5d62e832130eb4a3179e6f22ef6effae36",
+      "bytes": 36817
+    },
+    {
+      "path": "server/family.mjs",
+      "sha256": "11e6dcd6c6291a70a9d7c32e369f06d555c9d5b0d0c3c7ebbd4a78fa544a2654",
+      "bytes": 8133
+    },
+    {
+      "path": "server/green-analysis.mjs",
+      "sha256": "7ee0ee673d44add48b006d48aadabc12d8c4b1169643e558e288400ab1bb8e41",
+      "bytes": 10792
+    },
+    {
+      "path": "server/green-carbon.mjs",
+      "sha256": "ac5606b9c4504d48634911d0d7d2791f34116b5786e46bff82be68d1ef0f9c38",
+      "bytes": 2922
+    },
+    {
+      "path": "server/green-decisions.mjs",
+      "sha256": "4537f76d58d470318d6d72fc9e17727dc146f39783da6afe9d42c4240d4b54b8",
+      "bytes": 12399
+    },
+    {
+      "path": "server/green-finance.mjs",
+      "sha256": "b52bbaac978832d77341eab93ef8b183780224587144c6a1e0016ef2d15684fc",
+      "bytes": 22749
+    },
+    {
+      "path": "server/green-goals.mjs",
+      "sha256": "5e3add39a2f33225a1dbb0a3ac52bd970237204bd38a227dfc76920862c91019",
+      "bytes": 7174
+    },
+    {
+      "path": "server/intent.mjs",
+      "sha256": "8cdac4c20ab41932a4d6fa6d22d951163e90eee0e34204d428f6d26b383622bc",
+      "bytes": 13396
+    },
+    {
+      "path": "server/operation-risk.mjs",
+      "sha256": "53aaacb7d7059c35d55406113f9cbd7bc8356144b292aded884b2fa88e8dc078",
+      "bytes": 2457
+    },
+    {
+      "path": "server/own-funds.mjs",
+      "sha256": "45aaf83b066e2b722dd10807e94838596013008f26e23c64100dba9f6eb75d40",
+      "bytes": 3580
+    },
+    {
+      "path": "server/recovery.mjs",
+      "sha256": "78daa7cc109cf0733955d45b9b13d1ae3f8be32e78e8c5634a0153eb85469069",
+      "bytes": 1932
+    },
+    {
+      "path": "server/risk-assessment.mjs",
+      "sha256": "381aac50a0a4f7b4658ab935701943f169870892cc98ae4cdb4023614eedb62a",
+      "bytes": 2402
+    },
+    {
+      "path": "server/risk-questionnaire.private.json",
+      "sha256": "ca0f745cb1470e50481435e0c19dd605666121fab57ee1140a37563969a0fa57",
+      "bytes": 6756
+    },
+    {
+      "path": "server/rules.mjs",
+      "sha256": "f60424ff4aa2598c637c874a823983e134c059a08ac5d2965d4a0ac24972473f",
+      "bytes": 11412
+    },
+    {
+      "path": "server/savings-agent.mjs",
+      "sha256": "f64f545dfce1ebbe1a472d6050ffb85b314f606941fe1fac462c03a1e51cea28",
+      "bytes": 32539
+    },
+    {
+      "path": "server/savings-scenarios.mjs",
+      "sha256": "f7295af9011f36ae07ff7e9c5ffebb5762f04b4146530f9b396e52df1493688f",
+      "bytes": 2745
+    },
+    {
+      "path": "server/seed.mjs",
+      "sha256": "b6fb744db3d8d07194c88226a3957e762d3f168d6e4710255e88ce982b0c69bb",
+      "bytes": 7390
+    },
+    {
+      "path": "server/server.mjs",
+      "sha256": "25bdde346de4b87f764c237cf0f1376c056da5ef9cc36c6c703fb2ea305db0ec",
+      "bytes": 39688
+    },
+    {
+      "path": "server/service-operations.mjs",
+      "sha256": "7628bde4f25dac991816e98fa4ce45c8b70e258a92cd04cb78482b8bd9336dee",
+      "bytes": 45333
+    },
+    {
+      "path": "server/store.mjs",
+      "sha256": "83490368fcdc76f4e2f7d03b5fe0d3d86147416c72ff9ec00532c04863842003",
+      "bytes": 5811
+    },
+    {
+      "path": "server/transaction-security.mjs",
+      "sha256": "e157b69dc0d08055fb60ea913dcc2d7f5fa3cfbdf413f0d9d6f139e06d492258",
+      "bytes": 13972
+    },
+    {
+      "path": "shared/question-logic.d.mts",
+      "sha256": "44ff917e37d887c4303fd9a8880f89bf3823b6a06f8aabb542bdbb7a098ed1b6",
+      "bytes": 382
+    },
+    {
+      "path": "shared/question-logic.mjs",
+      "sha256": "51f56af30b839f14cda2eb4cfec38cbf5b7db50940cfeb1413ecff66adf0369c",
+      "bytes": 3134
+    },
+    {
+      "path": "shared/risk-questionnaire.json",
+      "sha256": "ecf5e642eb28b4ad56c5a680f4c621bb515d762523457761eb4adce26527d9e3",
+      "bytes": 5700
+    },
+    {
+      "path": "src/agent-types.ts",
+      "sha256": "c007265763c6a65429a47c3a692db1b5c9a89fbc9c7c15cb6833f050de0752f1",
+      "bytes": 2277
+    },
+    {
+      "path": "src/api.ts",
+      "sha256": "37a282d86bf06fe167fde242731bbed772ef1478e54cc37cd9d44daf76336395",
+      "bytes": 2938
+    },
+    {
+      "path": "src/App.tsx",
+      "sha256": "0595010514e206376114d1ac03495e46320efa481bb74e419785a18ff0587a37",
+      "bytes": 62011
+    },
+    {
+      "path": "src/components/AccountFunding.tsx",
+      "sha256": "8ab9bd79a37f8d921544a56dd81eed221e166276544012109641a95127544b9b",
+      "bytes": 3792
+    },
+    {
+      "path": "src/components/AccountHome.css",
+      "sha256": "164c2370501e1c00ea5fab66ac9294161e633952fea508b23c5f17292a3f1b43",
+      "bytes": 5341
+    },
+    {
+      "path": "src/components/AccountHome.tsx",
+      "sha256": "e886a0c3bcfa0df21c22864de9ff63eb09267f665f46abee28901ff07df376eb",
+      "bytes": 8075
+    },
+    {
+      "path": "src/components/AccountSettings.tsx",
+      "sha256": "881a6ce9dd9508fcad96dcca5cca2ce242af157f830c61676a2e693d633b2edd",
+      "bytes": 8033
+    },
+    {
+      "path": "src/components/AccountSubpageHeader.tsx",
+      "sha256": "403fb61589ac20b7c723b6f05ba92e05ebfdaab82393dc0252f7171d26d5433f",
+      "bytes": 1837
+    },
+    {
+      "path": "src/components/AgentFollowup.tsx",
+      "sha256": "4eab78eebf081c1aafc7875a6be1bb2c78584c0fc9b3388e22a79d0d156d45c1",
+      "bytes": 809
+    },
+    {
+      "path": "src/components/AgentQuestions.tsx",
+      "sha256": "cfe6e59cd74b9ff39f5e46031bc4d03cdb26d82fc73f1df3e3e4cbd6178af115",
+      "bytes": 4417
+    },
+    {
+      "path": "src/components/AgentTaskCard.css",
+      "sha256": "39f0852f897eb8bcd3fcbe3769a85d5741acdfa3fec65ccd5e159c4560d6c933",
+      "bytes": 14915
+    },
+    {
+      "path": "src/components/AgentTaskCard.tsx",
+      "sha256": "f18c01030d92a1acbdd304c80ddc264132586bd8503dfb3e8b187095b5b8b7a0",
+      "bytes": 4185
+    },
+    {
+      "path": "src/components/Assistant.css",
+      "sha256": "b9143ee6203527cd91f945cd9fe063f0183a7cafc640441b04ab0c0f7bbb93df",
+      "bytes": 8367
+    },
+    {
+      "path": "src/components/Assistant.tsx",
+      "sha256": "4c18b9412775ef7d19af5bf061e4cdcc1a55a5d13686d8ff0e21edacef887b96",
+      "bytes": 21254
+    },
+    {
+      "path": "src/components/AssistantWaiting.tsx",
+      "sha256": "61428f176c0e2b9d8644cf716a3c2f7770b488c06dba27f2b1b08084744a1c23",
+      "bytes": 989
+    },
+    {
+      "path": "src/components/Banking.tsx",
+      "sha256": "8f7fd60b73bc81ce5f1f1c434070198af105e5746c42a5d036107c4ec83857b3",
+      "bytes": 130
+    },
+    {
+      "path": "src/components/BirthdayJourney.tsx",
+      "sha256": "d881a93151d52156ca0afa4525bedbc5100e69efb08c03637861459885bdc4e8",
+      "bytes": 8160
+    },
+    {
+      "path": "src/components/DateTimePicker.css",
+      "sha256": "1b581a72615bc9300fe22ff42a97cdbbeb51d8c6f13f29de0fa9c5e4de972692",
+      "bytes": 3899
+    },
+    {
+      "path": "src/components/DateTimePicker.tsx",
+      "sha256": "c0179c85e06d83b10b6ab7860c5bd533158bd0b5825107767b50d787f2c29924",
+      "bytes": 10963
+    },
+    {
+      "path": "src/components/FamilyCare.tsx",
+      "sha256": "d80c47a24090ebb27260dd3d2d0c0baad4777ec505e3d3bb10fbe20f43b60b98",
+      "bytes": 30481
+    },
+    {
+      "path": "src/components/FeatureEntry.tsx",
+      "sha256": "164a1959e01072bb4ab53aa4422cf46350b6d0f093ce2eb1cdc9b87718823e77",
+      "bytes": 1293
+    },
+    {
+      "path": "src/components/forestCanopies.ts",
+      "sha256": "bed95ffbd101ab0552d5c1ee0136028b498317cd0410c23d56e795b77f834640",
+      "bytes": 3093
+    },
+    {
+      "path": "src/components/ForestWind.tsx",
+      "sha256": "d72f4211b903a01071885fd83af0f8cc77d45adeef4b4dbc8088bf3115e1a604",
+      "bytes": 5721
+    },
+    {
+      "path": "src/components/GreenChoices.css",
+      "sha256": "ee2efdcd14bf3e8e7e7de7b760c0311b49c191d9078e478594e63a9ff9325078",
+      "bytes": 9755
+    },
+    {
+      "path": "src/components/GreenChoices.tsx",
+      "sha256": "8c6df53d27202f489c8943211c5232c63d3f40fc7f7520136c62ab944c1c1e6f",
+      "bytes": 42819
+    },
+    {
+      "path": "src/components/GreenFinance.css",
+      "sha256": "25193abdef6aaf60eab31a17ec21cdfd39c0e6c71d93836457410251a926ba84",
+      "bytes": 9595
+    },
+    {
+      "path": "src/components/GreenFinance.tsx",
+      "sha256": "4a32c93893919a9caf8439626253ae9704916707a9d5152deb961937e47c68d3",
+      "bytes": 1749
+    },
+    {
+      "path": "src/components/GreenFirework.tsx",
+      "sha256": "513bdf50f1bd4a6cc9eac7287d92a49767dd468e92182cc3f470ec372877459b",
+      "bytes": 1314
+    },
+    {
+      "path": "src/components/GreenInsights.css",
+      "sha256": "2eef23ef17dc3f55a4858fc9dfde13280669eb03345d51888d1c5f63c128c811",
+      "bytes": 18520
+    },
+    {
+      "path": "src/components/GreenInsights.tsx",
+      "sha256": "4439ed787091a0051e5c84bd07e8eedd936aa8c09877e5843d807fd8aa393490",
+      "bytes": 35834
+    },
+    {
+      "path": "src/components/GreenWeeklyGoal.tsx",
+      "sha256": "196d707883459dce269d47ffbd40ce082b0ef8ab3d5cdb3006db8de8b054a95e",
+      "bytes": 10237
+    },
+    {
+      "path": "src/components/InvestmentArtwork.tsx",
+      "sha256": "4321aeed2fa5de8780cff01b2d0779e7b9a69ba8a289073f60bac8c9ebf7022d",
+      "bytes": 1588
+    },
+    {
+      "path": "src/components/Management.tsx",
+      "sha256": "dc0241edb435e473dc0d057e03030e1ea6d9002cf92f41e1abd06b4ba1a41915",
+      "bytes": 25322
+    },
+    {
+      "path": "src/components/MandatesAndCharges.tsx",
+      "sha256": "523b4fe13533758dacf8cd32fe3fa5c0e7aa4afe52bdbdf7eaf9c3fe22810def",
+      "bytes": 10683
+    },
+    {
+      "path": "src/components/Navigation.tsx",
+      "sha256": "72a73be010c2f8fc5b4b25d61816a0dd4b7e8584b919d72c42b6ff85e95f77bd",
+      "bytes": 5885
+    },
+    {
+      "path": "src/components/Overview.css",
+      "sha256": "be6e4e5013382e0b976a0654778c7ef79f22fe2d4ba158d294c7eb730f3085b5",
+      "bytes": 4281
+    },
+    {
+      "path": "src/components/Overview.tsx",
+      "sha256": "daa70c3cbcd822b213788292e51af029c6d2fc7eb6284f4e11375ceb30fce326",
+      "bytes": 34259
+    },
+    {
+      "path": "src/components/OverviewAssistant.css",
+      "sha256": "a2e9150253225739cb2516dbc12376b8a828c91d8df3d48e8820f19d786b4d20",
+      "bytes": 2680
+    },
+    {
+      "path": "src/components/OverviewAssistant.tsx",
+      "sha256": "a0878a6fe70618f3028a24ad830936fd9d9ecd791823a3a5d0912e3dc7929612",
+      "bytes": 2339
+    },
+    {
+      "path": "src/components/PageGuide.tsx",
+      "sha256": "31ee1597d94c6c75fb65766c32269df108bd56bd1f8cb8a435207d9d1880182e",
+      "bytes": 15197
+    },
+    {
+      "path": "src/components/picker-position.ts",
+      "sha256": "ebf34259c401843e9445ec858e5f8129262a025e9b64bb54381f3b2fcd8ccc65",
+      "bytes": 3728
+    },
+    {
+      "path": "src/components/RiskAssessment.tsx",
+      "sha256": "5374248dceb2807daf16c4699c43f2643338e5ccb7b7ac90326b5df3c65cf966",
+      "bytes": 4710
+    },
+    {
+      "path": "src/components/SavingsPlanBody.css",
+      "sha256": "8ce6a1cace9c961637ea80813b9728399d610a6bbb66289d380b1842b66fb263",
+      "bytes": 7062
+    },
+    {
+      "path": "src/components/SavingsPlanBody.tsx",
+      "sha256": "052aae18e2419b5a5656c376ad9d5bd646d13c007edf1c4ba6ee793a480b6d42",
+      "bytes": 10273
+    },
+    {
+      "path": "src/components/SecurityCenter.tsx",
+      "sha256": "0a6f47f133678801ab961c9c4c998e93b66d40161bb3a5e122d333dca92f6ab6",
+      "bytes": 26778
+    },
+    {
+      "path": "src/components/SidebarSurface.tsx",
+      "sha256": "58e5c3b3d30215675a56c30dd8cc8344977a8f8d008170442ac92702156fe71c",
+      "bytes": 3333
+    },
+    {
+      "path": "src/components/SubscriptionWatchStatus.tsx",
+      "sha256": "5cc102f23860e11d01dde5cdc099279c61bf7c8da000e76fb8fc2c636eee4d6d",
+      "bytes": 1419
+    },
+    {
+      "path": "src/components/Transfers.tsx",
+      "sha256": "1142177f17a5e0a95a279579864e09b64282d55f8f5a257162f49f67ef690591",
+      "bytes": 10324
+    },
+    {
+      "path": "src/components/Wealth.css",
+      "sha256": "6983e47362ccff4a5279fd3a5845e2e8d0cab798d7bdec6d615cee1bc3839997",
+      "bytes": 9081
+    },
+    {
+      "path": "src/components/Wealth.tsx",
+      "sha256": "8aaf8cff0ebb33bc2fe6f4ac124eb6aa7a4590a18de5dd90329cab68ab8ac38b",
+      "bytes": 13733
+    },
+    {
+      "path": "src/components/Welcome.css",
+      "sha256": "0025e336b57c55bf0747a937a155e3af4532be2479dea9c464d0436aad66e39f",
+      "bytes": 34620
+    },
+    {
+      "path": "src/components/Welcome.tsx",
+      "sha256": "92df476803b938f28c2571a9c76ad7b28cb0e42965ae8baeb77f1a3ee65e084b",
+      "bytes": 19763
+    },
+    {
+      "path": "src/green-tools-types.ts",
+      "sha256": "9fdcf130e8e2de7ed5553fdea9e24d44c4d4d1c5f3ce85c281230d811fa9fa73",
+      "bytes": 3573
+    },
+    {
+      "path": "src/green-types.ts",
+      "sha256": "4b823612861ddada83389ed3545eeb56bb2c69f2648679d4906e26ed160c1d83",
+      "bytes": 1201
+    },
+    {
+      "path": "src/main.tsx",
+      "sha256": "4e9b9ae1d0b1e2c68d54d895231894b0d439465b37c47a4fcd34147315da8519",
+      "bytes": 321
+    },
+    {
+      "path": "src/refinements.css",
+      "sha256": "7080258a62faa13e2be811134aca685003056a574500098f96070ced1d1a6be2",
+      "bytes": 14962
+    },
+    {
+      "path": "src/security.ts",
+      "sha256": "9887e54acd8d1e35f030a2656e727b6f82e51cb65277cdad2e3b119f063af2d9",
+      "bytes": 8540
+    },
+    {
+      "path": "src/styles.css",
+      "sha256": "c19c0ed8e4aa3c4547c4dd538c05bae9c7c10a8b312b78857ae4a23d198e45f5",
+      "bytes": 93772
+    },
+    {
+      "path": "src/types.ts",
+      "sha256": "206ef774d6f025b1a14d3d3edd1fda57a49024526e1c5b87c06b5af909769ade",
+      "bytes": 5839
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "b4b89dd3afebe7773c52eb5122b9e47a394cf1eb788964d736d1c80ddb294252",
+      "bytes": 372
+    },
+    {
+      "path": "vite.config.ts",
+      "sha256": "76209c5d79fdc43dcbaf0d930ecbef44a9a40b562d76ad20941a8c705c6a4790",
+      "bytes": 227
+    }
+  ]
+}

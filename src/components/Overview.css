@@ -1,0 +1,40 @@
+/* White postage cards and a shared baseline for the overview columns. */
+.overview-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;align-items:stretch;gap:24px;min-width:0}
+.overview-main{display:flex;flex-direction:column;gap:22px;min-width:0}
+.overview .overview-rail{grid-column:auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+.overview .overview-rail>.panel{width:100%}
+.overview .overview-rail>.panel-cashflow{flex:initial}
+.overview .overview-rail>.stamp-card:last-child{margin-top:auto}
+.overview .stamp-card{position:relative;isolation:isolate;padding:25px 24px;gap:13px;border:0;border-radius:0;background:transparent;box-shadow:none;filter:drop-shadow(0 6px 9px #3340230a)}
+.stamp-card::before{content:'';position:absolute;inset:0;z-index:-1;background:#fff;pointer-events:none;mask-image:radial-gradient(circle at 10px 0,transparent 5px,#000 5.7px),radial-gradient(circle at 10px 100%,transparent 5px,#000 5.7px),radial-gradient(circle at 0 10px,transparent 5px,#000 5.7px),radial-gradient(circle at 100% 10px,transparent 5px,#000 5.7px);mask-size:20px 100%,20px 100%,100% 20px,100% 20px;mask-repeat:repeat-x,repeat-x,repeat-y,repeat-y;mask-composite:intersect}
+.stamp-card .panel-head{padding-bottom:13px;border-bottom:1px dotted #c8cebf}
+.overview .stamp-card .panel-head h2{font-size:14px;letter-spacing:.035em}
+.stamp-card .plan-row{display:block;background:transparent;border:0;border-radius:0;padding:9px 0;border-bottom:1px solid #eef0e9}
+.stamp-card .plan-row:hover{background:#f4f6ed}
+.stamp-card .plan-side{justify-content:flex-end;margin-top:6px}
+.stamp-card .empty-state{padding:13px 0;border:0;border-radius:0;text-align:left;color:#909783}
+.stamp-card .cashflow-projected{display:flex;flex-direction:column;align-items:flex-start;gap:3px;font-size:11px}
+.stamp-card .cashflow-projected strong{font-size:27px;font-weight:500;letter-spacing:-.03em;margin-left:0}
+.stamp-card .cashflow-list li{grid-template-columns:45px minmax(0,1fr);gap:4px 8px;padding:11px 0}
+.stamp-card .cashflow-list .empty-state{display:block}
+.stamp-card .cashflow-amount{grid-column:2;font-size:12px}
+.stamp-card .cashflow-title{font-size:12px}
+.stamp-card .cashflow-date{align-self:start;font-size:10px;padding:2px 3px;background:#f3f5ec}
+.stamp-card .panel-meta{font-size:10.5px;line-height:1.8;color:#7b8372}
+.overview .overview-main .asset-card{grid-template-columns:minmax(0,1fr);gap:20px}
+.overview .overview-main .asset-lead{padding-right:0}
+.overview .overview-main .asset-note{max-width:none}
+.overview .overview-main .asset-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.overview .overview-main .asset-stats dd{font-size:15px}
+.overview .overview-grid{flex:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto 1fr;grid-template-areas:"trend transactions" "categories transactions";align-items:stretch;gap:20px}
+.overview .panel-trend{grid-area:trend}.overview .panel-categories{grid-area:categories}.overview .panel-transactions{grid-area:transactions}
+.overview .category-bars{gap:15px}.overview .panel-categories .category-bars{margin-top:auto;margin-bottom:auto}
+.overview .panel-transactions .tx-list{flex:1;justify-content:space-around}.overview .tx-row{grid-template-columns:30px minmax(0,1fr) auto;gap:8px}.overview .tx-amount{font-size:12px}.overview .tx-icon{width:29px;height:29px}
+.overview .overview-rail{align-items:stretch}
+@media(max-width:1280px){.overview .overview-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"trend" "categories" "transactions";grid-template-rows:auto auto 1fr}}
+@media(max-width:1199px){.overview-layout{grid-template-columns:minmax(0,1fr) 260px;gap:20px}.overview .stamp-card{padding:23px 20px}.overview .stamp-card .panel-head h2{font-size:13px}.stamp-card .cashflow-projected strong{font-size:24px}}
+@media(max-width:1050px){.overview-layout{grid-template-columns:minmax(0,1fr)}.overview .overview-rail>.panel-cashflow{flex:initial}.overview .panel-cashflow>.panel-meta:last-child{margin-top:0}}
+@media(max-width:600px){
+  .overview .overview-main .asset-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .overview .stamp-card{padding:25px}.overview .stamp-card .panel-head h2{font-size:14px}
+}

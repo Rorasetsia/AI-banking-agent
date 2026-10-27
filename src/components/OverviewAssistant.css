@@ -1,0 +1,24 @@
+.overview-assistant{width:100%;min-width:0;padding:0 0 3px}
+.overview-assistant-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.overview-assistant-head>div{display:flex;align-items:center;gap:8px;color:#4c735c}
+.overview-assistant-head h2{font-size:15px;font-weight:500;color:#304f3d}
+.overview-assistant-head>button{display:flex;align-items:center;gap:5px;padding:6px 0 6px 8px;color:#58715f;font-size:12px;background:transparent;white-space:nowrap}
+.overview-assistant-head>button:hover{color:#1e4c35}
+.overview-ask-box{padding:16px 18px 12px;border:1px solid #d9e0d8;border-radius:18px;background:#fffefcf5;box-shadow:0 6px 22px -14px #24392a36;transition:box-shadow .2s,border-color .2s}
+.overview-ask-box:focus-within{border-color:#88a792;box-shadow:0 0 0 3px #78978214,0 7px 22px -14px #24392a36}
+.overview-ask-box textarea{display:block;width:100%;min-height:48px;max-height:120px;overflow:auto;border:0;resize:none;background:transparent;color:#243c2e;font:inherit;font-size:15px;line-height:1.6}
+.overview-ask-box textarea:focus-visible{outline:none}
+.overview-ask-box textarea::placeholder{color:#7c877e}
+.overview-ask-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:4px}
+.overview-ask-footer>span{font-size:11px;color:#748075}
+.overview-ask-footer>button{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:#284f3b;color:#fff;transition:background .2s,transform .2s}
+.overview-ask-footer>button:not(:disabled):hover{background:#37684d;transform:translateY(-1px)}
+.overview-ask-footer>button:disabled{background:#dce3dc;color:#8d9a90;opacity:1}
+.overview-ask-suggestions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.overview-ask-suggestions button{display:flex;align-items:center;gap:4px;min-height:28px;padding:4px 10px;border:1px solid #d8dfd4;border-radius:20px;background:#fdfefa9c;color:#55684f;font-size:11px}
+.overview-ask-suggestions button:hover{background:#edf2e7}
+.overview-ask-note{margin:8px 0 0;color:#6e7a6a;font-size:11px}
+@media(max-width:600px){
+ .overview-assistant-head{gap:6px;margin-bottom:10px}.overview-assistant-head h2{font-size:13px}.overview-assistant-head>div{gap:5px}.overview-assistant-head>button{font-size:11px;gap:3px}.overview-assistant-head>button>svg:first-child{display:none}
+ .overview-ask-box{padding:14px 13px 10px;border-radius:16px}.overview-ask-box textarea{font-size:16px}.overview-ask-footer>span{font-size:10px}.overview-ask-suggestions{gap:6px;margin-top:10px}.overview-ask-suggestions button{padding:4px 8px;font-size:10px}.overview-ask-note{font-size:10px;line-height:1.6}
+}
