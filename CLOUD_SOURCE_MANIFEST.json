@@ -13,8 +13,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "b1cb32e17b895e6a4a11a9636c2769674e9a91fc58899924d80474389ac97696",
-      "bytes": 3048
+      "sha256": "02afe7ab391cfac11c9d70266c1f55956a0a4e42e6027d2c90690fcc3eeb6066",
+      "bytes": 3179
     },
     {
       "path": "Dockerfile",
@@ -43,8 +43,8 @@
     },
     {
       "path": "docs/30_魔搭免费试用部署_2026-10-27.md",
-      "sha256": "77d94d1eaa90e0bba1ce262f18ef7f89a819b3c49af46aa548ef4b6f7f1de299",
-      "bytes": 7653
+      "sha256": "63d1f9d5489b0df455690b5b6c70c317b300b692b60af021cf6ef641df97402d",
+      "bytes": 8789
     },
     {
       "path": "index.html",
@@ -138,8 +138,8 @@
     },
     {
       "path": "scripts/start-modelscope.mjs",
-      "sha256": "ecbf46bd7891a9d407217d35c883da8a56a59439498146e1b6ed72d1a657b583",
-      "bytes": 5651
+      "sha256": "53e5065af9a42b3b50b392ba3a190e3f3ac46e90e398b931d90e26ede2cbb77a",
+      "bytes": 5723
     },
     {
       "path": "server/agent-tools.mjs",

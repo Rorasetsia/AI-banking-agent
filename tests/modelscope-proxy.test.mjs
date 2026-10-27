@@ -15,8 +15,8 @@ function request(headers = {}, peer = '21.0.0.1') {
   } };
 }
 
-test('observed ModelScope ingress supports both metadata variants and mapped peer', () => {
-  for (const req of [request(), request({'x-forwarded-host': undefined, 'x-forwarded-proto':'https'}), request({}, '::ffff:21.0.0.1')]) {
+test('rotating ModelScope ingress supports both deployments, HTTPS chains and mapped peer', () => {
+  for (const req of [request(), request({host:'studio-ng-pr-ac-edsgkpwlsd.cn-beijing-vpc.fcapp.run','x-forwarded-proto':'https'}), request({}, '::ffff:21.0.0.1')]) {
     const originalOrigin=req.headers.origin;
     assert.equal(adaptModelScopeRequest(req, origin), true);
     assert.equal(req.headers.host, host);
@@ -29,6 +29,9 @@ const denied = [
   ['other network peer', {}, '21.0.0.2'],
   ['missing peer', {}, ''],
   ['wrong private ingress', {host:'other.cn-beijing-vpc.fcapp.run'}],
+  ['public FC ingress', {host:'studio-test.cn-beijing.fcapp.run'}],
+  ['wrong region ingress', {host:'studio-test.cn-shanghai-vpc.fcapp.run'}],
+  ['oversized ingress label', {host:'studio-'+ 'a'.repeat(57)+'.cn-beijing-vpc.fcapp.run'}],
   ['ingress suffix spoof', {host:ingress+'.evil.example'}],
   ['ingress with port', {host:ingress+':7860'}],
   ['raw internal probe', {host:'21.0.14.229:7860','x-forwarded-host':undefined,'x-forwarded-proto':undefined}],
@@ -36,6 +39,7 @@ const denied = [
   ['empty FC request', {'x-fc-request-id':''}],
   ['malformed FC request', {'x-fc-request-id':'bad, token'}],
   ['conflicting forwarded host', {'x-forwarded-host':'evil.example'}],
+  ['missing forwarded host', {'x-forwarded-host':undefined}],
   ['empty forwarded host', {'x-forwarded-host':''}],
   ['list forwarded host', {'x-forwarded-host':host+', evil.example'}],
   ['array forwarded host', {'x-forwarded-host':[host]}],
@@ -80,7 +84,7 @@ test('real HTTP server retains session isolation, CSRF and model requirements be
       let raw='';res.on('data',b=>raw+=b);res.on('end',()=>resolve({status:res.statusCode,data:JSON.parse(raw),cookie:res.headers['set-cookie']?.[0]}));
     });req.on('error',reject);req.end(body?JSON.stringify(body):undefined);
   });
-  const a=await call('/api/session'),b=await call('/api/session',{headers:{'x-forwarded-host':undefined,'x-forwarded-proto':'https'}});
+  const a=await call('/api/session'),b=await call('/api/session',{headers:{host:'studio-ng-pr-ac-edsgkpwlsd.cn-beijing-vpc.fcapp.run','x-forwarded-proto':'https'}});
   assert.equal(a.status,200);assert.equal(b.status,200);assert.match(a.cookie,/; Secure/);assert.match(a.cookie,/HttpOnly/);assert.notEqual(a.cookie.split(';')[0],b.cookie.split(';')[0]);
   const cookie=a.cookie.split(';')[0];
   const before=(await call('/api/state',{cookie})).data;
@@ -95,4 +99,14 @@ test('real HTTP server retains session isolation, CSRF and model requirements be
   const wrongHost=await call('/api/session',{headers:{'x-forwarded-host':'evil.example'}});
   assert.equal(wrongHost.status,403);assert.equal(wrongHost.data.error.code,'FORBIDDEN_HOST');
   const wrongPeer=await call('/api/session',{peer:'127.0.0.1'});assert.equal(wrongPeer.status,403);
+  const missingForward=await call('/api/session',{headers:{'x-forwarded-host':undefined}});assert.equal(missingForward.status,403);
+});
+
+test('future ingress identifiers rotate independently of public identity',()=>{
+  for(let i=0;i<20;i++){
+    const req=request({host:`studio-redeploy-${i}-node${i}.cn-beijing-vpc.fcapp.run`});
+    assert.equal(adaptModelScopeRequest(req,origin),true);assert.equal(req.headers.host,host);
+    const bad=request({host:`studio-redeploy-${i}-node${i}.cn-beijing-vpc.fcapp.run`,'x-forwarded-host':'different-preview.ms.show'});
+    assert.equal(adaptModelScopeRequest(bad,origin),false);
+  }
 });

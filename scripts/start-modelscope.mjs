@@ -6,16 +6,16 @@
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-// Deployment-specific trust, obtained from the owner's cloud routing logs.
-// Do not replace these with a wildcard suffix or a whole IP range.
+// Trust the observed proxy peer plus the exact configured public host.
+// Internal studio ingress identifiers rotate on redeploy; they are not identity.
 const MODELSCOPE_PEER = '21.0.0.1';
-const MODELSCOPE_INGRESS = 'studio-ing-pr-d-edsgpsvksd.cn-beijing-vpc.fcapp.run';
+const MODELSCOPE_INGRESS = /^studio-[a-z0-9]+(?:-[a-z0-9]+)*\.cn-beijing-vpc\.fcapp\.run$/;
 
 export function adaptModelScopeRequest(req, publicOrigin) {
   const peer = req.socket?.remoteAddress;
   if (peer !== MODELSCOPE_PEER && peer !== `::ffff:${MODELSCOPE_PEER}`) return false;
   const headers = req.headers;
-  if (!headers || headers.host !== MODELSCOPE_INGRESS) return false;
+  if (!headers || typeof headers.host !== 'string' || !MODELSCOPE_INGRESS.test(headers.host) || headers.host.split('.')[0].length > 63) return false;
   if (typeof headers['x-fc-request-id'] !== 'string' || !/^[A-Za-z0-9-]{1,128}$/.test(headers['x-fc-request-id'])) return false;
   const proto = headers['x-forwarded-proto'];
   if (typeof proto !== 'string' || proto.length > 100) return false;
@@ -25,9 +25,9 @@ export function adaptModelScopeRequest(req, publicOrigin) {
   try { url = new URL(publicOrigin); } catch { return false; }
   if (url.protocol !== 'https:' || url.origin !== publicOrigin || url.port || !url.hostname.endsWith('.ms.show')) return false;
   const forwardedHost = headers['x-forwarded-host'];
-  if (forwardedHost !== undefined && forwardedHost !== url.host) return false;
-  // The exact peer and private ingress attest to the route even when this field
-  // is absent. POST Origin is deliberately untouched and validated by createApp.
+  if (forwardedHost !== url.host) return false;
+  // Forwarded host is mandatory and exact. Neither a rotating internal hostname
+  // nor FC metadata alone grants access. POST Origin stays validated by createApp.
   headers.host = url.host;
   return true;
 }
@@ -102,7 +102,7 @@ export async function startModelScope() {
     routingLogs.add(routing);
     console.warn('ModelScope host check: ' + routing);
   });
-  app.server.listen(port, '0.0.0.0', () => console.log(`Bank preview ready: ${publicOrigin} (ModelScope ingress v2)`));
+  app.server.listen(port, '0.0.0.0', () => console.log(`Bank preview ready: ${publicOrigin} (ModelScope ingress v3)`));
   const shutdown = () => app.close().finally(() => process.exit(0));
   process.once('SIGINT', shutdown);
   process.once('SIGTERM', shutdown);
