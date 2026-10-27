@@ -9,6 +9,13 @@ export interface AgentQuestion {
   fields?: { id: string; label: string; type: 'money' | 'date' | 'datetime-local' | 'number' | 'text'; prefix: string; suffix?: string; placeholder?: string; min?: number; max?: number }[];
 }
 export interface SavingsProjection {
+  guidance?: {
+    status: 'covered' | 'on_track' | 'tight' | 'shortfall' | 'cashflow' | 'needs_input';
+    headline: string; explanation: string;
+    preferred: SavingsGuidanceOption | null;
+    alternatives: SavingsGuidanceOption[];
+    lastResort: {title: string; body: string; actionIds: string[]} | null;
+  };
   targetCents: number; mode: 'total' | 'additional'; startingCents: number | null; emergencyCents: number | null;
   usableStartingCents: number; gapCents: number; monthlyRequiredCents: number; monthlyCapacityCents: number | null;
   monthlyIncomeCents?: number | null; monthlyExpenseCents?: number | null;
@@ -20,6 +27,10 @@ export interface SavingsProjection {
   schedule: { month: string; amountCents: number; cumulativeCents: number }[];
   products: { id: string; name: string; code?: string; riskLevel: number; eligible: boolean; reason: string; officialUrl?: string }[];
   assumptions: string[]; warnings: string[];
+}
+export interface SavingsGuidanceOption {
+  id: string; title: string; reason: string; tradeoff: string;
+  actionId?: string; kind?: 'edit';
 }
 export interface AgentView {
   kind: 'savings' | 'banking'; stage: 'clarifying' | 'ready' | 'saved' | 'cancelled' | 'awaiting_confirmation' | 'completed';

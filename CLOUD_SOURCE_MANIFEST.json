@@ -1,5 +1,5 @@
 {
-  "version": "0.8.4",
+  "version": "0.8.5",
   "files": [
     {
       "path": ".dockerignore",
@@ -13,8 +13,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "a62341ee11721f4f9e7d3a1263895c98ddc67e16ffae3f75a56c726b00efa12a",
-      "bytes": 4371
+      "sha256": "03eec07529fc21f71243132dcca13e21c064cd3d9ea66bccfb5e6e7a6db9110c",
+      "bytes": 4511
     },
     {
       "path": "Dockerfile",
@@ -43,8 +43,8 @@
     },
     {
       "path": "docs/30_魔搭免费试用部署_2026-10-27.md",
-      "sha256": "e0ab0c40805c5532bcec450e78a0ecff86ef3d9758378528667355d3f0f9da55",
-      "bytes": 10812
+      "sha256": "7b1233efd5df955783d41fe66c4cb26bad7a6b2deb4a69ff9ff2a0a82e58b9f4",
+      "bytes": 11132
     },
     {
       "path": "index.html",
@@ -53,12 +53,12 @@
     },
     {
       "path": "package-lock.json",
-      "sha256": "38064a19d6b2f67cd7e0bdff93bf285a16bcc0645566e936e250c443911cd35d",
+      "sha256": "2f420167c0bff1b584cbc7ff7393899afd5c451465417d8731589c46376ef3ae",
       "bytes": 54892
     },
     {
       "path": "package.json",
-      "sha256": "28e552ff4fe6aaa6a36504b323524c1ee2cf50bcf085029e38f48e65f43a7f9a",
+      "sha256": "2445bae5c5aa7e994004a372eb4e5f5a9fc7f568c3753e27258a56c6a412711e",
       "bytes": 779
     },
     {
@@ -138,7 +138,7 @@
     },
     {
       "path": "scripts/start-modelscope.mjs",
-      "sha256": "ce94d7c36df47ec2406ce30c95f984463f96569eef1a474db1d56b56e2a1079d",
+      "sha256": "77ac39254d58d0bdf251bab8a8ee5461be42ebd03760139b14581a7fbdd610b5",
       "bytes": 8270
     },
     {
@@ -233,8 +233,13 @@
     },
     {
       "path": "server/savings-agent.mjs",
-      "sha256": "076410acc6ea0da86041ba13f447f77e0722e954e10f8e9433ef7269de881770",
-      "bytes": 32581
+      "sha256": "823054330d94bffbce49ca911992d188af7f9d4593d224b9a8d79089c7c2b1d9",
+      "bytes": 33252
+    },
+    {
+      "path": "server/savings-guidance.mjs",
+      "sha256": "ee76ca388794d86b81064c03e1421a7ffe86019323d9a09553fd5abb9b4a7e8e",
+      "bytes": 5622
     },
     {
       "path": "server/savings-scenarios.mjs",
@@ -283,8 +288,8 @@
     },
     {
       "path": "src/agent-types.ts",
-      "sha256": "c007265763c6a65429a47c3a692db1b5c9a89fbc9c7c15cb6833f050de0752f1",
-      "bytes": 2277
+      "sha256": "30ebe7f941e3539fc5d9c907580702b7daf5b43a6353bc9a976508e858633709",
+      "bytes": 2734
     },
     {
       "path": "src/api.ts",
@@ -338,8 +343,8 @@
     },
     {
       "path": "src/components/AgentTaskCard.tsx",
-      "sha256": "f18c01030d92a1acbdd304c80ddc264132586bd8503dfb3e8b187095b5b8b7a0",
-      "bytes": 4185
+      "sha256": "bd37b9cff4d2f7ac2b6f87c8224e7440d4aa11abf20d24fe2f8c0ca08256ae20",
+      "bytes": 4269
     },
     {
       "path": "src/components/Assistant.css",
@@ -493,13 +498,13 @@
     },
     {
       "path": "src/components/SavingsPlanBody.css",
-      "sha256": "8ce6a1cace9c961637ea80813b9728399d610a6bbb66289d380b1842b66fb263",
-      "bytes": 7062
+      "sha256": "a572fd240985aeafb1b781a948fd99f955436d38de5a20c67df66e463ec23579",
+      "bytes": 11719
     },
     {
       "path": "src/components/SavingsPlanBody.tsx",
-      "sha256": "052aae18e2419b5a5656c376ad9d5bd646d13c007edf1c4ba6ee793a480b6d42",
-      "bytes": 10273
+      "sha256": "df6186bed93b5a1234da2ea6e936c47f4b4eaf9a3de9e7d7b55cafb2c17aabba",
+      "bytes": 13643
     },
     {
       "path": "src/components/SecurityCenter.tsx",

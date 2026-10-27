@@ -2,6 +2,7 @@ import { randomUUID, createHash } from 'node:crypto';
 import { parseAmount, parseRules, unsafe } from './rules.mjs';
 import {budgetProjection,simulateSavings} from './savings-scenarios.mjs';
 import {RISK_QUESTIONNAIRE} from './risk-assessment.mjs';
+import {buildSavingsGuidance,readSavingsConstraints} from './savings-guidance.mjs';
 
 const money = n => new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(n / 100);
 const day = value => new Date(Date.parse(value) + 8 * 3600000).toISOString().slice(0, 10);
@@ -97,6 +98,8 @@ function readInput(text, state, draft) {
   else if (/从?(?:下个?月|下月)(?:开始|起|存)/.test(text)) input.startMonth = shift(month, 1);
   else if (/从?(?:本月|这个月|当月)(?:开始|起|存)/.test(text)) input.startMonth = month;
   if (input.startMonth) sources.startMonth = '用户明确起始月份';
+  const constraints=readSavingsConstraints(text,draft?.input?.decisionConstraints);
+  if(constraints){input.decisionConstraints=constraints;sources.decisionConstraints='用户明确的目标与期限取舍';}
   return { input, sources, errors };
 }
 
@@ -238,6 +241,13 @@ function makeView(state, draft, stage = 'clarifying', override) {
     if(savings.feasible && savings.monthlyRequiredCents>0 && savings.monthlyRequiredCents<=state.account.balanceCents-state.account.reservedCents)actions.push(send('reserve','核对一次资金预留方案',`为储蓄目标预留${(savings.monthlyRequiredCents/100).toFixed(2)}元`));
   }
   actions.push(send('cancel', '结束这轮修改', '取消这次储蓄规划'));
+  if(savings){
+    savings.guidance=buildSavingsGuidance(savings,actions,input.decisionConstraints);
+    if(!override&&savings.guidance.preferred){
+      summary=summary.replace('可以先选下面的调整方式，也可以自己改条件。','');
+      summary+=` 我优先建议${savings.guidance.preferred.title}。${savings.guidance.preferred.reason}`;
+    }
+  }
   return { kind: 'savings', stage, title, summary, facts, questions: missing.slice(0, 2).map(m => m[1]), clarifications, actions, savings,
     steps: [{ label: '理解目标', status: input.targetCents ? 'done' : 'current' },
       { label: input.mode==='additional'?'核对月度收支':'核对本金与收支', status: missing.length ? 'current' : 'done' },
