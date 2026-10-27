@@ -245,7 +245,7 @@ export function Welcome({ onStart, onExplore }: WelcomeProps) {
       onPointerEnter={event => updateWorkspaceGlow(event.currentTarget)} onPointerLeave={event => updateWorkspaceGlow(event.currentTarget)}
       onFocus={event => updateWorkspaceGlow(event.currentTarget)} onBlur={event => updateWorkspaceGlow(event.currentTarget)}
     ><span><small>WORKSPACE</small><strong>进入工作台</strong></span><span className="ph-workspace-arrow"><ArrowRight size={23} /></span></button>
-    <footer className="ph-footer"><span>独立银行沙箱 <i /> 合成数据 <i /> 不发生真实交易</span><span className="ph-footer-note" aria-hidden="true">ROOTED IN EVERYDAY LIFE</span></footer>
+    <footer className="ph-footer"><span>独立银行模拟环境 <i /> 合成数据 <i /> 不发生真实交易</span><span className="ph-footer-note" aria-hidden="true">ROOTED IN EVERYDAY LIFE</span></footer>
     <span className="ph-sr-only" role="status" aria-live="polite" aria-atomic="true">第 {active + 1} 项，共 6 项：{CHAPTERS[active].label}</span>
   </main>;
 }

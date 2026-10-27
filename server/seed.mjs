@@ -4,9 +4,9 @@ const DEFAULT_NOW = '2026-10-18T09:00:00+08:00';
 const pad = (n) => String(n).padStart(2, '0');
 const clone = (value) => structuredClone(value);
 export const PRODUCT_CATALOG = Object.freeze([
-  { id: 'product-cash', name: '易方达易理财货币A', code: '000359', manager: '易方达基金管理有限公司', category: '货币市场基金', officialUrl: 'https://www.efunds.com.cn/fund/000359.shtml', riskLevel: 1, termDays: 0, minCents: 100, unitPriceCents: 100, description: '真实基金公开资料；本项目仅使用该资料做产品展示，申购、份额和资金结算均为独立沙箱模拟。风险适当性档位为演示设定。' },
-  { id: 'product-bond', name: '易方达信用债债券A', code: '000032', manager: '易方达基金管理有限公司', category: '债券型基金', officialUrl: 'https://www.efunds.com.cn/fund/000032.shtml', riskLevel: 2, termDays: 0, minCents: 100, unitPriceCents: 100, description: '真实基金公开资料；本项目仅使用该资料做产品展示，申购、份额和资金结算均为独立沙箱模拟。风险适当性档位为演示设定。' },
-  { id: 'product-growth', name: '易方达消费行业股票', code: '110022', manager: '易方达基金管理有限公司', category: '股票型基金', officialUrl: 'https://www.efunds.com.cn/Mobile/fund/110022.shtml', riskLevel: 4, termDays: 0, minCents: 100, unitPriceCents: 100, description: '真实基金公开资料；行业主题与持仓净值可能出现较大波动。本项目的申购、份额和资金结算均为独立沙箱模拟。风险适当性档位为演示设定。' }
+  { id: 'product-cash', name: '易方达易理财货币A', code: '000359', manager: '易方达基金管理有限公司', category: '货币市场基金', officialUrl: 'https://www.efunds.com.cn/fund/000359.shtml', riskLevel: 1, termDays: 0, minCents: 100, unitPriceCents: 100, description: '真实基金公开资料；本项目仅使用该资料做产品展示，申购、份额和资金结算均为独立模拟。风险适当性档位为演示设定。' },
+  { id: 'product-bond', name: '易方达信用债债券A', code: '000032', manager: '易方达基金管理有限公司', category: '债券型基金', officialUrl: 'https://www.efunds.com.cn/fund/000032.shtml', riskLevel: 2, termDays: 0, minCents: 100, unitPriceCents: 100, description: '真实基金公开资料；本项目仅使用该资料做产品展示，申购、份额和资金结算均为独立模拟。风险适当性档位为演示设定。' },
+  { id: 'product-growth', name: '易方达消费行业股票', code: '110022', manager: '易方达基金管理有限公司', category: '股票型基金', officialUrl: 'https://www.efunds.com.cn/Mobile/fund/110022.shtml', riskLevel: 4, termDays: 0, minCents: 100, unitPriceCents: 100, description: '真实基金公开资料；行业主题与持仓净值可能出现较大波动。本项目的申购、份额和资金结算均为独立模拟。风险适当性档位为演示设定。' }
 ]);
 const iso = (year, month, day, hour = 9, minute = 0) =>
   `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}:00+08:00`;
@@ -80,7 +80,7 @@ export function createSeed(userId, now = DEFAULT_NOW) {
     userId,
     profile: { name: '李然' },
     now,
-    account: { id: 'acct-main', name: '沙箱活期账户', balanceCents: 2865042, reservedCents: 0, openingBalanceCents: 2865042-transactions.reduce((n,t)=>n+t.amountCents,0) },
+    account: { id: 'acct-main', name: '模拟环境活期账户', balanceCents: 2865042, reservedCents: 0, openingBalanceCents: 2865042-transactions.reduce((n,t)=>n+t.amountCents,0) },
     contacts,
     transactions,
     products,
@@ -96,8 +96,8 @@ export function createSeed(userId, now = DEFAULT_NOW) {
       category: item.category
     })),
     cards: [
-      { id: 'card-debit', name: '沙箱借记卡', last4: '8821', type: 'debit', status: 'active', limitCents: 0, perTxLimitCents: 2000000 },
-      { id: 'card-credit', name: '沙箱信用卡', last4: '6677', type: 'credit', status: 'active', limitCents: 3000000, perTxLimitCents: 1000000 }
+      { id: 'card-debit', name: '模拟环境借记卡', last4: '8821', type: 'debit', status: 'active', limitCents: 0, perTxLimitCents: 2000000 },
+      { id: 'card-credit', name: '模拟环境信用卡', last4: '6677', type: 'credit', status: 'active', limitCents: 3000000, perTxLimitCents: 1000000 }
     ],
     risk: null,
     plans: [],

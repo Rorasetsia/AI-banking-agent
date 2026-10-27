@@ -51,7 +51,7 @@ export function GreenWeeklyGoal({state}:Pick<PageProps,'state'>){
   const createForm=(!goal||editing)&&data;
   return <section className="gw-panel" id="green-week-goal" aria-labelledby="gw-title">
     <div className="gw-heading"><span className="gw-icon"><Flag size={19}/></span><div><p className="gs-eyebrow">让改变持续一点</p><h2 id="gw-title">一个7天小目标</h2></div></div>
-    {data&&<p className="gw-clock">沙箱今日 {short(data.today)} · 以此日期记录行动</p>}
+    {data&&<p className="gw-clock">模拟环境今日 {short(data.today)} · 以此日期记录行动</p>}
     {error&&<div role="alert" className="gs-error">{error} {!data&&<button type="button" onClick={()=>void load()}>重新加载</button>}</div>}
     {!data&&!error&&<p role="status">正在读取目标…</p>}
     {goal&&!editing&&<>
@@ -66,7 +66,7 @@ export function GreenWeeklyGoal({state}:Pick<PageProps,'state'>){
       <details className="gw-details"><summary>记录依据与目标设置 <ChevronDown size={14}/></summary>
         <p>自行记录由你确认；支付线索只代表本账户存在可识别公共交通支付，不代表核实了行程。不读取定位，不估算实际碳、水或电的节约量。</p>
         {goal.type==='public_transport'&&<p>{goal.bankLinked?'已关联授权账单；充值、退款及疑似重复支付不计。分类纠正后进度会重新核对。':'未关联账单，只计你手动记录的行动。'}</p>}
-        <p>目标依据沙箱日期 {short(data!.today)} 更新。最近设置或手动记录：{short(goal.updatedAt.slice(0,10))}。</p>
+        <p>目标依据模拟环境日期 {short(data!.today)} 更新。最近设置或手动记录：{short(goal.updatedAt.slice(0,10))}。</p>
         <button type="button" className="gs-link" disabled={saving} onClick={()=>{setTarget(goal.targetDays);setType(goal.type);setLink(goal.bankLinked);setEditing(true);}}>调整目标</button>
         {!confirmEnd?<button type="button" className="gs-link gw-end" disabled={saving} onClick={()=>setConfirmEnd(true)}>结束本次目标</button>:<div className="gw-confirm"><p>保留记录，结束本次目标？</p><button type="button" disabled={saving} onClick={()=>void mutate('/green/goals/cancel',{goalId:goal.id})}>确认结束</button><button type="button" onClick={()=>setConfirmEnd(false)}>继续保留</button></div>}
       </details>

@@ -29,5 +29,5 @@ export function simulateSavings(projection, annualRateBps, today) {
   const projectedTotalCents=contributionCents+estimatedReturnCents;
   return {annualRateBps,contributionCents,estimatedReturnCents,projectedTotalCents,
     shortfallCents:Math.max(0,projection.targetCents-projectedTotalCents),targetReached:projectedTotalCents>=projection.targetCents,deposits,
-    assumptions:['自填年化假设，按365天单利逐笔计算，不是产品报价、历史业绩或收益承诺。','现有可用本金从沙箱今天起计息；月度新增款按月末存入，截止日提前则该月在截止日存入。','没有计入费用、净值路径、交易确认和赎回到账时间；这里只作目标敏感性比较，不是投资执行日程。']};
+    assumptions:['自填年化假设，按365天单利逐笔计算，不是产品报价、历史业绩或收益承诺。','现有可用本金从模拟环境今天起计息；月度新增款按月末存入，截止日提前则该月在截止日存入。','没有计入费用、净值路径、交易确认和赎回到账时间；这里只作目标敏感性比较，不是投资执行日程。']};
 }

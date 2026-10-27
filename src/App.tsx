@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AlertCircle, ArrowLeftRight, CalendarDays, CheckCircle2, ChevronRight, CreditCard, HelpCircle, Home, KeyRound, LayoutDashboard, Leaf, LineChart, ListChecks, Loader2, Menu, MessageCircle, ReceiptText, Repeat, RotateCcw, Search, Settings, ShieldCheck, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { api, accountApi, money, ApiError, request } from './api';
+import { createExperienceConnector } from './connect-experience';
 import type { AccountSettingsStatus } from './api';
 import type { BankState, PageProps, Plan, Receipt, Route, Session, Recovery } from './types';
 import { Overview, Bills } from './components/Overview';
@@ -20,6 +21,13 @@ import { GreenFinance } from './components/GreenFinance';
 import { PageGuide } from './components/PageGuide';
 import { PrimaryNavigation, PageSubnavigation, MobileNavigation } from './components/Navigation';
 import type { ProofPair } from './security';
+
+const connectExperience = createExperienceConnector({
+  session: api.session,
+  state: api.state,
+  settings: accountApi.settings,
+  unauthorized: error => error instanceof ApiError && error.code === 'UNAUTHORIZED',
+});
 
 type ToastKind = 'success' | 'error' | 'info';
 interface ToastState { kind: ToastKind; message: string }
@@ -293,16 +301,14 @@ export default function App() {
   const bootstrap = useCallback(async () => {
     setBootError(null);
     try {
-      const nextSession = await api.session();
-      setSession(nextSession);
-      const [nextState, nextAccountSettings] = await Promise.all([
-        api.state(),
-        accountApi.settings().catch(() => null),
-      ]);
-      setState(nextState);
-      if (nextAccountSettings) setAccountSettings(nextAccountSettings);
+      const connected = await connectExperience();
+      setSession(connected.session);
+      setState(connected.state);
+      if (connected.settings) setAccountSettings(connected.settings);
     } catch (error) {
-      setBootError(errorMessage(error));
+      setBootError(error instanceof ApiError && error.code === 'UNAUTHORIZED'
+        ? '未能保持模拟环境的连接。请允许此页面使用 Cookie，或用最新版 Chrome / Edge 重新打开后重试。'
+        : errorMessage(error));
     }
   }, []);
 
@@ -480,7 +486,7 @@ export default function App() {
   }, [navigate, openPlan, showToast]);
 
   const handleReset = useCallback(async () => {
-    const approved = window.confirm('确定重置当前独立沙箱？消息、计划、任务和流水都会恢复初始合成数据，且无法撤销。');
+    const approved = window.confirm('确定重置当前独立模拟环境？消息、计划、任务和流水都会恢复初始合成数据，且无法撤销。');
     if (!approved) return;
     setResetting(true);
     try {
@@ -497,7 +503,7 @@ export default function App() {
       setEditText('');
       setEditBusy(false);
       setCancelForEditBusy(false);
-      showToast('沙箱已重置为初始合成数据', 'success');
+      showToast('模拟环境已重置为初始合成数据', 'success');
     } catch (error) {
       showToast(errorMessage(error), 'error');
     } finally {
@@ -852,7 +858,7 @@ export default function App() {
               <button type='button' className='button button--primary' onClick={() => void bootstrap()}><RotateCcw size={16} />重新连接</button>
             </>
           ) : (
-            <div className='boot-loading' role='status'><Loader2 size={20} className='spin' /><p>正在连接独立银行沙箱…</p></div>
+            <div className='boot-loading' role='status'><Loader2 size={20} className='spin' /><p>正在连接独立银行模拟环境…</p></div>
           )}
         </div>
       </div></>
@@ -927,11 +933,11 @@ export default function App() {
           </button>
           {session && !session.llmConfigured && <p className='mode-hint'>AI暂未连接，请联系团队配置服务端模型。</p>}
           <div className='sandbox-card'>
-            <div className='sandbox-card-head'><ShieldCheck size={16} /><span>独立银行沙箱</span></div>
+            <div className='sandbox-card-head'><ShieldCheck size={16} /><span>独立银行模拟环境</span></div>
             <p>合成数据 · 会话隔离</p>
             <button type='button' className='sandbox-reset' onClick={() => void handleReset()} disabled={resetting}>
               {resetting ? <Loader2 size={14} className='spin' /> : <RotateCcw size={14} />}
-              {resetting ? '重置中…' : '重置沙箱'}
+              {resetting ? '重置中…' : '重置模拟环境'}
             </button>
           </div>
         </div>
@@ -987,7 +993,7 @@ export default function App() {
             >
               <HelpCircle size={18} />
             </button>
-            <span className='sandbox-badge'><ShieldCheck size={14} /><span>沙箱 · 合成数据</span></span>
+            <span className='sandbox-badge'><ShieldCheck size={14} /><span>模拟环境 · 合成数据</span></span>
             <button className='reminder-entry' type='button' onClick={()=>navigate(familyAlertCount?'family':state.notifications?.some(n=>n.kind==='green_budget')?'tasks':'mandates')} aria-label={`查看站内提醒，${familyAlertCount+(state.notifications?.length??0)}条`}>提醒 {familyAlertCount+(state.notifications?.length??0)}</button>
             <button type='button' className='user-chip' title={`${displayName} · 打开账号设置`} aria-label='打开账号设置' onClick={() => navigate('settings')}>
               <span className='user-avatar'>{initial}</span>
@@ -1031,7 +1037,7 @@ export default function App() {
               <div className='plan-dialog-heading'>
                 <span className={`status-pill status-pill--${planStatusTone(activeStatus)}`}>{planStatusLabel(activeStatus)}</span>
                 <h2 id='plan-dialog-title'>{activePlan.title}</h2>
-                <p className='plan-dialog-meta'>创建于 {formatDateTime(activePlan.createdAt)} · 独立银行沙箱</p>
+                <p className='plan-dialog-meta'>创建于 {formatDateTime(activePlan.createdAt)} · 独立银行模拟环境</p>
               </div>
               <button type='button' className='icon-button' aria-label='关闭计划对话框' onClick={closePlanDialog}><X size={18} /></button>
             </header>

@@ -34,7 +34,7 @@ export class TransactionSecurity {
       operationCodeConfigured: Boolean(s.operationCodeHash),
       operationLockedUntil: s.operationLockedUntil ?? 0,
       devices: (s.credentials ?? []).map(c => ({ id: c.id, name: c.name, createdAt: c.createdAt, rpId: c.rpId })),
-      note: '设备验证由系统选择指纹、人脸或设备PIN；本系统不接收生物特征。仅为沙箱交易核验，非银行实名认证。',
+      note: '设备验证由系统选择指纹、人脸或设备PIN；本系统不接收生物特征。仅为模拟环境交易核验，非银行实名认证。',
     };
   }
   setOperationCode(userId, { code, currentCode }) {
@@ -88,7 +88,7 @@ export class TransactionSecurity {
   }
   checkPassword(userId, password) {
     const s = this.read(userId);
-    if (!s.passwordHash) fail('SECURITY_SETUP_REQUIRED', '请先在安全中心设置沙箱交易密码。', 409);
+    if (!s.passwordHash) fail('SECURITY_SETUP_REQUIRED', '请先在安全中心设置模拟环境交易密码。', 409);
     if (s.lockedUntil > Date.now()) fail('SECURITY_LOCKED', '交易核验已暂时锁定，请10分钟后再试。', 429);
     const valid = typeof password === 'string' && password.length <= 64 && timingSafeEqual(Buffer.from(derive(password, s.salt), 'hex'), Buffer.from(s.passwordHash, 'hex'));
     if (!valid) {
@@ -127,7 +127,7 @@ export class TransactionSecurity {
   }
   consume(state, security, plan, proof, { mode = 'either', secondProof } = {}) {
     const risk = assessOperationRisk(state, plan);
-    if (!security.passwordHash) fail('SECURITY_SETUP_REQUIRED', '请先在安全中心设置沙箱交易密码。', 409);
+    if (!security.passwordHash) fail('SECURITY_SETUP_REQUIRED', '请先在安全中心设置模拟环境交易密码。', 409);
     if (security.lockedUntil > Date.now()) fail('SECURITY_LOCKED', '核验暂时锁定，请稍后再试。', 429);
     const fingerprint = planFingerprint(plan, security.version);
     const lookup = token => typeof token === 'string' && /^[a-f0-9]{64}$/.test(token) ? (security.proofs ?? []).find(p => p.hash === digest(token) && p.fingerprint === fingerprint && p.expiresAt > Date.now()) : null;
@@ -143,7 +143,7 @@ export class TransactionSecurity {
     const s = this.checkPassword(userId, password);
     const rpId = this.rpId(origin);
     if (s.credentials.length >= 5) fail('DEVICE_LIMIT', '最多绑定5个设备凭据，请先移除不用的凭据。', 409);
-    const options = await generateRegistrationOptions({ rpName: '小苔银行沙箱', rpID: rpId, userName: userId, userID: new TextEncoder().encode(userId), attestationType: 'none', supportedAlgorithmIDs: [-7,-257], authenticatorSelection: { residentKey: 'preferred', userVerification: 'required' }, excludeCredentials: s.credentials.map(c => ({ id: c.id, transports: c.transports })) });
+    const options = await generateRegistrationOptions({ rpName: '小苔银行模拟环境', rpID: rpId, userName: userId, userID: new TextEncoder().encode(userId), attestationType: 'none', supportedAlgorithmIDs: [-7,-257], authenticatorSelection: { residentKey: 'preferred', userVerification: 'required' }, excludeCredentials: s.credentials.map(c => ({ id: c.id, transports: c.transports })) });
     const current = this.read(userId);
     if (current.version !== s.version) fail('SECURITY_CHANGED', '安全设置已变化，请重试。', 409);
     current.registration = { challenge: options.challenge, origin, rpId, version: s.version, expiresAt: Date.now() + 120000 };

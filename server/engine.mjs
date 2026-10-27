@@ -111,19 +111,19 @@ function normalizeStep(state,intent) {
       if(p.shares>redeemable(holding,state.now))fail('HOLDING_LOCKED','本次份额超过当前已到期可赎回份额。',409);
       p.amountCents=p.shares*product.unitPriceCents;positive(p.amountCents);impactCents=-p.amountCents;label=`赎回 ${product.name} ${p.shares}份`;
     }
-    warnings.push(tool==='wealth_buy'?`使用借记卡尾号${p.last4}。申购为独立沙箱模拟，基金净值会波动，本金可能亏损；基金申购份额与成交以实际交易规则为准。`: '赎回为独立沙箱模拟，实际到账时间以基金规则为准。');
+    warnings.push(tool==='wealth_buy'?`使用借记卡尾号${p.last4}。申购为独立模拟，基金净值会波动，本金可能亏损；基金申购份额与成交以实际交易规则为准。`: '赎回为独立模拟，实际到账时间以基金规则为准。');
   } else if(tool==='subscription_cancel') {
     const found=state.subscriptions.filter(s=>p.subscriptionId?s.id===p.subscriptionId:s.name===p.subscriptionName);
     if(found.length!==1)fail('SUBSCRIPTION_REQUIRED','请指定要取消的订阅名称。');
     const sub=found[0];if(sub.status!=='active')fail('SUBSCRIPTION_INACTIVE','该订阅已经取消。',409);
-    p.subscriptionId=sub.id;p.subscriptionName=sub.name;label=`取消 ${sub.name} 的沙箱代扣授权`;
-    warnings.push(sub.source==='detected'?'这是从重复流水识别的候选记录，本操作只移除沙箱候选。':'只取消沙箱代扣授权，不代表已在真实商户退订。');
+    p.subscriptionId=sub.id;p.subscriptionName=sub.name;label=`取消 ${sub.name} 的模拟环境代扣授权`;
+    warnings.push(sub.source==='detected'?'这是从重复流水识别的候选记录，本操作只移除模拟环境候选。':'只取消模拟环境代扣授权，不代表已在真实商户退订。');
   } else if(tool==='card_apply') {
-    p.cardName=typeof p.cardName==='string'?p.cardName:'信用卡';label=`提交${p.cardName}模拟申请`;warnings.push('只生成待审核的沙箱申请记录，不代表真实授信。');
+    p.cardName=typeof p.cardName==='string'?p.cardName:'信用卡';label=`提交${p.cardName}模拟申请`;warnings.push('只生成待审核的模拟环境申请记录，不代表真实授信。');
   } else if(tool.startsWith('card_')) {
     const card=cardFor(state,p);p.cardId=card.id;p.cardName=card.name;p.last4=card.last4;
     if(card.status==='lost')fail('CARD_LOST','挂失卡片不能直接解锁或调整，请另行申请新卡。',409);
-    if(tool==='card_limit') {positive(p.limitCents,'额度');if(p.limitCents>5000000)fail('LIMIT_RANGE','沙箱额度或单笔限额最多50,000元。');label=`${card.name} ${card.type==='credit'?'额度':'单笔限额'}调整为 ${money(p.limitCents)}`;}
+    if(tool==='card_limit') {positive(p.limitCents,'额度');if(p.limitCents>5000000)fail('LIMIT_RANGE','模拟环境额度或单笔限额最多50,000元。');label=`${card.name} ${card.type==='credit'?'额度':'单笔限额'}调整为 ${money(p.limitCents)}`;}
     else if(['card_lock','card_unlock','card_loss'].includes(tool))label=`${{card_lock:'锁定',card_unlock:'解锁',card_loss:'挂失'}[tool]} ${card.name}（尾号${card.last4}）`;
     else fail('UNKNOWN_TOOL','不支持的卡片操作。');
     if(tool==='card_loss')warnings.push('挂失后不能通过普通解锁恢复，后续资金操作将被阻止。');
@@ -135,12 +135,12 @@ function normalizeStep(state,intent) {
     if(typeof p.eventDate!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(p.eventDate)||new Date(`${p.eventDate}T00:00:00+08:00`).toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'})!==p.eventDate)fail('INVALID_DATE','请提供真实有效的生日日期。');
     if(!Number.isInteger(p.daysBefore)||p.daysBefore<1||p.daysBefore>30)fail('INVALID_DAYS','提前天数应为1至30天。');
     p.executeAt=future(new Date(Date.parse(`${p.eventDate}T09:00:00+08:00`)-p.daysBefore*86400000).toISOString(),state.now);
-    if(p.eventDate.slice(0,7)!==new Date(Date.parse(state.now)+8*3600000).toISOString().slice(0,7))fail('EVENT_MONTH','当前沙箱先支持生日当月预留，请将演示时间推进到生日当月再建立计划。');
+    if(p.eventDate.slice(0,7)!==new Date(Date.parse(state.now)+8*3600000).toISOString().slice(0,7))fail('EVENT_MONTH','当前模拟环境先支持生日当月预留，请将演示时间推进到生日当月再建立计划。');
     p.items=[{name:'鲜花花束（模拟商户）',quantity:1,priceCents:29900},{name:'生日蛋糕（模拟商户）',quantity:1,priceCents:19900}];p.totalCents=49800;
     if(p.budgetCents<p.totalCents)fail('BUDGET_TOO_LOW','模拟鲜花299元、蛋糕199元，预算至少需要498元。');
     if(p.budgetCents>state.account.balanceCents-state.account.reservedCents)fail('INSUFFICIENT_FUNDS','当前可用余额不足以锁定生日预算。',409);
     p.title='爱人生日 · 鲜花与蛋糕';label=`预留 ${money(p.budgetCents)}，${new Date(p.executeAt).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'})} 自动模拟下单 ${money(p.totalCents)}`;
-    warnings.push('本次确认仅授权列表中固定商品、固定金额、指定日期的沙箱订单；不会向真实商户购买。','到期成功后释放未使用的预算；失败或撤销将释放本计划预留。');
+    warnings.push('本次确认仅授权列表中固定商品、固定金额、指定日期的模拟环境订单；不会向真实商户购买。','到期成功后释放未使用的预算；失败或撤销将释放本计划预留。');
   } else fail('UNKNOWN_TOOL','该操作不在工具白名单内。');
   return {step:{tool,params:p,label},impactCents,warnings};
 }
@@ -183,7 +183,7 @@ function clarifyOperation(state,intent){
     const choices=state.schedules.filter(s=>s.status==='awaiting_confirmation');
     if(choices.length)return ask(state,intent,'请选择要重新授权的预约。',choices,['scheduleId']);
   }
-  if(intent.kind==='subscription_cancel'&&!p.subscriptionId&&!p.subscriptionName)return ask(state,intent,'请选择要取消的沙箱代扣或识别候选。',state.subscriptions.filter(s=>s.status==='active'),['subscriptionId']);
+  if(intent.kind==='subscription_cancel'&&!p.subscriptionId&&!p.subscriptionName)return ask(state,intent,'请选择要取消的模拟环境代扣或识别候选。',state.subscriptions.filter(s=>s.status==='active'),['subscriptionId']);
   if(['card_lock','card_unlock','card_loss','card_limit'].includes(intent.kind)) {
     if(!p.cardId&&!p.cardName)return ask(state,intent,'请选择卡片或回复卡片尾号。',state.cards,['cardId']);
     if(intent.kind==='card_limit'&&p.limitCents===undefined)return ask(state,intent,'请补充新的额度或单笔限额。',[],['limitCents']);
@@ -212,10 +212,10 @@ export function buildPlan(state,rawIntent,{rawText}={}) {
     }
   }
   if(intent.kind==='analytics') {const answer=analyze(state,p);state.pending=null;return {reply:`${answer.title}共${answer.count}笔流水，收入${money(answer.incomeCents)}，支出${money(answer.expenseCents)}，净流入${money(answer.netCents)}。发现${answer.anomalies.length}条需核对的记录，可到“账单洞察”查看明细。`,answer,sources:answer.sources,trace:['读取当前会话流水','按指定周期和分类汇总','核对大额与同日重复扣款规则']};}
-  if(intent.kind==='wealth_compare')return {reply:`当前${state.risk?`项目演示适当性档位R${state.risk.level}`:'尚未完成风险评估，申购前请到财富计划填写问卷'}。产品目录：${state.products.map(x=>`${x.name}（${x.code??x.id}，${x.category??'基金'}），演示档位R${x.riskLevel}`).join('；')}。基金资料链接与正式法律文件请在财富计划核对；本项目不提供投资建议，所有申购和份额均为独立沙箱模拟。`,sources:{productIds:state.products.map(x=>x.id)},trace:['读取公募基金公开目录','读取项目演示适当性档位，未执行申购']};
-  if(intent.kind==='subscription_list')return {reply:state.subscriptions.map(s=>`${s.name}：${money(s.amountCents)}/${s.cycleDays}天，${s.status==='active'?'有效':'已取消'}${s.source==='detected'?'（重复流水识别候选）':''}`).join('；'),sources:{subscriptionIds:state.subscriptions.map(s=>s.id)},trace:['读取沙箱代扣授权与识别候选']};
+  if(intent.kind==='wealth_compare')return {reply:`当前${state.risk?`项目演示适当性档位R${state.risk.level}`:'尚未完成风险评估，申购前请到财富计划填写问卷'}。产品目录：${state.products.map(x=>`${x.name}（${x.code??x.id}，${x.category??'基金'}），演示档位R${x.riskLevel}`).join('；')}。基金资料链接与正式法律文件请在财富计划核对；本项目不提供投资建议，所有申购和份额均为独立模拟。`,sources:{productIds:state.products.map(x=>x.id)},trace:['读取公募基金公开目录','读取项目演示适当性档位，未执行申购']};
+  if(intent.kind==='subscription_list')return {reply:state.subscriptions.map(s=>`${s.name}：${money(s.amountCents)}/${s.cycleDays}天，${s.status==='active'?'有效':'已取消'}${s.source==='detected'?'（重复流水识别候选）':''}`).join('；'),sources:{subscriptionIds:state.subscriptions.map(s=>s.id)},trace:['读取模拟环境代扣授权与识别候选']};
   if(intent.kind==='card_list')return {reply:state.cards.map(c=>`${c.name}尾号${c.last4}：${{active:'正常',locked:'已锁定',lost:'已挂失'}[c.status]}，单笔限额${money(c.perTxLimitCents)}`).join('；'),sources:{cardIds:state.cards.map(c=>c.id)},trace:['读取本会话卡片状态']};
-  if(intent.kind==='account')return {reply:`沙箱活期余额${money(state.account.balanceCents)}，预留${money(state.account.reservedCents)}，可用${money(state.account.balanceCents-state.account.reservedCents)}。`,sources:{accountIds:[state.account.id],asOf:state.now},trace:['读取账户余额与预算预留']};
+  if(intent.kind==='account')return {reply:`模拟环境活期余额${money(state.account.balanceCents)}，预留${money(state.account.reservedCents)}，可用${money(state.account.balanceCents-state.account.reservedCents)}。`,sources:{accountIds:[state.account.id],asOf:state.now},trace:['读取账户余额与预算预留']};
   if(intent.kind==='refuse')return {reply:String(p.reason??'无法执行越权或绕过确认的操作。'),trace:['权限边界检查：拒绝越权要求']};
   if(intent.kind==='help'||intent.kind==='clarify')return {reply:intent.kind==='help'?'可以帮你转账、AA收款、分析账单、比较和申赎理财、管理卡片、取消代扣，以及安排生日预算与模拟购买。资金操作会先给你计划，确认后执行。':'请描述具体银行业务，例如“给林悦转520元”“分析本月账单”。',trace:['未创建任何执行计划']};
   const actions=intent.kind==='composite'?p.actions:[intent];
@@ -226,7 +226,7 @@ export function buildPlan(state,rawIntent,{rawText}={}) {
     // Preview sequential policy changes on a private copy; original balances remain unchanged.
     applyStep(preview,normalized.step);
   }
-  const plan={id:id('plan'),nonce:randomBytes(24).toString('hex'),status:'pending',createdAt:new Date().toISOString(),expiresAt:new Date(Date.now()+600000).toISOString(),demoExpiresAt:new Date(Date.parse(state.now)+600000).toISOString(),title:parts.length===1?parts[0].step.label:`组合计划 · ${parts.length}项操作`,summary:'请核对以下操作，确认后仅在独立银行沙箱执行。',steps:parts.map(x=>x.step),impactCents:parts.reduce((s,x)=>s+x.impactCents,0),warnings:[...new Set(parts.flatMap(x=>x.warnings))]};
+  const plan={id:id('plan'),nonce:randomBytes(24).toString('hex'),status:'pending',createdAt:new Date().toISOString(),expiresAt:new Date(Date.now()+600000).toISOString(),demoExpiresAt:new Date(Date.parse(state.now)+600000).toISOString(),title:parts.length===1?parts[0].step.label:`组合计划 · ${parts.length}项操作`,summary:'请核对以下操作，确认后仅在独立银行模拟环境执行。',steps:parts.map(x=>x.step),impactCents:parts.reduce((s,x)=>s+x.impactCents,0),warnings:[...new Set(parts.flatMap(x=>x.warnings))]};
   plan.operationRisk=assessOperationRisk(state,{...plan,requestText:rawText});
   plan.requestIntent=clone(intent);plan.requestText=requestTextFor(state,plan.steps);
   state.plans.push(plan);state.pending=null;appendAudit(state,'plan_created',{planId:plan.id,tools:plan.steps.map(s=>s.tool)});
@@ -299,7 +299,7 @@ export function confirmPlan(state,planId,nonce) {
     const validated=normalizeStep(next,{kind:step.tool,slots:step.params});
     transactionIds.push(...applyStep(next,validated.step));
   }
-  const receipt={id:id('receipt'),title:plan.title,executedAt:iso(next.now),summary:'已在独立银行沙箱执行。',transactionIds,balanceCents:next.account.balanceCents,details:plan.steps.map(s=>`${s.label}${s.tool==='wealth_buy'&&s.params.cardName?` · 扣款卡 ${s.params.cardName}`:''}`)};
+  const receipt={id:id('receipt'),title:plan.title,executedAt:iso(next.now),summary:'已在独立银行模拟环境执行。',transactionIds,balanceCents:next.account.balanceCents,details:plan.steps.map(s=>`${s.label}${s.tool==='wealth_buy'&&s.params.cardName?` · 扣款卡 ${s.params.cardName}`:''}`)};
   const existingSchedules=new Set(state.schedules.map(s=>s.id));
   for(const schedule of next.schedules)if(!existingSchedules.has(schedule.id)){
     schedule.authorizedByPlanId=plan.id;schedule.authorizationReceiptId=receipt.id;
@@ -348,7 +348,7 @@ export function tickSchedules(state,asOf,{requireAuthorization=false}={}) {
         releaseReservation(next,schedule,'spent');
         next.orders??=[];next.orders.push({id:id('order'),scheduleId:task.id,items:clone(p.items),totalCents:p.totalCents,createdAt:iso(next.now),status:'placed',sandbox:true});
       } else if(task.type!=='reminder')fail('UNKNOWN_SCHEDULE','不支持的预约类型。');
-      schedule.status='executed';schedule.receipt={id:id('receipt'),title:task.title,executedAt:iso(next.now),summary:task.type==='birthday_order'?'模拟鲜花与蛋糕已下单。':'预约任务已在沙箱执行。',transactionIds,balanceCents:next.account.balanceCents,details:[]};
+      schedule.status='executed';schedule.receipt={id:id('receipt'),title:task.title,executedAt:iso(next.now),summary:task.type==='birthday_order'?'模拟鲜花与蛋糕已下单。':'预约任务已在模拟环境执行。',transactionIds,balanceCents:next.account.balanceCents,details:[]};
       appendAudit(next,'schedule_executed',{scheduleId:task.id,transactionIds});Object.assign(state,next);
       triggered.push({scheduleId:task.id,status:'executed',receipt:clone(schedule.receipt)});
     } catch(error) {

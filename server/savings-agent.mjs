@@ -91,7 +91,7 @@ function readInput(text, state, draft) {
   if (fullDate) input.deadline = `${fullDate[1]}-${fullDate[2].padStart(2, '0')}-${fullDate[3].padStart(2, '0')}`;
   else if (/明年(?:年底|年末|底|末)/.test(text)) input.deadline = `${year + 1}-12-31`;
   else if (/(?:今年|本年|年底|年末)/.test(text)) input.deadline = `${year}-12-31`;
-  if (input.deadline) sources.deadline = `用户期限，按沙箱日期${today}解释`;
+  if (input.deadline) sources.deadline = `用户期限，按模拟环境日期${today}解释`;
   const start = /从\s*(20\d{2})[-年/.](\d{1,2})月?(?:开始|起)/.exec(text);
   if (start) input.startMonth = `${start[1]}-${start[2].padStart(2, '0')}`;
   else if (/从?(?:下个?月|下月)(?:开始|起|存)/.test(text)) input.startMonth = shift(month, 1);
@@ -153,7 +153,7 @@ function projection(state, input) {
     const amountCents = Math.min(left, monthlyRequiredCents); left -= amountCents; cumulative += amountCents;
     return { month, amountCents, cumulativeCents: cumulative };
   });
-  const warnings = ['基础计划按投资收益0计算，不保证达成；基金可能亏损，不能用预期收益填补储蓄缺口。', '这是独立沙箱规划，保存目标不会预留资金、购买理财或设置自动转账。'];
+  const warnings = ['基础计划按投资收益0计算，不保证达成；基金可能亏损，不能用预期收益填补储蓄缺口。', '这是独立模拟环境规划，保存目标不会预留资金、购买理财或设置自动转账。'];
   if (mode !== 'additional' && emergencyCents > startingCents) warnings.push('应急储备高于现有本金，本期可计入目标的本金按0计算；需先补足应急储备。');
   if (mode === 'additional') warnings.push('新增目标不询问或动用现有存款。请在月度必要支出中预留生活和应急所需，再核对可存金额。');
   if (monthlyCapacityCents !== null && monthlyCapacityCents < monthlyRequiredCents) warnings.push('当前预算不足以按期完成：可以降低目标、延长期限或核对可调整支出，不建议靠高风险收益补差。');
@@ -162,7 +162,7 @@ function projection(state, input) {
     monthlyCapacityCents, monthlyGapCents: monthlyCapacityCents === null ? null : gapCents===0?0:Math.max(0, monthlyRequiredCents - monthlyCapacityCents),
     deadline, startMonth, months: months.length, feasible: gapCents===0?true:monthlyCapacityCents === null ? null : monthlyCapacityCents >= monthlyRequiredCents,
     schedule, products: productChoices(state, months.length), warnings,
-    assumptions: [`按沙箱日期${day(state.now)}解释期限，起始月计一次月度存入，截止月计一次；不是自动扣款日程。`,
+    assumptions: [`按模拟环境日期${day(state.now)}解释期限，起始月计一次月度存入，截止月计一次；不是自动扣款日程。`,
       mode === 'additional' ? '目标为新增存入额，现有本金不抵扣目标；未采集的存款和应急金不代表为0。' : '目标为累计总额，现有本金扣除应急储备后计入。',
       '收入和必要支出按确认的月预算，不代表稳定收入保证；本账户以外的存款来自用户自报。',
       '基金名称/代码来自现有公开资料目录，净值、份额和风险档位为项目演示，不是实时行情。'] };
@@ -178,7 +178,7 @@ function clarification(key, input = {}) {
       {id:'additional',label:'从现在起再攒这笔钱',detail:'从本月开始，现有存款不抵扣目标',reply:'我的目标是新增攒下这笔钱，从本月开始'}]},
     startingCents: {id:key,label:'现在已有多少存款？',hint:'填写与你这次目标有关的存款，下一步会单独核对应急金。',options:[{id:'none',label:'目前没有存款',reply:'没有存款'}],fields:[moneyField(key,'现有存款','现有存款','例如20000')]},
     emergencyCents: {id:key,label:'其中要留多少应急金？',hint:'这部分留作生活保障，不计入可用本金。',options:[{id:'none',label:'这次不从存款中另留应急金',detail:'由我明确选择为0元',reply:'应急金0元'}],fields:[moneyField(key,'应急储备','应急金','例如5000')]},
-    cashflow: {id:key,label:'每月收入和必要支出是多少？',options:[{id:'ledger',label:'先用沙箱账单粗估',detail:'先看估算结果，核对后再决定是否采用',reply:'先按账单估算收入和支出'}],fields:[
+    cashflow: {id:key,label:'每月收入和必要支出是多少？',options:[{id:'ledger',label:'先用模拟环境账单粗估',detail:'先看估算结果，核对后再决定是否采用',reply:'先按账单估算收入和支出'}],fields:[
       ...(!own(input,'monthlyIncomeCents') ? [moneyField('monthlyIncomeCents','每月收入','月收入','例如10000')] : []),
       ...(!own(input,'monthlyExpenseCents') ? [moneyField('monthlyExpenseCents','每月必要支出','每月支出','例如4000')] : [])]},
     startMonth: {id:key,label:'从什么时候开始攒？',options:[{id:'this',label:'从本月开始',reply:'从本月开始'},{id:'next',label:'从下月开始',reply:'从下月开始'}]},
@@ -189,7 +189,7 @@ function clarification(key, input = {}) {
 function makeView(state, draft, stage = 'clarifying', override) {
   const input = draft.input;
   const today=day(state.now);
-  if(input.deadline && input.deadline<today)return {kind:'savings',stage:'clarifying',title:'这份目标需要重新核对期限',summary:`原期限${input.deadline}已早于沙箱今天${today}。保存的计划不等于已完成，请设置新期限后重新计算。`,steps:[],facts:[],questions:['新的完成日期是哪一天？'],clarifications:[clarification('deadline')],actions:[send('stop','结束本次规划','取消这次储蓄规划')]};
+  if(input.deadline && input.deadline<today)return {kind:'savings',stage:'clarifying',title:'这份目标需要重新核对期限',summary:`原期限${input.deadline}已早于模拟环境今天${today}。保存的计划不等于已完成，请设置新期限后重新计算。`,steps:[],facts:[],questions:['新的完成日期是哪一天？'],clarifications:[clarification('deadline')],actions:[send('stop','结束本次规划','取消这次储蓄规划')]};
   const missing = [];
   if (!own(input, 'targetCents')) missing.push(['targetCents', '你希望攒到多少元？']);
   if (!input.deadline) missing.push(['deadline', '希望在哪一天前完成？例如“今年年底”。']);
@@ -209,7 +209,7 @@ function makeView(state, draft, stage = 'clarifying', override) {
   }
   const labels = { targetCents: '储蓄目标', startingCents: '现有本金', emergencyCents: '应急储备', monthlyIncomeCents: '月收入', monthlyExpenseCents: '月必要支出' };
   const facts = fiscalKeys.filter(key => own(input, key) && !(input.mode==='additional'&&['startingCents','emergencyCents'].includes(key))).map(key => ({ label: labels[key], value: money(input[key]), source: draft.sources[key] ?? '用户确认的信息' }));
-  if (input.deadline) facts.push({ label: '完成期限', value: input.deadline, source: draft.sources.deadline ?? `沙箱日期${day(state.now)}` });
+  if (input.deadline) facts.push({ label: '完成期限', value: input.deadline, source: draft.sources.deadline ?? `模拟环境日期${day(state.now)}` });
   const title = input.targetCents ? `${money(input.targetCents)}存钱计划` : '一起做一份存钱计划';
   let savings;
   let summary = override || '先把目标和条件对齐，再计算每个月需要攒多少。';
@@ -302,7 +302,7 @@ export function savingsTurn(state, rawText, slots = {}) {
   }
   const next = { ...draft.input, ...parsed.input };
   const today = day(state.now);
-  if (next.deadline && (!/^20\d{2}-\d{2}-\d{2}$/.test(next.deadline) || !Number.isFinite(Date.parse(next.deadline)) || new Date(next.deadline + 'T00:00:00Z').toISOString().slice(0, 10) !== next.deadline || next.deadline < today)) return done(makeView(state, draft, 'clarifying', `期限需为不早于沙箱今天${today}的有效日期，请重新输入。`));
+  if (next.deadline && (!/^20\d{2}-\d{2}-\d{2}$/.test(next.deadline) || !Number.isFinite(Date.parse(next.deadline)) || new Date(next.deadline + 'T00:00:00Z').toISOString().slice(0, 10) !== next.deadline || next.deadline < today)) return done(makeView(state, draft, 'clarifying', `期限需为不早于模拟环境今天${today}的有效日期，请重新输入。`));
   if (next.startMonth && (!/^20\d{2}-(0[1-9]|1[0-2])$/.test(next.startMonth) || next.startMonth < today.slice(0, 7) || (next.deadline && next.startMonth > next.deadline.slice(0, 7)) || (next.deadline && shift(next.startMonth, 119) < next.deadline.slice(0, 7)))) return done(makeView(state, draft, 'clarifying', '起始月份需在本月或以后、不晚于截止月，规划期限最长120个月。请调整起始月份或完成日期。'));
   Object.assign(draft.input, parsed.input);
   Object.assign(draft.sources, parsed.sources);

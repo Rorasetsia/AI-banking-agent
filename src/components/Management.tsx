@@ -65,10 +65,10 @@ export function Cards({ state, send: rawSend, busy }: PageProps) {
       <div className='section-head'>
         <div>
           <h2>银行卡</h2>
-          <p>锁定、解锁、挂失与额度调整都会通过沙箱指令执行。</p>
+          <p>锁定、解锁、挂失与额度调整都会通过模拟环境指令执行。</p>
         </div>
         <button className='button btn-primary' disabled={busy}
-          onClick={() => void send('我想申请一张信用卡，仅记录为沙箱申请，不要直接授信')}>
+          onClick={() => void send('我想申请一张信用卡，仅记录为模拟环境申请，不要直接授信')}>
           申请信用卡
         </button>
       </div>
@@ -144,13 +144,13 @@ export function Subscriptions({ state, send: rawSend, busy, navigate }: PageProp
               <span className='status'>{SUB_STATUS[item.status] ?? item.status}</span>
             </div>
             <p>{SOURCE_LABEL[item.source] ?? item.source} · {item.category}</p>
-            {item.evidenceIds && <p className='detection-note'>最近 {item.evidenceIds.length} 笔同商户同金额流水提供周期扣款线索。{item.source==='detected'?'这是待核查候选，不代表已授权。':'授权状态来自沙箱授权记录，流水本身不证明真实商户签约。'}</p>}
+            {item.evidenceIds && <p className='detection-note'>最近 {item.evidenceIds.length} 笔同商户同金额流水提供周期扣款线索。{item.source==='detected'?'这是待核查候选，不代表已授权。':'授权状态来自模拟环境授权记录，流水本身不证明真实商户签约。'}</p>}
             <p>每次 {money(item.amountCents)} · 周期 {item.cycleDays} 天 · 下次 {day(item.nextChargeAt)}</p>
             <p>月均约 {estimate(item, 30)} · 年均约 {estimate(item, 365)}</p>
             <SubscriptionWatchStatus state={state} subscriptionId={item.id} navigate={navigate} />
             {item.status === 'active' ? (
               <button className='button btn-secondary' disabled={busy}
-                onClick={() => void send(`取消订阅${item.id}`)}>{item.source==='detected'?'移除识别候选':'取消沙箱代扣'}</button>
+                onClick={() => void send(`取消订阅${item.id}`)}>{item.source==='detected'?'移除识别候选':'取消模拟环境代扣'}</button>
             ) : (
               <button className='button btn-secondary' disabled>
                 {item.status === 'cancelled' ? '已取消' : '未授权，无法取消'}
@@ -159,9 +159,9 @@ export function Subscriptions({ state, send: rawSend, busy, navigate }: PageProp
           </article>
         ))}
       </div>
-      <p className='panel-meta'>取消仅终止本地沙箱代扣授权，不代表真实商户退订。周期扣款候选不等于重复扣款事件；只读监测也不代表自动付款、取消或资金安全保证。</p>
+      <p className='panel-meta'>取消仅终止本地模拟环境代扣授权，不代表真实商户退订。周期扣款候选不等于重复扣款事件；只读监测也不代表自动付款、取消或资金安全保证。</p>
       <div className='section-head'><h3>未来扣费预测</h3></div>
-      <p className='panel-meta'>仅按沙箱授权记录预测，未发送外部通知，也未实际代扣。</p>
+      <p className='panel-meta'>仅按模拟环境授权记录预测，未发送外部通知，也未实际代扣。</p>
       {upcoming.length === 0 ? <p>暂无已授权的即将扣费。</p> : (
         <ul className='task-list'>
           {upcoming.map(item => (
@@ -202,7 +202,7 @@ export function Tasks({ state, send: rawSend, busy, openPlan, refresh, navigate 
     if (!Number.isInteger(days) || days < 1 || days > 30) { setFormNotice('提前天数需为1至30的整数'); return; }
     const localMonth=new Date(Date.parse(state.now)+8*3600000).toISOString().slice(0,7);
     if(eventDate.slice(0,7)!==localMonth){setFormNotice('当前仅支持生日当月预留。请将演示时钟推进至生日当月，再建立方案。');return;}
-    if(Date.parse(`${eventDate}T09:00:00+08:00`)-days*DAY<=Date.parse(state.now)){setFormNotice('预约下单时间必须晚于当前沙箱时间，请调整提前天数或核对生日。');return;}
+    if(Date.parse(`${eventDate}T09:00:00+08:00`)-days*DAY<=Date.parse(state.now)){setFormNotice('预约下单时间必须晚于当前模拟环境时间，请调整提前天数或核对生日。');return;}
     if(amount<498){setFormNotice('固定模拟商品合计498元，请填写至少498元的预算。');return;}
     setFormNotice('');
     void send(`${eventDate}是爱人生日，提前${days}天订购鲜花和蛋糕，预留${amount.toFixed(2)}元`);

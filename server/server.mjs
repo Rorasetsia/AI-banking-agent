@@ -168,7 +168,7 @@ export function createApp({ dbPath, apiKey, fetchImpl, publicOrigin, modelRequir
 
   function requireUser(req) {
     const session = sessionFor(req);
-    if (!session) throw new HttpError(401, 'UNAUTHORIZED', '请先开启沙箱会话');
+    if (!session) throw new HttpError(401, 'UNAUTHORIZED', '请先开启模拟环境会话');
     return session.userId;
   }
 
@@ -446,7 +446,7 @@ export function createApp({ dbPath, apiKey, fetchImpl, publicOrigin, modelRequir
       const state = store.read(userId);
       if (!state) throw new HttpError(401, 'UNAUTHORIZED', '会话已失效');
       sendJson(res, 200, {
-        user: { name: state.profile?.name || '沙箱用户' }, mode: 'sandbox',
+        user: { name: state.profile?.name || '模拟环境用户' }, mode: 'sandbox',
         llmConfigured: Boolean(key), now: state.now,
         ...(process.env.BANK_EPHEMERAL_PREVIEW==='1'?{persistence:'ephemeral'}:{}),
       });
@@ -491,7 +491,7 @@ export function createApp({ dbPath, apiKey, fetchImpl, publicOrigin, modelRequir
       const securityStatus = security.status(userId);
       if (pathname === '/api/account/settings' && req.method === 'GET') {
         sendJson(res, 200, {
-          displayName: state.profile?.name || '沙箱用户',
+          displayName: state.profile?.name || '模拟环境用户',
           accountName: state.account?.name || '小苔活期账户',
           operationCodeConfigured: securityStatus.operationCodeConfigured,
           operationLockedUntil: securityStatus.operationLockedUntil,
@@ -584,7 +584,7 @@ export function createApp({ dbPath, apiKey, fetchImpl, publicOrigin, modelRequir
       const asOfMs = Date.parse(body.asOf);
       const result = store.update(userId, (state) => {
         const nowMs = Date.parse(state.now);
-        if (!Number.isFinite(nowMs)) throw new HttpError(500, 'INVALID_CLOCK', '沙箱时间不可用');
+        if (!Number.isFinite(nowMs)) throw new HttpError(500, 'INVALID_CLOCK', '模拟环境时间不可用');
         if (asOfMs < nowMs) throw new HttpError(400, 'TICK_BACKWARDS', '演示时钟不能倒退');
         if (asOfMs > nowMs + 31 * 86400000) throw new HttpError(400, 'TICK_RANGE', '演示时钟最多向前推进31天');
         const result = tickSchedules(state, body.asOf, { requireAuthorization: true });

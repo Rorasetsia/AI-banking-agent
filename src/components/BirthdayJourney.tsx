@@ -148,7 +148,7 @@ export function BirthdayJourney({ state, schedule, onEdit, onCards }: Props) {
       ) : null}
 
       <p className='birthday-journey__foot panel-meta'>
-        由手动推进的演示时钟到期触发沙箱执行，不会向真实商户购买。取消或新建计划仍需确认。
+        由手动推进的演示时钟到期触发模拟环境执行，不会向真实商户购买。取消或新建计划仍需确认。
       </p>
     </section>
   );

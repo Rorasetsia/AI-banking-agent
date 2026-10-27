@@ -10,13 +10,13 @@ export async function request<T>(path: string, data?: unknown): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`/api${path}`, {
-      method: data === undefined ? 'GET' : 'POST', credentials: 'same-origin',
+      method: data === undefined ? 'GET' : 'POST', credentials: 'same-origin', cache: 'no-store',
       headers: data === undefined ? undefined : {'Content-Type': 'application/json'},
       body: data === undefined ? undefined : JSON.stringify(data),
     });
   } catch {
     throw new ApiError(
-      '暂时连接不到银行沙箱。请检查网络；免费试用站首次唤醒可能需要稍等片刻，之后刷新重试。',
+      '暂时连接不到银行模拟环境。请检查网络；免费试用站首次唤醒可能需要稍等片刻，之后刷新重试。',
       0,
       'NETWORK_UNAVAILABLE',
     );

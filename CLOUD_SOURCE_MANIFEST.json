@@ -1,5 +1,5 @@
 {
-  "version": "0.8.3",
+  "version": "0.8.4",
   "files": [
     {
       "path": ".dockerignore",
@@ -13,8 +13,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "4126173b91258c687e5b4acf97db97bb07534dee8f4e50d281674ab660db357f",
-      "bytes": 3465
+      "sha256": "a62341ee11721f4f9e7d3a1263895c98ddc67e16ffae3f75a56c726b00efa12a",
+      "bytes": 4371
     },
     {
       "path": "Dockerfile",
@@ -43,8 +43,8 @@
     },
     {
       "path": "docs/30_魔搭免费试用部署_2026-10-27.md",
-      "sha256": "bd6003a9c35a20e8c02a5b0374b54d6e11173feb4cdc89b500329194b5008921",
-      "bytes": 10349
+      "sha256": "e0ab0c40805c5532bcec450e78a0ecff86ef3d9758378528667355d3f0f9da55",
+      "bytes": 10812
     },
     {
       "path": "index.html",
@@ -53,12 +53,12 @@
     },
     {
       "path": "package-lock.json",
-      "sha256": "ad935bae05e5cdf3faee36e0918220fc177701f6c646258357ef0ffb09d2d64c",
+      "sha256": "38064a19d6b2f67cd7e0bdff93bf285a16bcc0645566e936e250c443911cd35d",
       "bytes": 54892
     },
     {
       "path": "package.json",
-      "sha256": "94fb2edac294e944f3e73fc541438e25f0eb89bb5edbf93d5c4134416beded7e",
+      "sha256": "28e552ff4fe6aaa6a36504b323524c1ee2cf50bcf085029e38f48e65f43a7f9a",
       "bytes": 779
     },
     {
@@ -138,13 +138,13 @@
     },
     {
       "path": "scripts/start-modelscope.mjs",
-      "sha256": "4e091ef73548ff51dae2945e9e8b8307f6cae3a40b23359e71100e471e363bbd",
-      "bytes": 8256
+      "sha256": "ce94d7c36df47ec2406ce30c95f984463f96569eef1a474db1d56b56e2a1079d",
+      "bytes": 8270
     },
     {
       "path": "server/agent-tools.mjs",
-      "sha256": "11627f1e9f74a5149f06e69a4911d479ff4f7bc72f1c0f455d4e661414f059aa",
-      "bytes": 10660
+      "sha256": "07a99661822f7a8fc856185314236a2523b6aad34b378d312aa5eaa8d29a3d52",
+      "bytes": 10672
     },
     {
       "path": "server/analytics.mjs",
@@ -163,8 +163,8 @@
     },
     {
       "path": "server/engine.mjs",
-      "sha256": "f3bf1a00aa4addf57adbffed7674ff5d62e832130eb4a3179e6f22ef6effae36",
-      "bytes": 36817
+      "sha256": "bede7c2afbb2636b1ba1d3dedc3b3bea929402d2770332151062851958409911",
+      "bytes": 36877
     },
     {
       "path": "server/family.mjs",
@@ -173,8 +173,8 @@
     },
     {
       "path": "server/green-analysis.mjs",
-      "sha256": "7ee0ee673d44add48b006d48aadabc12d8c4b1169643e558e288400ab1bb8e41",
-      "bytes": 10792
+      "sha256": "81a10663f0bf79d167a694e41ab10189624d99f822c0ae8c1a2c40eebdefba1f",
+      "bytes": 10804
     },
     {
       "path": "server/green-carbon.mjs",
@@ -198,8 +198,8 @@
     },
     {
       "path": "server/intent.mjs",
-      "sha256": "8cdac4c20ab41932a4d6fa6d22d951163e90eee0e34204d428f6d26b383622bc",
-      "bytes": 13396
+      "sha256": "476073757baf6051f73670161487b6292f6135139577debaf08ecedf305e8308",
+      "bytes": 13408
     },
     {
       "path": "server/operation-risk.mjs",
@@ -233,28 +233,28 @@
     },
     {
       "path": "server/savings-agent.mjs",
-      "sha256": "f64f545dfce1ebbe1a472d6050ffb85b314f606941fe1fac462c03a1e51cea28",
-      "bytes": 32539
+      "sha256": "076410acc6ea0da86041ba13f447f77e0722e954e10f8e9433ef7269de881770",
+      "bytes": 32581
     },
     {
       "path": "server/savings-scenarios.mjs",
-      "sha256": "f7295af9011f36ae07ff7e9c5ffebb5762f04b4146530f9b396e52df1493688f",
-      "bytes": 2745
+      "sha256": "195fb004252119ec882d804e33cc825dd304abd6225eb599c089abb4f0e18742",
+      "bytes": 2751
     },
     {
       "path": "server/seed.mjs",
-      "sha256": "b6fb744db3d8d07194c88226a3957e762d3f168d6e4710255e88ce982b0c69bb",
+      "sha256": "33195f369a3a7d92e7f91013741545b57ae75117bdc3cedda3922f22d885e370",
       "bytes": 7390
     },
     {
       "path": "server/server.mjs",
-      "sha256": "25bdde346de4b87f764c237cf0f1376c056da5ef9cc36c6c703fb2ea305db0ec",
-      "bytes": 39688
+      "sha256": "d20fc3aea332c9ea29f800c7e57e45e253c312a1e8cb014b4e0d2a0e7bc672e0",
+      "bytes": 39712
     },
     {
       "path": "server/service-operations.mjs",
-      "sha256": "7628bde4f25dac991816e98fa4ce45c8b70e258a92cd04cb78482b8bd9336dee",
-      "bytes": 45333
+      "sha256": "e716bf6af8d2602c112219492f5625635d054c7e1804d0d0c6fff25a3dc3549b",
+      "bytes": 45375
     },
     {
       "path": "server/store.mjs",
@@ -263,8 +263,8 @@
     },
     {
       "path": "server/transaction-security.mjs",
-      "sha256": "e157b69dc0d08055fb60ea913dcc2d7f5fa3cfbdf413f0d9d6f139e06d492258",
-      "bytes": 13972
+      "sha256": "112b3d01239506b3dced66c43462888ffc77ec1d0c0b5411a026ae23543410ff",
+      "bytes": 13996
     },
     {
       "path": "shared/question-logic.d.mts",
@@ -288,13 +288,13 @@
     },
     {
       "path": "src/api.ts",
-      "sha256": "37a282d86bf06fe167fde242731bbed772ef1478e54cc37cd9d44daf76336395",
-      "bytes": 2938
+      "sha256": "3754f6e0b2ea95f83bf5464bd6fc0e8b0e177e34ade75d65e62b642dc290910b",
+      "bytes": 2963
     },
     {
       "path": "src/App.tsx",
-      "sha256": "0595010514e206376114d1ac03495e46320efa481bb74e419785a18ff0587a37",
-      "bytes": 62011
+      "sha256": "3118173b553116d5a79fdcde95d499ed63e74fc05ac9ff058c1e8eac269330a0",
+      "bytes": 62419
     },
     {
       "path": "src/components/AccountFunding.tsx",
@@ -308,13 +308,13 @@
     },
     {
       "path": "src/components/AccountHome.tsx",
-      "sha256": "e886a0c3bcfa0df21c22864de9ff63eb09267f665f46abee28901ff07df376eb",
-      "bytes": 8075
+      "sha256": "d7f7c82255714f280ac92af67d03acee851b42fc160b400fd2382bb82e02ac92",
+      "bytes": 8081
     },
     {
       "path": "src/components/AccountSettings.tsx",
-      "sha256": "881a6ce9dd9508fcad96dcca5cca2ce242af157f830c61676a2e693d633b2edd",
-      "bytes": 8033
+      "sha256": "4d59226a38ac2d37e4603cf5d5ac6617bce8fbd765fa553268b80db8db71e526",
+      "bytes": 8045
     },
     {
       "path": "src/components/AccountSubpageHeader.tsx",
@@ -343,13 +343,13 @@
     },
     {
       "path": "src/components/Assistant.css",
-      "sha256": "b9143ee6203527cd91f945cd9fe063f0183a7cafc640441b04ab0c0f7bbb93df",
-      "bytes": 8367
+      "sha256": "c72f65fef1de482e9cdf65b805d9d2a99ba50e764adf9d33ee5a1496e19c822b",
+      "bytes": 8440
     },
     {
       "path": "src/components/Assistant.tsx",
-      "sha256": "4c18b9412775ef7d19af5bf061e4cdcc1a55a5d13686d8ff0e21edacef887b96",
-      "bytes": 21254
+      "sha256": "0f7283ba2062e5353ec9181bc773c7d4f27d7a8824f325aba9e897b2d0c1b05e",
+      "bytes": 21260
     },
     {
       "path": "src/components/AssistantWaiting.tsx",
@@ -363,8 +363,8 @@
     },
     {
       "path": "src/components/BirthdayJourney.tsx",
-      "sha256": "d881a93151d52156ca0afa4525bedbc5100e69efb08c03637861459885bdc4e8",
-      "bytes": 8160
+      "sha256": "8ae6d70a69d32d350ea3b5a64f0acb24f7bc3400113c28ccb80bc3c9450a15f8",
+      "bytes": 8166
     },
     {
       "path": "src/components/DateTimePicker.css",
@@ -413,8 +413,8 @@
     },
     {
       "path": "src/components/GreenFinance.tsx",
-      "sha256": "4a32c93893919a9caf8439626253ae9704916707a9d5152deb961937e47c68d3",
-      "bytes": 1749
+      "sha256": "bdc1879035e138eb05c063382bb54990360c3709c592e6d49dbdc66e2e2069c5",
+      "bytes": 1754
     },
     {
       "path": "src/components/GreenFirework.tsx",
@@ -428,13 +428,13 @@
     },
     {
       "path": "src/components/GreenInsights.tsx",
-      "sha256": "4439ed787091a0051e5c84bd07e8eedd936aa8c09877e5843d807fd8aa393490",
-      "bytes": 35834
+      "sha256": "333223149fd763d01e831342a8174c24f3fab783dceb73b7d5f27c8eda758199",
+      "bytes": 35846
     },
     {
       "path": "src/components/GreenWeeklyGoal.tsx",
-      "sha256": "196d707883459dce269d47ffbd40ce082b0ef8ab3d5cdb3006db8de8b054a95e",
-      "bytes": 10237
+      "sha256": "e604b508eeb5488fa8e86c93b15c44d7ca0f643fa4e172b4126d67f98baa4ce9",
+      "bytes": 10249
     },
     {
       "path": "src/components/InvestmentArtwork.tsx",
@@ -443,8 +443,8 @@
     },
     {
       "path": "src/components/Management.tsx",
-      "sha256": "dc0241edb435e473dc0d057e03030e1ea6d9002cf92f41e1abd06b4ba1a41915",
-      "bytes": 25322
+      "sha256": "4f7f339f33ae5e08cd9c356b539c390a2a2d56553047d3cb2329992fb0f9bb28",
+      "bytes": 25364
     },
     {
       "path": "src/components/MandatesAndCharges.tsx",
@@ -478,8 +478,8 @@
     },
     {
       "path": "src/components/PageGuide.tsx",
-      "sha256": "31ee1597d94c6c75fb65766c32269df108bd56bd1f8cb8a435207d9d1880182e",
-      "bytes": 15197
+      "sha256": "a2493830e7e97aaf2dc034c1bb66424b7f41e48051c02d01e49f863da4b0c746",
+      "bytes": 15233
     },
     {
       "path": "src/components/picker-position.ts",
@@ -528,18 +528,23 @@
     },
     {
       "path": "src/components/Wealth.tsx",
-      "sha256": "8aaf8cff0ebb33bc2fe6f4ac124eb6aa7a4590a18de5dd90329cab68ab8ac38b",
-      "bytes": 13733
+      "sha256": "ec6f8f5941ab477d902b33c085015d3d585a369bac564e90b3b391c613568f8c",
+      "bytes": 13727
     },
     {
       "path": "src/components/Welcome.css",
-      "sha256": "0025e336b57c55bf0747a937a155e3af4532be2479dea9c464d0436aad66e39f",
-      "bytes": 34620
+      "sha256": "035480a34829e860792a0a40bf836ccee323075c35ab1127ea705395288fa4b3",
+      "bytes": 34631
     },
     {
       "path": "src/components/Welcome.tsx",
-      "sha256": "92df476803b938f28c2571a9c76ad7b28cb0e42965ae8baeb77f1a3ee65e084b",
-      "bytes": 19763
+      "sha256": "015acd992b9914a63e0b2d009613629f3484ac854e14c0398d2f4b13aa8a0360",
+      "bytes": 19769
+    },
+    {
+      "path": "src/connect-experience.ts",
+      "sha256": "ecf95fbb61100767687618034c843c4889de3304646066e7db9b0d75468eb23b",
+      "bytes": 1120
     },
     {
       "path": "src/green-tools-types.ts",
@@ -568,8 +573,8 @@
     },
     {
       "path": "src/styles.css",
-      "sha256": "c19c0ed8e4aa3c4547c4dd538c05bae9c7c10a8b312b78857ae4a23d198e45f5",
-      "bytes": 93772
+      "sha256": "059107f998dc6bef478237ae7aca1a2a0c4408424adecf86630ab4c391029228",
+      "bytes": 94010
     },
     {
       "path": "src/types.ts",
@@ -583,8 +588,8 @@
     },
     {
       "path": "vite.config.ts",
-      "sha256": "76209c5d79fdc43dcbaf0d930ecbef44a9a40b562d76ad20941a8c705c6a4790",
-      "bytes": 227
+      "sha256": "ec5c9daf03c2e539d75eb08c0d0b21c34a39afdfdf8325796b4c884199e9325e",
+      "bytes": 322
     }
   ]
 }

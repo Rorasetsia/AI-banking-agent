@@ -49,8 +49,8 @@ export function agentOverview(state, topic = 'capabilities') {
     return {
       reply: `${summary}\n我建议先核对账单是否包含房租等必要转账，再检查持续扣费，最后按你能承受的月度结余安排储蓄。流水净流入包含转账等资金变动，不等于工资或可持续可存金额；不建议仅凭这份记录承诺节省额度。${report.anomalies.length ? `发现${report.anomalies.length}条需核对线索，不代表欺诈。` : ''}`,
       agent: view('先看清开销，再决定怎么省', summary, [
-        { label: '可用余额', value: money(available), source: '当前沙箱账户，已减去预留' },
-        { label: '数据范围', value: `${month}，${report.count}笔流水`, source: '当前沙箱日期之前的本账户记录' },
+        { label: '可用余额', value: money(available), source: '当前模拟环境账户，已减去预留' },
+        { label: '数据范围', value: `${month}，${report.count}笔流水`, source: '当前模拟环境日期之前的本账户记录' },
         { label: '需核对线索', value: `${report.anomalies.length}条`, source: '账单规则检查，非欺诈判断' },
       ], [action('bills', '核对原始账单', 'bills'), ask('subscriptions', '检查持续扣费', '检查重复扣款和扣费异常'), ask('save', '做一份存钱计划', '帮我做一份存钱计划')]),
       trace: ['读取本用户本月流水，排除未来记录', '计算收支与分类，未执行资金操作'], sources: report.sources,
@@ -61,7 +61,7 @@ export function agentOverview(state, topic = 'capabilities') {
     const scheduled = state.schedules.filter(s => s.status === 'scheduled');
     const receipts = state.plans.filter(p => p.receipt);
     const summary = `${pending.length}份方案待确认，${scheduled.length}项预约待执行，${receipts.length}份已办理凭证。`;
-    return { reply: `${summary}待确认不代表已扣款；预约依赖沙箱时钟或请求扫描，不保证关页后后台执行。你可以到“预约与凭证”核对、取消待办或查看结果。`, agent: view('核对任务进度', summary, [
+    return { reply: `${summary}待确认不代表已扣款；预约依赖模拟环境时钟或请求扫描，不保证关页后后台执行。你可以到“预约与凭证”核对、取消待办或查看结果。`, agent: view('核对任务进度', summary, [
       { label: '待确认', value: `${pending.length}份`, source: '当前有效计划' },
       { label: '预约中', value: `${scheduled.length}项`, source: '当前预约状态' },
     ], [action('tasks', '查看预约与凭证', 'tasks')]), trace: ['读取当前本用户计划、预约和凭证，未执行任何操作'], sources: { asOf: state.now, planIds: pending.map(p => p.id) } };
@@ -70,7 +70,7 @@ export function agentOverview(state, topic = 'capabilities') {
     const assessed = state.risk?.questionnaireVersion === 2;
     const summary = assessed ? `当前项目演示风险档位R${state.risk.level}。先说明用途和多久要用钱，再比较产品。` : '先明确用钱期限和承受能力，个性化配置前需要完成风险问卷。';
     return { reply: `${summary}目录包含${state.products.map(p => `${p.name}（${p.category}，演示R${p.riskLevel}）`).join('、')}。货币基金也不等于银行存款或保本承诺。短期要用的钱不宜依赖股票基金涨幅来完成目标；这里没有实时收益或收益预测。`,
-      agent: view('从资金用途开始比较理财', summary, state.products.map(p => ({ label: p.name, value: `${p.category} · 演示R${p.riskLevel}`, source: '现有基金资料目录；价格/份额为沙箱模拟' })), [action('wealth', assessed ? '查看产品与风险说明' : '填写问卷与比较产品', 'wealth'), ask('goal', '结合储蓄目标规划', '我想结合理财做一份存钱计划')]), trace: ['读取产品目录与本用户风险评估，未申购'], sources: { productIds: state.products.map(p => p.id), asOf: state.now } };
+      agent: view('从资金用途开始比较理财', summary, state.products.map(p => ({ label: p.name, value: `${p.category} · 演示R${p.riskLevel}`, source: '现有基金资料目录；价格/份额为模拟' })), [action('wealth', assessed ? '查看产品与风险说明' : '填写问卷与比较产品', 'wealth'), ask('goal', '结合储蓄目标规划', '我想结合理财做一份存钱计划')]), trace: ['读取产品目录与本用户风险评估，未申购'], sources: { productIds: state.products.map(p => p.id), asOf: state.now } };
   }
   const summary = '把你要达成的目标告诉我。我会先核对信息、问清缺项，给出方案；涉及办理时再请你确认。';
   return { reply: `${summary}\n例如：年底攒十万元、梳理开销、安排转账、检查订阅扣费、比较理财、管理卡片或安排生日预算。你可以随时修改条件、只做比较或取消待确认计划。资金操作仍需交易密码和设备验证；这里是独立模拟银行。`,

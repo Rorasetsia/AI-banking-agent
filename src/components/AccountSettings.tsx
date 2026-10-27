@@ -103,8 +103,8 @@ export function AccountSettings({ navigate, onAccountSettingsChanged }: PageProp
       <section className="panel settings-profile-card">
         <span className="settings-avatar"><UserRound size={23} /></span>
         <div>
-          <span className="settings-kicker">当前沙箱账户</span>
-          <h2>{status?.displayName || '沙箱用户'}</h2>
+          <span className="settings-kicker">当前模拟环境账户</span>
+          <h2>{status?.displayName || '模拟环境用户'}</h2>
           <p>{status?.accountName || '小苔活期账户'} · 合成数据，不连接真实银行</p>
         </div>
         <span className="status">本机会话</span>

@@ -7,5 +7,6 @@ export default defineConfig({
     strictPort: true,
     proxy: { '/api': 'http://127.0.0.1:8787' },
   },
-  build: { outDir: 'dist' },
+  // Keep vh fallbacks in distributed CSS for older embedded browsers.
+  build: { outDir: 'dist', cssTarget: 'chrome100' },
 });

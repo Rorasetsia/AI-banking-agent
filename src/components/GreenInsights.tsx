@@ -323,7 +323,7 @@ export function GreenInsights(props: PageProps) {
         </p>
         <h2>消费表现与依据</h2>
         <p className="gf-hero-sub">查看已授权交通支付，纠正分类，了解数据缺口。</p>
-        <p className="gf-hero-small">独立沙箱 · 合成数据</p>
+        <p className="gf-hero-small">独立模拟环境 · 合成数据</p>
       </header>
 
       {actionError ? (
@@ -394,7 +394,7 @@ export function GreenInsights(props: PageProps) {
             {pending === 'consent' ? '正在授权…' : '授权并查看分析'}
           </button>
           <p className="gf-hint">
-            独立沙箱 · 合成数据 · 评级规则为本项目演示设定，非官方认证。
+            独立模拟环境 · 合成数据 · 评级规则为本项目演示设定，非官方认证。
           </p>
         </section>
       ) : (

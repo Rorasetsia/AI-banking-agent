@@ -94,11 +94,11 @@ export function Wealth({ state, send, busy, refresh, askAssistant }: PageProps) 
       <div className="risk-entry-copy"><span className="risk-entry-kicker"><ShieldCheck size={14} /> 风险承受能力评估</span>
         <h2>先了解你的<br />投资边界。</h2><p>从过往经历到理财知识，从资金用途到波动承受。用一份更完整的问卷，记录真实的自己。</p>
         {risk ? <div className="risk-result-summary" role="status"><span>当前项目演示档位</span><strong>R{risk.level}<small>{risk.score} / {risk.maxScore ?? 20} 分</small></strong><p>评估日期 {dateText(risk.assessedAt)}{risk.knowledgeTotal !== undefined ? ` · 知识题 ${risk.knowledgeCorrect}/${risk.knowledgeTotal}` : ''}</p>{!currentRisk && <p role="alert">这是旧版评估记录，分值沿用原量表；请完成新版12题评估后再模拟申购。</p>}{risk.summary?.map(text => <p key={text}>{text}</p>)}</div> : <div className="risk-result-summary"><span>当前状态</span><strong className="risk-not-assessed">尚未评估</strong><p>点击叠层卡片进入问卷。</p></div>}
-        <small className="risk-entry-note">项目演示问卷，仅用于独立沙箱的模拟拦截，不替代正式适当性评估。</small>
+        <small className="risk-entry-note">项目演示问卷，仅用于独立模拟环境的模拟拦截，不替代正式适当性评估。</small>
       </div>
     </section>
     <section className="panel">
-      <div className="section-head"><div><h2>公募基金产品目录</h2><p>展示基金公司公开资料；基金资料与交易执行分开，当前只提供独立沙箱模拟。</p></div></div>
+      <div className="section-head"><div><h2>公募基金产品目录</h2><p>展示基金公司公开资料；基金资料与交易执行分开，当前只提供独立模拟。</p></div></div>
       <div className="product-grid">{state.products.map(product => {
         const held = holdings.get(product.id) ?? 0;
         const allowed = Boolean(risk && currentRisk && risk.level >= product.riskLevel);
@@ -113,19 +113,19 @@ export function Wealth({ state, send, busy, refresh, askAssistant }: PageProps) 
           <p>{info.category} · 基金代码 {product.code ?? '—'}</p>
           <p>基金管理人：{product.manager ?? '以基金公司公开资料为准'}</p>
           <a href={product.officialUrl ?? '#'} target="_blank" rel="noreferrer" className="fund-source-link">查看基金公司官方资料 ↗</a>
-          <p className="status">{held > 0 ? `沙箱模拟持仓 ${sharesText(held)} 份 · 演示估值 ${money(Math.round(held * product.unitPriceCents))}` : '暂无沙箱模拟持仓'}</p>
+          <p className="status">{held > 0 ? `模拟持仓 ${sharesText(held)} 份 · 演示估值 ${money(Math.round(held * product.unitPriceCents))}` : '暂无模拟持仓'}</p>
           {!allowed && <p className="status">{risk && !currentRisk ? '旧版评估不能用于本次申购，请先完成新版12题问卷。' : risk ? `当前演示档位 R${risk.level}，低于本项目的演示门槛 R${product.riskLevel}。` : '申购前请先完成问卷；问卷结果仅用于项目内的模拟拦截。'}</p>}
           <div className="form-grid">
             <div className="field"><label htmlFor={`buy-${product.id}`}>模拟申购金额（元）</label><input id={`buy-${product.id}`} inputMode="decimal" autoComplete="off" placeholder="请输入金额" value={draft.amount} disabled={!allowed || sendingKind !== null || busy} onChange={event => setDraft(product.id, { amount: event.target.value })} /></div>
             <label className="field" htmlFor={`card-${product.id}`}>申购扣款借记卡<select id={`card-${product.id}`} value={cardId} disabled={!allowed || cardsForProduct.length === 0 || sendingKind !== null || busy} onChange={event => setCards(prev => ({ ...prev, [product.id]: event.target.value }))}>{cardsForProduct.length === 0 ? <option value="">没有可用借记卡</option> : cardsForProduct.map(card => <option key={card.id} value={card.id}>{card.name} · 尾号 {card.last4}</option>)}</select></label>
           </div>
-          <label className="wealth-risk-check"><input type="checkbox" checked={Boolean(acknowledged[product.id])} disabled={!allowed || sendingKind !== null || busy} onChange={event => setAcknowledged(prev => ({ ...prev, [product.id]: event.target.checked }))} /><span>我已阅读：{info.warning}页面展示的是基金公开信息，本按钮只生成沙箱方案，不代表真实申购。</span></label>
+          <label className="wealth-risk-check"><input type="checkbox" checked={Boolean(acknowledged[product.id])} disabled={!allowed || sendingKind !== null || busy} onChange={event => setAcknowledged(prev => ({ ...prev, [product.id]: event.target.checked }))} /><span>我已阅读：{info.warning}页面展示的是基金公开信息，本按钮只生成模拟环境方案，不代表真实申购。</span></label>
           <button type="button" className="button btn-primary" disabled={!allowed || !acknowledged[product.id] || !cardId || sendingKind !== null || busy} onClick={() => void trade(product, 'buy')}>{sendingKind === 'buy' ? '生成方案中…' : '阅读告知并生成申购方案'}</button>
           <div className="form-grid"><div className="field"><label htmlFor={`sell-${product.id}`}>模拟赎回份额</label><input id={`sell-${product.id}`} inputMode="numeric" autoComplete="off" placeholder="整数份额" value={draft.shares} disabled={held <= 0 || sendingKind !== null || busy} onChange={event => setDraft(product.id, { shares: event.target.value })} /></div><button type="button" className="button btn-secondary" disabled={held <= 0 || sendingKind !== null || busy} onClick={() => void trade(product, 'sell')}>{sendingKind === 'sell' ? '发送中…' : '生成赎回方案'}</button></div>
           {note && <p className="status" role={note.tone === 'error' ? 'alert' : 'status'}>{note.text}</p>}
         </article>;
       })}</div>
-      <div className="wealth-sandbox-note" role="note"><strong>交易模式：独立模拟银行沙箱</strong><p>基金名称、代码和管理人来自基金公司公开产品资料。份额价格固定为演示值 ¥1.00，风险档位由本项目演示设定；未接基金行情、销售机构、真实银行卡或支付接口。不会产生真实订单或资金变动。</p></div>
+      <div className="wealth-sandbox-note" role="note"><strong>交易模式：独立银行模拟环境</strong><p>基金名称、代码和管理人来自基金公司公开产品资料。份额价格固定为演示值 ¥1.00，风险档位由本项目演示设定；未接基金行情、销售机构、真实银行卡或支付接口。不会产生真实订单或资金变动。</p></div>
     </section>
   </>;
 }

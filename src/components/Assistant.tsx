@@ -289,7 +289,7 @@ export function Assistant({ state, send, busy, openPlan, refresh, navigate, comp
                     </div>
                     {message.fallbackReason && <p className='fallback-reason'>回退原因：{message.fallbackReason}</p>}
                     {plan && <><button type='button' className='view-plan' onClick={() => openPlan(plan)}>查看计划 <ChevronRight size={14} /></button><span className='source-chip'>{({pending:'待确认',cancelled:'已取消',expired:'已过期',executed:'已执行',failed:'执行失败'} as Record<string,string>)[plan.status]??plan.status}</span></>}
-                    {message.planId && !plan && <span className='missing-plan'>关联计划已不在当前沙箱</span>}
+                    {message.planId && !plan && <span className='missing-plan'>关联计划已不在当前模拟环境</span>}
                     {message.recovery && (
                       <div className='assistant-recovery' role='group' aria-label={message.recovery.title}>
                         <p>{message.recovery.title}</p>

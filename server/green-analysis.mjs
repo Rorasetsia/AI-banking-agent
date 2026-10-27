@@ -58,10 +58,10 @@ function period(state,from,to){
 }
 export function greenReport(state,month){
   const ref=Date.parse(state.now);
-  if(!Number.isFinite(ref))throw Object.assign(new Error('沙箱时钟无效。'),{status:500,code:'INVALID_CLOCK'});
+  if(!Number.isFinite(ref))throw Object.assign(new Error('模拟环境时钟无效。'),{status:500,code:'INVALID_CLOCK'});
   const local=new Date(ref+8*HOUR),currentMonth=local.toISOString().slice(0,7);
   month??=currentMonth;
-  if(typeof month!=='string'||!/^20\d\d-(0[1-9]|1[0-2])$/.test(month)||month>currentMonth)throw Object.assign(new Error('请选择有效且不晚于沙箱时钟的月份。'),{status:400,code:'INVALID_GREEN_MONTH'});
+  if(typeof month!=='string'||!/^20\d\d-(0[1-9]|1[0-2])$/.test(month)||month>currentMonth)throw Object.assign(new Error('请选择有效且不晚于模拟环境时钟的月份。'),{status:400,code:'INVALID_GREEN_MONTH'});
   const prev=previousMonth(month);
   const report={consent:state.green?.consent===true,version:GREEN_VERSION,month,previousMonth:prev,
     level:{code:'insufficient',label:'暂不足以评估',reason:'需要更多可识别交通支付记录，数据缺失不代表最环保。'},

@@ -148,7 +148,7 @@ export async function startModelScope() {
     routingLogs.add(routing);
     console.warn('ModelScope host check: ' + routing);
   });
-  app.server.listen(port, '0.0.0.0', () => console.log(`Bank preview ready: ${publicOrigin} (ModelScope frame v4)`));
+  app.server.listen(port, '0.0.0.0', () => console.log(`Bank preview ready: ${publicOrigin} (ModelScope preview v5 / app 0.8.4)`));
   const shutdown = () => app.close().finally(() => process.exit(0));
   process.once('SIGINT', shutdown);
   process.once('SIGTERM', shutdown);

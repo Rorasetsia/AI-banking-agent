@@ -1,6 +1,6 @@
 /* Quiet paper surface; the chat remains the visual focus. */
 .hosted-preview-notice{margin:0 0 12px;padding:8px 12px;border:1px solid #dce4d5;border-radius:10px;background:#f1f5eb;color:#6b7b60;font-size:11px;line-height:1.6}
-.assistant.assistant--surface:not(.assistant--compact){position:relative;isolation:isolate;height:clamp(610px,calc(100dvh - 185px),920px);min-height:500px;gap:14px;padding:22px 24px 16px;border:1px solid #dfe4d9;border-radius:20px;background:linear-gradient(145deg,#f9faf5,#f1f4ec);box-shadow:0 12px 32px -24px #263e2c3d;filter:none}
+.assistant.assistant--surface:not(.assistant--compact){position:relative;isolation:isolate;height:clamp(610px,calc(100vh - 185px),920px);height:clamp(610px,calc(100dvh - 185px),920px);min-height:500px;gap:14px;padding:22px 24px 16px;border:1px solid #dfe4d9;border-radius:20px;background:linear-gradient(145deg,#f9faf5,#f1f4ec);box-shadow:0 12px 32px -24px #263e2c3d;filter:none}
 .overview .assistant.assistant--surface.assistant--conversation{height:540px;min-height:540px;gap:12px}
 .assistant--surface .assistant-output{display:flex;flex-direction:column;gap:14px;flex:1;min-height:0;min-width:0}
 .assistant--surface .assistant-head{padding-bottom:11px;border-bottom:1px solid #d3d9c86b;flex-shrink:0}
@@ -43,7 +43,7 @@
 .conversation-suggestions button:hover{background:#e5ecd9}
 @keyframes chat-spring{0%{opacity:0;transform:translateY(9px) scale(.82)}65%{opacity:1;transform:translateY(-1px) scale(1.025)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:600px){
- .assistant.assistant--surface:not(.assistant--compact){height:calc(100dvh - 177px);min-height:490px;padding:16px 13px 12px;border-width:1px;border-radius:16px;gap:12px}
+ .assistant.assistant--surface:not(.assistant--compact){height:calc(100vh - 177px);height:calc(100dvh - 177px);min-height:490px;padding:16px 13px 12px;border-width:1px;border-radius:16px;gap:12px}
  .overview .assistant.assistant--surface.assistant--conversation{height:520px;min-height:520px}
  .assistant--surface .assistant-identity{gap:6px}.assistant--surface .assistant-identity h2{font-size:12px}.assistant--surface .assistant-identity p{display:none}
  .conversation-tools{gap:2px}.conversation-tools button{font-size:9px}

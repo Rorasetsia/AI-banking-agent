@@ -73,7 +73,7 @@ export function AccountHome({ state, navigate }: PageProps) {
 
           <header className="account-wallet-head">
             <div><h2 id="account-wallet-title">{state.account.name}</h2><span className="account-wallet-tag">合成数据 · 模拟交易</span></div>
-            <span className="account-brand-badge"><ShieldCheck size={13} aria-hidden="true" /> 独立银行沙箱</span>
+            <span className="account-brand-badge"><ShieldCheck size={13} aria-hidden="true" /> 独立银行模拟环境</span>
           </header>
           <dl className="account-wallet-meta">
               <div><dt>活期余额</dt><dd>{reveal(state.account.balanceCents)}</dd></div>
