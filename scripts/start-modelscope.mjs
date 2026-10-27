@@ -11,6 +11,51 @@ import { pathToFileURL } from 'node:url';
 const MODELSCOPE_PEER = '21.0.0.1';
 const MODELSCOPE_INGRESS = /^studio-[a-z0-9]+(?:-[a-z0-9]+)*\.cn-beijing-vpc\.fcapp\.run$/;
 
+const FRAME_ANCESTORS = 'frame-ancestors https://modelscope.cn https://www.modelscope.cn';
+function partitionSessionCookie(value) {
+  const rewrite = cookie => {
+    if (typeof cookie !== 'string' || !cookie.startsWith('sid=')) return cookie;
+    const [sid, ...attributes] = cookie.split(';');
+    const kept = attributes.filter(attribute => !/^(?:samesite|secure|httponly|partitioned|domain)(?:=|$)/i.test(attribute.trim()));
+    return [sid, ...kept.map(a => a.trim()), 'HttpOnly', 'Secure', 'SameSite=None', 'Partitioned'].join('; ');
+  };
+  return Array.isArray(value) ? value.map(rewrite) : rewrite(value);
+}
+
+// Only installed on this ModelScope entry after the request Host is accepted.
+// Official platform framing is allowed; browser session cookies stay host-only,
+// secure, HttpOnly and partitioned by the top-level site. POST Origin stays exact.
+export function allowModelScopeFrame(res) {
+  const writeHead = res.writeHead;
+  res.writeHead = function(status, reasonOrHeaders, optionalHeaders) {
+    const hasReason = typeof reasonOrHeaders === 'string';
+    const supplied = hasReason ? optionalHeaders : reasonOrHeaders;
+    // The application supplies header objects. Preserve unknown call forms.
+    if (Array.isArray(supplied)) return writeHead.apply(this, arguments);
+    const headers = { ...(supplied || {}) };
+    this.removeHeader('X-Frame-Options');
+    let hasCookie = false;
+    const rewriteCsp = value => {
+      const policy = String(value);
+      return /(?:^|;)\s*frame-ancestors\s/.test(policy)
+        ? policy.replace(/(^|;)\s*frame-ancestors\s+[^;]*/g, `$1 ${FRAME_ANCESTORS}`)
+        : `${policy}; ${FRAME_ANCESTORS}`;
+    };
+    for (const key of Object.keys(headers)) {
+      if (key.toLowerCase() === 'x-frame-options') delete headers[key];
+      else if (key.toLowerCase() === 'content-security-policy') headers[key] = rewriteCsp(headers[key]);
+      else if (key.toLowerCase() === 'set-cookie') { headers[key] = partitionSessionCookie(headers[key]); hasCookie = true; }
+    }
+    const csp = this.getHeader('Content-Security-Policy');
+    if (csp) this.setHeader('Content-Security-Policy', rewriteCsp(csp));
+    if (!hasCookie) {
+      const cookie = this.getHeader('Set-Cookie');
+      if (cookie) this.setHeader('Set-Cookie', partitionSessionCookie(cookie));
+    }
+    return hasReason ? writeHead.call(this, status, reasonOrHeaders, headers) : writeHead.call(this, status, headers);
+  };
+}
+
 export function adaptModelScopeRequest(req, publicOrigin) {
   const peer = req.socket?.remoteAddress;
   if (peer !== MODELSCOPE_PEER && peer !== `::ffff:${MODELSCOPE_PEER}`) return false;
@@ -86,9 +131,10 @@ export async function startModelScope() {
   const routingLogs = new Set();
   const safeHeader = value => typeof value === 'string'
     ? value.slice(0, 180).replace(/[^A-Za-z0-9.:,[\] _-]/g, '?') : null;
-  app.server.prependListener('request', req => {
+  app.server.prependListener('request', (req, res) => {
     adaptModelScopeRequest(req, publicOrigin);
-    if (req.headers.host === expectedHost || routingLogs.size >= 5) return;
+    if (req.headers.host === expectedHost) { allowModelScopeFrame(res); return; }
+    if (routingLogs.size >= 5) return;
     const routing = JSON.stringify({
       host: safeHeader(req.headers.host),
       forwardedHost: safeHeader(req.headers['x-forwarded-host']),
@@ -102,7 +148,7 @@ export async function startModelScope() {
     routingLogs.add(routing);
     console.warn('ModelScope host check: ' + routing);
   });
-  app.server.listen(port, '0.0.0.0', () => console.log(`Bank preview ready: ${publicOrigin} (ModelScope ingress v3)`));
+  app.server.listen(port, '0.0.0.0', () => console.log(`Bank preview ready: ${publicOrigin} (ModelScope frame v4)`));
   const shutdown = () => app.close().finally(() => process.exit(0));
   process.once('SIGINT', shutdown);
   process.once('SIGTERM', shutdown);

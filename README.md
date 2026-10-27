@@ -6,7 +6,7 @@ app_port: 7860
 
 # 小苔 · AI Banking Agent 模拟银行预览版
 
-当前启动器包含 **ModelScope ingress v3**：内部创空间入口名称会随重新部署变化，不将其标识写死。仅在已确认的代理peer、北京VPC的studio入口格式、FC元信息、全HTTPS链和**必需且精确匹配配置的公开转发域名**全部成立时恢复公开Host，保留原始浏览器Origin与资金确认校验。缺少转发域名会拒绝，不信任仅有内部域名后缀的请求。
+当前启动器包含 **ModelScope frame v4**：保留v3的严格代理及公开域名校验，仅允许魔搭官方页面嵌入。会话Cookie使用Secure、HttpOnly、SameSite=None和Partitioned以支持平台内嵌；其他托管入口仍使用原DENY/Strict策略。
 
 本分支用于魔搭 ModelScope Docker 创空间，保留 React/Vite 前端、Node24 后端、SQLite 独立合成账户和真实 DeepSeek 对话。不是实际银行，不涉及真实资金。
 
@@ -17,11 +17,15 @@ app_port: 7860
 3. 上传本分支源码到创空间的 master 分支，根目录直接包含 Dockerfile、package.json、src、server、shared。上传的是源码文件，不是ZIP压缩包本身。保留平台初始 .gitattributes，不强推、不覆盖未知文件。
 4. 在创空间“设置”的**秘密变量/Secret**中添加 `DEEPSEEK_API_KEY`。模型调用仍使用既有API余额，与免费托管分别计算。Key不写入README、GitHub或聊天。
 5. 运行入口默认监听 `0.0.0.0:7860`。普通变量 `BANK_PUBLIC_ORIGIN` 填独立应用的精确HTTPS来源，如 `https://平台分配的实际域名`，无路径/末尾斜杠；如平台已注入STUDIO_HOST可自动采用该域名。不要填创空间管理页 `modelscope.cn/studios/...`。
-6. 点击“上线”，先检查构建日志，再检查运行日志。运行中显示应用启动后，以独立应用地址进行验收。
+6. 点击“上线”，先检查构建日志，再检查运行日志。看到ModelScope frame v4标记后，使用平台全屏应用页面验收。
 
 ## 分享与初始条件
 
-页面禁止内嵌，创空间内置iframe可能空白；使用“在新窗口打开/独立应用”入口，分享其真实HTTPS地址。每个浏览器自动生成独立模拟账户，初始余额¥28,650.42。先试“我今年要攒十万块”，补充月收入和必要支出；理财匹配时填写风险问卷。资金操作仍需设置模拟操作密码及该域名下设备验证，不填写真实银行密码、银行卡或身份证。
+分享 `https://www.modelscope.cn/studios/Rorastesia/moss-banking-preview?mode=full`。实测浏览器直接打开ms.show也会被平台重定向回内嵌页，所以不能仅靠独立链接绕过iframe限制。BANK_PUBLIC_ORIGIN仍填ms.show来源，不改成父页面地址。
+
+每个浏览器自动生成独立模拟账户，初始余额¥28,650.42。先试“我今年要攒十万块”，补充月收入和必要支出；理财匹配时填写风险问卷。不填写真实银行密码、银行卡或身份证。
+
+已确认的平台限制：魔搭iframe未授予publickey-credentials-create，新设备登记在该托管方式下受限。模拟资金操作仍要求原操作密码和设备核验，不能绕过。此免费托管当前适合页面、AI、方案和只读流程收集意见，不能宣传已经验证全部资金办理。原独立部署环境保留完整安全流程。
 
 免费资源可能休眠并在访问后唤醒，容器重启可能清空试用数据。本部署不启用收费存储、不迁移原本机库，不承诺长期免费政策、无限额度或所有网络可达。上线后从校园网及手机流量实测完整AI对话与设备确认。
 
