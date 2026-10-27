@@ -138,8 +138,8 @@
     },
     {
       "path": "scripts/start-modelscope.mjs",
-      "sha256": "b1551ee5aada15659f80ba54d79cd85184cbd237c72adc1eb3d7829a84dbe44a",
-      "bytes": 2099
+      "sha256": "3d165cbff16ef7c5828fe04bab3d0881c6d0302deb903760bcba365a9e0200b0",
+      "bytes": 3749
     },
     {
       "path": "server/agent-tools.mjs",
