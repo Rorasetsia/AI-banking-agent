@@ -6,6 +6,8 @@ app_port: 7860
 
 # 小苔 · AI Banking Agent 模拟银行预览版
 
+当前启动器包含 **ModelScope ingress v2**：针对本项目已观测的精确私有代理入口恢复公开Host，保留原始浏览器Origin与资金确认校验。此规则绑定当前创空间的网络入口；复制到其他创空间/入口变动时应核对路由，不设置通配信任。
+
 本分支用于魔搭 ModelScope Docker 创空间，保留 React/Vite 前端、Node24 后端、SQLite 独立合成账户和真实 DeepSeek 对话。不是实际银行，不涉及真实资金。
 
 ## 创建与部署
