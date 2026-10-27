@@ -1,21 +1,30 @@
-# 小苔 · AI Banking Agent 预览版 v0.8.3
+---
+title: 小苔 AI Banking Agent
+sdk: docker
+app_port: 7860
+---
 
-面向指导老师和同学的独立模拟银行，支持自然语言任务、条件确认、储蓄规划、预算可行性和风险问卷衔接。本分支仅包含可部署网页源码，不包含原小程序、本机账户、API密钥或开发记录。
+# 小苔 · AI Banking Agent 模拟银行预览版
 
-[点击部署到 Render（登录后确认 Free）](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2FRorasetsia%2FAI-banking-agent%2Ftree%2Fcodex%2Fpreview-v0.8.3)
+本分支用于魔搭 ModelScope Docker 创空间，保留 React/Vite 前端、Node24 后端、SQLite 独立合成账户和真实 DeepSeek 对话。不是实际银行，不涉及真实资金。
 
-1. 登录 Render，核对分支 `codex/preview-v0.8.3`、Blueprint 路径 `render.yaml`。
-2. 唯一服务为 Free Web Service，无磁盘、无外部数据库。配置 `DEEPSEEK_API_KEY`，密钥仅填 Render 的受保护环境变量，不提交 GitHub。
-3. 点击 Deploy；Live 后把该服务实际生成的 `https://…onrender.com` 发给试用者。GitHub 地址不是试用网页。
+## 创建与部署
 
-配置自动采用 Node 24、新加坡、`npm ci --no-audit --no-fund && npm run build` 构建和 `node scripts/start-hosted.mjs` 启动，健康检查 `/api/health`。不需要购买域名，不依赖开发者电脑开机。
+1. 在 https://modelscope.cn/ 注册登录，绑定已实名认证的阿里云账号。官方 Docker 说明：https://www.modelscope.cn/docs/studios/docker 。
+2. 创建“编程式创空间”，SDK 选择 **Docker**。仅选界面标记为免费的基础 CPU。2026-10-27官方公共接口返回 `platform/2v-cpu-8g-mem`、`resource_type: free`；以实际账号可用配额为准，不选付费升级、不充值、不开通付费 PAI 实例。
+3. 上传本分支源码到创空间的 master 分支，根目录直接包含 Dockerfile、package.json、src、server、shared。上传的是源码文件，不是ZIP压缩包本身。保留平台初始 .gitattributes，不强推、不覆盖未知文件。
+4. 在创空间“设置”的**秘密变量/Secret**中添加 `DEEPSEEK_API_KEY`。模型调用仍使用既有API余额，与免费托管分别计算。Key不写入README、GitHub或聊天。
+5. 运行入口默认监听 `0.0.0.0:7860`。普通变量 `BANK_PUBLIC_ORIGIN` 填独立应用的精确HTTPS来源，如 `https://平台分配的实际域名`，无路径/末尾斜杠；如平台已注入STUDIO_HOST可自动采用该域名。不要填创空间管理页 `modelscope.cn/studios/...`。
+6. 点击“上线”，先检查构建日志，再检查运行日志。运行中显示应用启动后，以独立应用地址进行验收。
 
-## 试用条件
+## 分享与初始条件
 
-每个浏览器自动开启独立模拟会话，合成初始余额 ¥28,650.42。可以先输入“我今年要攒十万块”，按提示补充收入、支出；需要理财匹配时再完成风险问卷。模拟办理仍需操作密码和云域名下的设备验证，不涉及真实银行或真实资金。不要输入真实银行密码、银行卡号或身份证。
+页面禁止内嵌，创空间内置iframe可能空白；使用“在新窗口打开/独立应用”入口，分享其真实HTTPS地址。每个浏览器自动生成独立模拟账户，初始余额¥28,650.42。先试“我今年要攒十万块”，补充月收入和必要支出；理财匹配时填写风险问卷。资金操作仍需设置模拟操作密码及该域名下设备验证，不填写真实银行密码、银行卡或身份证。
 
-Render Free 连续 15 分钟无访问会休眠，再次打开可能等待约一分钟；休眠、重启或重新部署后试用记录可能重置。请另外保存截图和反馈。免费托管受平台额度限制；DeepSeek API 调用使用账号余额，另计费用。
+免费资源可能休眠并在访问后唤醒，容器重启可能清空试用数据。本部署不启用收费存储、不迁移原本机库，不承诺长期免费政策、无限额度或所有网络可达。上线后从校园网及手机流量实测完整AI对话与设备确认。
 
-自动部署关闭，更新后在 Render 手动部署指定版本。源码撤回可切回此前提交；已经清空的试用数据不能靠源码回滚恢复。
+## 当前状态与撤回
 
-[详细部署说明](docs/26_免费在线试用部署_2026-10-27.md) · [Render 免费限制](https://render.com/docs/free)
+部署适配文件已准备，不等于创空间已经创建或上线。保留Render预览分支与本地原库；本轮Docker配置可停止使用，切回先前Git提交。不要恢复或替换本机数据库。
+
+详细说明见 `docs/30_魔搭免费试用部署_2026-10-27.md`。

@@ -2,14 +2,29 @@
   "version": "0.8.3",
   "files": [
     {
+      "path": ".dockerignore",
+      "sha256": "64cd344f6a6ff45ff516c8fada4e28d0458cc52a0bc753e89afe9b10eb6b2290",
+      "bytes": 643
+    },
+    {
       "path": ".gitignore",
       "sha256": "8745564f59eacf4927b3f79f339f72ef11ae8272a81b90ceddb6c976620faaf7",
       "bytes": 112
     },
     {
+      "path": "README.md",
+      "sha256": "282b9860a8830a972cea028e1e380d4ffc3a6107f1a7fe9d480e211f12707065",
+      "bytes": 2745
+    },
+    {
+      "path": "Dockerfile",
+      "sha256": "e28965fae328889f8de14c3606a21162c21a7abd673a20382d75b6ff2f8007a6",
+      "bytes": 1113
+    },
+    {
       "path": "docs/26_免费在线试用部署_2026-10-27.md",
-      "sha256": "d5d31c98434a723ae4c1a68411c7722844dcc03e728550715c9188627ed840f7",
-      "bytes": 6534
+      "sha256": "107eb918a085f5518196190fa4a0db0c3d102b2dcc51cb229a5bc21c9e4ea135",
+      "bytes": 6859
     },
     {
       "path": "docs/27_AI确认表单与模型接入_2026-10-27.md",
@@ -25,6 +40,11 @@
       "path": "docs/29_储蓄可行性决策与理财情景_2026-10-27.md",
       "sha256": "0e4ba5e5422d8d470035f3ae4244e0d9259f016d0deba3cda6b4bc38b127236c",
       "bytes": 4008
+    },
+    {
+      "path": "docs/30_魔搭免费试用部署_2026-10-27.md",
+      "sha256": "aade4c4f920f31774ab71d243679f33a9716d748bd7b4f6bc9da1b429c750d22",
+      "bytes": 4603
     },
     {
       "path": "index.html",
@@ -108,13 +128,18 @@
     },
     {
       "path": "scripts/package-hosted.py",
-      "sha256": "5a85f2eb2a1b781c811183eeaa4be4b49765a2da7286094ff563bd7276c340b6",
-      "bytes": 2552
+      "sha256": "b558565c71e7b7a69a1f5fa79427cd7ceca563586e68851ebdca89c2baaa1030",
+      "bytes": 3031
     },
     {
       "path": "scripts/start-hosted.mjs",
       "sha256": "e2577989a9d7d4c4c7c01b8eac8edf1c671ee9c14aa3e29d70dfeb74a463725d",
       "bytes": 859
+    },
+    {
+      "path": "scripts/start-modelscope.mjs",
+      "sha256": "b1551ee5aada15659f80ba54d79cd85184cbd237c72adc1eb3d7829a84dbe44a",
+      "bytes": 2099
     },
     {
       "path": "server/agent-tools.mjs",
