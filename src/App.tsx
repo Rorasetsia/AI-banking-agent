@@ -1110,7 +1110,8 @@ export default function App() {
                       {expired && <strong>已超过有效期，无法确认执行</strong>}
                     </p>
                     {renderPlanIssues()}
-                    <div className='plan-actions'>
+                    <TransactionGate key={activePlan.id} plan={activePlan} risk={activePlan.operationRisk} disabled={confirmBusy || cancelBusy || cancelForEditBusy || editBusy || expired} onVerified={handleConfirm} onVerifying={setSecurityBusy} />
+                    <div className='plan-actions plan-actions--secondary'>
                       <button type='button' className='button button--ghost' onClick={closePlanDialog} disabled={planActionDisabled}>关闭</button>
                       <button type='button' className='button button--ghost' onClick={() => void requestEdit()} disabled={planActionDisabled}>
                         {cancelForEditBusy ? <Loader2 size={16} className='spin' /> : <Repeat size={16} />}
@@ -1121,7 +1122,6 @@ export default function App() {
                         {cancelBusy ? '取消中…' : '取消计划'}
                       </button>
                     </div>
-                    <TransactionGate key={activePlan.id} plan={activePlan} risk={activePlan.operationRisk} disabled={confirmBusy || cancelBusy || cancelForEditBusy || editBusy || expired} onVerified={handleConfirm} onVerifying={setSecurityBusy} />
                   </>
                 ) : (
                   <>

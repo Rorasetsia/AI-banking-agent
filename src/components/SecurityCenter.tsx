@@ -1,6 +1,7 @@
-import {FeatureEntry} from './FeatureEntry';
-import { useCallback, useEffect, useId, useState } from 'react';
+import { useCallback, useEffect, useId, useState, useRef } from 'react';
 import type { FormEvent } from 'react';
+import {Eye,EyeOff,ShieldCheck,CheckCircle2,AlertCircle} from 'lucide-react';
+import './SecurityCenter.css';
 import { money } from '../api';
 import type { Plan } from '../types';
 import {
@@ -13,20 +14,17 @@ import {
 } from '../security';
 import type { ProofPair, SecurityStatus } from '../security';
 
-const alertStyle = { color: '#b42318', margin: '8px 0' } as const;
-const noticeStyle = { color: '#067647', margin: '8px 0' } as const;
-const hintStyle = { fontSize: '0.875rem', margin: '4px 0', opacity: 0.8 } as const;
-const metaStyle = { fontSize: '0.8125rem', opacity: 0.75 } as const;
-const listStyle = { listStyle: 'none', padding: 0, margin: '0 0 12px', display: 'grid', gap: 8 } as const;
-const deviceRowStyle = { border: '1px solid rgba(15, 23, 42, 0.12)', borderRadius: 8, padding: '10px 12px' } as const;
-const rowStyle = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: 8,
-  alignItems: 'center',
-  justifyContent: 'space-between',
-} as const;
-const actionRowStyle = { display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' } as const;
+function PasswordField({id,label,value,onChange,disabled,hint,autoComplete='current-password'}:{id:string;label:string;value:string;onChange:(value:string)=>void;disabled?:boolean;hint?:string;autoComplete?:string}){
+ const [shown,setShown]=useState(false);
+ useEffect(()=>{if(!value)setShown(false);},[value]);
+ return <div className='security-field'><label htmlFor={id}>{label}</label><div className='security-password'><input id={id} name={id} type={shown?'text':'password'} autoComplete={autoComplete} spellCheck={false} value={value} onChange={e=>onChange(e.target.value)} disabled={disabled} aria-describedby={hint?id+'-hint':undefined}/><button type='button' aria-label={(shown?'隐藏':'显示')+label} aria-pressed={shown} onClick={()=>setShown(!shown)} disabled={disabled}>{shown?<EyeOff size={16}/>:<Eye size={16}/>}<span>{shown?'隐藏':'显示'}</span></button></div>{hint&&<small id={id+'-hint'}>{hint}</small>}</div>;
+}
+function Feedback({error,notice}:{error?:string|null;notice?:string|null}){
+ const ref=useRef<HTMLDivElement>(null);
+ useEffect(()=>{if(error){ref.current?.scrollIntoView({block:'nearest'});ref.current?.focus({preventScroll:true});}},[error]);
+ return error?<div ref={ref} tabIndex={-1} className='security-feedback security-feedback--error' role='alert'><AlertCircle size={17}/><p>{error}</p></div>:notice?<div className='security-feedback security-feedback--success' role='status'><CheckCircle2 size={17}/><p>{notice}</p></div>:null;
+}
+function SecurityLink({children='去安全中心设置'}:{children?:string}){return <a className='button button--primary' href='#/security'>{children}</a>;}
 
 function readErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof Error && error.message.trim().length > 0) return error.message;
@@ -68,7 +66,7 @@ export function SecurityCenter({ refresh }: SecurityCenterProps) {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [removePassword, setRemovePassword] = useState('');
 
-  const environment = deviceEnvironment();
+  const environment = deviceEnvironment('register');
   const configured = status?.passwordConfigured === true;
   const lockedUntil = status?.lockedUntil ?? 0;
   const locked = lockedUntil > Date.now();
@@ -141,7 +139,7 @@ export function SecurityCenter({ refresh }: SecurityCenterProps) {
       setPasswordNotice(
         configured
           ? '交易密码已修改，下次核验请使用新密码。'
-          : '交易密码已设置，接下来请绑定至少一台设备，否则所有写操作仍会被阻断。',
+          : '交易密码已设置。接下来请完成第 2 步设备验证，之后才能确认转账等操作。',
       );
       await refreshQuietly();
     } catch (error) {
@@ -175,7 +173,7 @@ export function SecurityCenter({ refresh }: SecurityCenterProps) {
     }
 
     if (devicePassword.length === 0) {
-      setDeviceError('请输入交易密码，服务端会先校验密码再发起设备验证。');
+      setDeviceError('请输入刚刚在本应用设置的交易密码，之后系统会弹出验证窗口。');
       return;
     }
 
@@ -184,7 +182,8 @@ export function SecurityCenter({ refresh }: SecurityCenterProps) {
       await bindDevice({ name, password: devicePassword });
     } catch (error) {
       setDevicePassword('');
-      setDeviceError(readErrorMessage(error, '设备绑定未完成，请重试。'));
+      setDeviceError(readErrorMessage(error, '设备验证设置未完成，请检查系统提示。'));
+      await syncStatus();
       setDeviceBusy(null);
       return;
     }
@@ -192,7 +191,7 @@ export function SecurityCenter({ refresh }: SecurityCenterProps) {
     setDevicePassword('');
     setDeviceName('');
     setDeviceBusy(null);
-    setDeviceNotice('设备绑定完成。之后每一笔写操作都需要在这台设备上完成验证。');
+    setDeviceNotice('设备验证已设置。回到 AI 助手，点击“查看并确认方案”，即可继续办理。');
     await syncStatus();
     await refreshQuietly();
   }
@@ -226,278 +225,37 @@ export function SecurityCenter({ refresh }: SecurityCenterProps) {
     await refreshQuietly();
   }
 
-  const canRegister = configured && environment.supported && deviceBusy === null;
+  const canRegister = configured && environment.supported && !locked && deviceBusy === null;
 
-  return (
-    <section className="panel" aria-labelledby={titleId} aria-busy={loading}>
-      <div className="plan-section">
-        <h2 id={titleId}>安全中心</h2>
-        <p>
-          办理业务时，请先核对方案，再完成「交易密码 + 已绑定设备」两项核验。没有可用设备时无法执行，不会改为仅密码通过。
-        </p>
-      </div>
-
-      <div className="plan-summary">
-        <p>
-          交易密码：{status ? (configured ? '已设置' : '未设置') : loading ? '读取中…' : '未知'}
-        </p>
-        <p>
-          已绑定设备：{status ? `${status.devices.length} 台` : loading ? '读取中…' : '未知'}
-        </p>
-        {locked ? (
-          <p role="alert" style={alertStyle}>
-            交易密码验证已锁定，解锁时间 {formatTimestamp(lockedUntil)}。锁定期间所有写操作保持阻断。
-          </p>
-        ) : null}
-        {status?.note ? <p style={hintStyle}>{status.note}</p> : null}
-        {loadError ? (
-          <p role="alert" style={alertStyle}>
-            {loadError}
-          </p>
-        ) : null}
-      </div>
-
-      {status === null ? (
-        <div className="plan-section">
-          <p role="status">
-            {loading
-              ? '正在读取安全状态…'
-              : '安全状态未能读取，暂时不能修改交易密码或绑定设备，请重新读取。'}
-          </p>
-          {!loading ? (
-            <button
-              className="button button--ghost"
-              type="button"
-              onClick={() => {
-                void loadStatus();
-              }}
-            >
-              重新读取
-            </button>
-          ) : null}
-        </div>
-      ) : (
-        <>
-          <section className="plan-section" aria-labelledby={passwordHeadingId}>
-            <h3 id={passwordHeadingId}>{configured ? '修改交易密码' : '首次设置交易密码'}</h3>
-            <p>
-              交易密码仅用于本应用的模拟核验，不是真实银行密码；请勿把它发到聊天里，也不要与登录密码相同。
-            </p>
-            <FeatureEntry title={configured?'修改交易密码':'设置交易密码'} description="保护资金操作，点击后设置或修改。"><form className="form-grid" onSubmit={handlePasswordSubmit} noValidate>
-              {configured ? (
-                <label className="field" htmlFor={oldPwId}>
-                  当前交易密码
-                  <input
-                    id={oldPwId}
-                    name="current-password"
-                    type="password"
-                    autoComplete="off"
-                    spellCheck={false}
-                    value={oldPassword}
-                    onChange={(event) => setOldPassword(event.target.value)}
-                    disabled={savingPassword}
-                  />
-                </label>
-              ) : null}
-              <label className="field" htmlFor={newPwId}>
-                新交易密码（8–64 个字符，含字母和数字）
-                <input
-                  id={newPwId}
-                  name="new-password"
-                  type="password"
-                  autoComplete="off"
-                  spellCheck={false}
-                  value={newPassword}
-                  onChange={(event) => setNewPassword(event.target.value)}
-                  disabled={savingPassword}
-                />
-              </label>
-              <label className="field" htmlFor={confirmPwId}>
-                再次输入新交易密码
-                <input
-                  id={confirmPwId}
-                  name="confirm-password"
-                  type="password"
-                  autoComplete="off"
-                  spellCheck={false}
-                  value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                  disabled={savingPassword}
-                />
-              </label>
-              <div style={actionRowStyle}>
-                <button
-                  className="button button--primary"
-                  type="submit"
-                  disabled={savingPassword}
-                  aria-busy={savingPassword}
-                >
-                  {savingPassword ? '正在保存…' : configured ? '保存新交易密码' : '设置交易密码'}
-                </button>
-              </div>
-              {passwordError ? (
-                <p role="alert" style={alertStyle}>
-                  {passwordError}
-                </p>
-              ) : null}
-              {passwordNotice ? (
-                <p role="status" style={noticeStyle}>
-                  {passwordNotice}
-                </p>
-              ) : null}
-            </form></FeatureEntry>
-          </section>
-
-          <section className="plan-section" aria-labelledby={deviceHeadingId}>
-            <h3 id={deviceHeadingId}>设备绑定</h3>
-            <p>{environment.message}</p>
-            {!environment.supported ? (
-              <p role="alert" style={alertStyle}>
-                {environment.hint ?? '当前环境无法执行设备验证，绑定会明确失败，不会假装成功。'}
-              </p>
-            ) : null}
-            <p style={hintStyle}>
-              绑定与删除都需要交易密码。验证由浏览器和系统完成，应用不读取生物特征或设备私钥。通行密钥可能由系统同步，并非只绑定一台物理设备。
-            </p>
-
-            {deviceError ? (
-              <p role="alert" style={alertStyle}>
-                {deviceError}
-              </p>
-            ) : null}
-            {deviceNotice ? (
-              <p role="status" style={noticeStyle}>
-                {deviceNotice}
-              </p>
-            ) : null}
-
-            {status.devices.length === 0 ? (
-              <p>
-                还没有已绑定设备。没有设备时所有写操作都会被阻断，系统不会自动绑定，请在这里主动绑定一台设备。
-              </p>
-            ) : (
-              <ul style={listStyle}>
-                {status.devices.map((device) => (
-                  <li key={device.id} style={deviceRowStyle}>
-                    <div style={rowStyle}>
-                      <div style={{ minWidth: 0 }}>
-                        <strong>{device.name}</strong>
-                        <div style={metaStyle}>
-                          绑定于 {formatTimestamp(Date.parse(device.createdAt))} · 域名 {device.rpId}
-                        </div>
-                      </div>
-                      <button
-                        className="button button--ghost"
-                        type="button"
-                        aria-expanded={removingId === device.id}
-                        onClick={() => {
-                          setRemovingId(device.id);
-                          setRemovePassword('');
-                          setDeviceError(null);
-                          setDeviceNotice(null);
-                        }}
-                        disabled={deviceBusy !== null}
-                      >
-                        {removingId === device.id ? '待确认删除' : '删除'}
-                      </button>
-                    </div>
-                    {removingId === device.id ? (
-                      <div style={{ marginTop: 8, display: 'grid', gap: 8 }}>
-                        <p>
-                          删除后这台设备不能再用于交易核验；删除全部设备会阻断所有写操作。确认删除需要输入交易密码。
-                        </p>
-                        <label className="field" htmlFor={removePwId}>
-                          交易密码
-                          <input
-                            id={removePwId}
-                            name="remove-device-password"
-                            type="password"
-                            autoComplete="off"
-                            spellCheck={false}
-                            value={removePassword}
-                            onChange={(event) => setRemovePassword(event.target.value)}
-                            disabled={deviceBusy !== null}
-                          />
-                        </label>
-                        <div style={actionRowStyle}>
-                          <button
-                            className="button button--primary"
-                            type="button"
-                            onClick={() => {
-                              void handleRemoveDevice(device.id);
-                            }}
-                            disabled={deviceBusy !== null}
-                            aria-busy={deviceBusy === device.id}
-                          >
-                            {deviceBusy === device.id ? '正在删除…' : '确认删除'}
-                          </button>
-                          <button
-                            className="button button--ghost"
-                            type="button"
-                            onClick={() => {
-                              setRemovingId(null);
-                              setRemovePassword('');
-                            }}
-                            disabled={deviceBusy !== null}
-                          >
-                            取消
-                          </button>
-                        </div>
-                      </div>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            <h4>绑定新设备</h4>
-            {!configured ? (
-              <p role="status">请先设置交易密码，之后才能绑定设备。</p>
-            ) : null}
-            <FeatureEntry title="绑定验证设备" description="核验交易密码，将当前设备用于交易确认。"><form className="form-grid" onSubmit={handleRegisterDevice} noValidate>
-              <label className="field" htmlFor={deviceNameId}>
-                设备名称
-                <input
-                  id={deviceNameId}
-                  name="device-name"
-                  type="text"
-                  maxLength={40}
-                  autoComplete="off"
-                  placeholder="例如：家里的笔记本"
-                  value={deviceName}
-                  onChange={(event) => setDeviceName(event.target.value)}
-                  disabled={!canRegister}
-                />
-              </label>
-              <label className="field" htmlFor={devicePwId}>
-                交易密码
-                <input
-                  id={devicePwId}
-                  name="device-password"
-                  type="password"
-                  autoComplete="off"
-                  spellCheck={false}
-                  value={devicePassword}
-                  onChange={(event) => setDevicePassword(event.target.value)}
-                  disabled={!canRegister}
-                />
-              </label>
-              <div style={actionRowStyle}>
-                <button
-                  className="button button--primary"
-                  type="submit"
-                  disabled={!canRegister}
-                  aria-busy={deviceBusy === 'register'}
-                >
-                  {deviceBusy === 'register' ? '等待设备验证…' : '核验并绑定此设备'}
-                </button>
-              </div>
-            </form></FeatureEntry>
-          </section>
-        </>
-      )}
-    </section>
-  );
+  return <section className='panel security-center' aria-labelledby={titleId} aria-busy={loading}>
+    <header className='security-heading'><span className='security-symbol'><ShieldCheck size={22}/></span><div><h2 id={titleId}>安全中心</h2><p>完成下面两步，确认转账等操作时再由你本人授权。这里的设置只用于模拟环境。</p></div></header>
+    <ol className='security-progress' aria-label='办理前的安全准备'><li data-done={configured}><span>1</span><div><strong>交易密码</strong><small>{status?(configured?'已设置':'待设置'):'读取中'}</small></div></li><li data-done={Boolean(status?.devices.length)}><span>2</span><div><strong>设备验证</strong><small>{status?.devices.length?`已设置 ${status.devices.length} 项`:!environment.supported?'当前页面暂不支持设置':'待设置'}</small></div></li></ol>
+    <Feedback error={loadError}/>
+    {locked&&<div className='security-callout' role='alert'>交易密码连续验证失败，请在 {formatTimestamp(lockedUntil)} 后重试。锁定期间无法确认办理。</div>}
+    {!status?<div className='security-block'><p>{loading?'正在读取安全设置…':'暂时读不到安全设置，请重新连接后再试。'}</p>{!loading&&<button type='button' className='button button--ghost' onClick={()=>void loadStatus()}>重新读取</button>}</div>:<>
+      <section className='security-block' aria-labelledby={passwordHeadingId}><div className='security-block-heading'><span>01</span><div><h3 id={passwordHeadingId}>{configured?'修改交易密码':'设置交易密码'}</h3><p>这是本应用的模拟交易密码，请不要填写真实银行卡密码，也不要发到聊天中。</p></div></div>
+       <form className='security-form' onSubmit={handlePasswordSubmit} noValidate>
+        {configured&&<div className='security-field-full'><PasswordField id={oldPwId} label='当前交易密码' value={oldPassword} onChange={setOldPassword} disabled={savingPassword}/></div>}
+        <PasswordField id={newPwId} label='新交易密码' hint='8–64 个字符，需同时包含字母和数字' autoComplete='new-password' value={newPassword} onChange={setNewPassword} disabled={savingPassword}/>
+        <PasswordField id={confirmPwId} label='再次输入新密码' hint='与刚才输入的新密码保持一致' autoComplete='new-password' value={confirmPassword} onChange={setConfirmPassword} disabled={savingPassword}/>
+        <div className='security-form-footer'><Feedback error={passwordError} notice={passwordNotice}/><button className='button button--primary' type='submit' disabled={savingPassword} aria-busy={savingPassword}>{savingPassword?'正在保存…':configured?'保存新交易密码':'设置交易密码'}</button></div>
+       </form>
+      </section>
+      <section className='security-block' aria-labelledby={deviceHeadingId}><div className='security-block-heading'><span>02</span><div><h3 id={deviceHeadingId}>设置设备验证</h3><p>确认办理时，电脑或手机会再弹出系统解锁窗口，确认是你本人操作。这一步不是再设置一个网页密码。</p></div></div>
+       <ol className='security-instructions'><li><b>取个备注</b><span>例如“我的笔记本”，只是方便你识别。</span></li><li><b>输入交易密码</b><span>填写刚刚在本应用设置的密码。</span></li><li><b>按系统提示确认</b><span>弹窗可能要求指纹、人脸或设备 PIN，请按平时解锁设备的方式操作。</span></li></ol>
+       {!environment.supported&&<div className='security-callout' role='alert'><strong>{environment.message}</strong><p>{environment.hint}</p></div>}
+       {status.devices.length>0&&<div className='security-devices'><h4>已设置的验证方式</h4>{status.devices.map(device=><article key={device.id}><div className='security-device-row'><div><strong>{device.name}</strong><small>设置于 {formatTimestamp(Date.parse(device.createdAt))}</small></div><button type='button' className='button button--ghost' disabled={deviceBusy!==null} onClick={()=>{setRemovingId(device.id);setRemovePassword('');setDeviceError(null);setDeviceNotice(null);}}>移除</button></div>{removingId===device.id&&<div className='security-remove'><p>移除后不能再用这项验证确认办理。请保留至少一种可用方式，或稍后重新设置。</p><PasswordField id={removePwId} label='交易密码' value={removePassword} onChange={setRemovePassword} disabled={deviceBusy!==null}/><Feedback error={deviceError}/><div className='security-actions'><button type='button' className='button button--danger' disabled={deviceBusy!==null} onClick={()=>void handleRemoveDevice(device.id)}>{deviceBusy===device.id?'正在移除…':'确认移除'}</button><button type='button' className='button button--ghost' disabled={deviceBusy!==null} onClick={()=>{setRemovingId(null);setRemovePassword('');setDeviceError(null);}}>保留</button></div></div>}</article>)}</div>}
+       {environment.supported&&<form className='security-form' onSubmit={e=>{setRemovingId(null);void handleRegisterDevice(e);}} noValidate>
+        {!configured&&<p className='security-field-full security-inline-note'>请先完成第 1 步设置交易密码，再回来设置设备验证。</p>}
+        <div className='security-field'><label htmlFor={deviceNameId}>验证方式备注</label><input id={deviceNameId} maxLength={40} autoComplete='off' placeholder='例如：我的笔记本' value={deviceName} onChange={e=>setDeviceName(e.target.value)} disabled={!canRegister}/><small>仅用于区分记录，不是账号或密码。</small></div>
+        <PasswordField id={devicePwId} label='本应用交易密码' hint='下一步请在系统弹窗中验证' value={devicePassword} onChange={setDevicePassword} disabled={!canRegister}/>
+        <div className='security-form-footer'>{!removingId&&<Feedback error={deviceError} notice={deviceNotice}/>}<button className='button button--primary' type='submit' disabled={!canRegister} aria-busy={deviceBusy==='register'}>{deviceBusy==='register'?'请在系统窗口完成验证…':'开始设置设备验证'}</button></div>
+       </form>}
+       <details className='security-more'><summary>验证方式与隐私说明</summary><p>{environment.message} 系统可能同步这项验证凭据，不一定只对应一台物理设备。更换访问网址后，原验证方式可能无法继续使用。</p></details>
+      </section>
+      <div className='security-return-note'>设置完成后，回到 AI 助手，点击方案卡片中的“查看并确认方案”继续。<a href='#/assistant'>回到 AI 助手 →</a></div>
+    </>}
+  </section>;
 }
 
 export interface TransactionRiskReason {
@@ -528,6 +286,8 @@ function riskLabel(level: string): string {
       return '中';
     case 'low':
       return '低';
+    case 'normal':
+      return '常规';
     default:
       return level;
   }
@@ -547,11 +307,14 @@ export function TransactionGate({ plan, disabled, onVerified, onVerifying, risk 
   const [statusLoaded, setStatusLoaded] = useState(false);
 
   const environment = deviceEnvironment();
+  const registrationEnvironment = deviceEnvironment('register');
   const requireAck = (risk?.level ?? '').toLowerCase() === 'high';
   const lockedUntil = status?.lockedUntil ?? 0;
   const locked = lockedUntil > Date.now();
   const noDevices = status !== null && status.devices.length === 0;
-  const hardBlocked = !environment.supported || noDevices;
+  const hardBlocked = !environment.supported || noDevices || !statusLoaded || status===null || !status.passwordConfigured || locked;
+  const cannotVerifyHere = !environment.supported || (noDevices && !registrationEnvironment.supported);
+  const blockedEnvironment = !environment.supported ? environment : registrationEnvironment;
 
   useEffect(() => {
     let cancelled = false;
@@ -583,10 +346,11 @@ export function TransactionGate({ plan, disabled, onVerified, onVerifying, risk 
     }
 
     if (noDevices) {
-      setError('当前账户没有已绑定设备，按规则写操作一律阻断；请先在安全中心绑定设备。');
+      setError('还差一步设备验证。请先到安全中心设置，再回来确认这份方案。');
       return;
     }
 
+    if (hardBlocked) {setError('请先完成安全准备，再回来确认办理。');return;}
     if (password.length === 0) {
       setError('请输入交易密码后再核验。');
       return;
@@ -611,124 +375,15 @@ export function TransactionGate({ plan, disabled, onVerified, onVerifying, risk 
     }
   }
 
-  return (
-    <form
-      className="plan-section"
-      onSubmit={handleVerify}
-      noValidate
-      aria-busy={busy}
-      aria-labelledby={headingId}
-    >
-      <h3 id={headingId}>交易核验（交易密码 + 已绑定设备）</h3>
-
-      <div className="plan-summary">
-        <p>
-          计划「{plan.title}」预计资金影响 {money(plan.impactCents)}。
-        </p>
-        <p>
-          请核对对象、金额和时间，再输入交易密码并完成设备验证。两项都通过才会执行这份方案；设备验证取消或失败时，不会执行。
-        </p>
-      </div>
-
-      {risk ? (
-        <div className="plan-summary">
-          <p>
-            风险等级：<strong>{riskLabel(risk.level)}</strong>
-          </p>
-          {risk.reasons.length > 0 ? (
-            <ul>
-              {risk.reasons.map((reason) => (
-                <li key={reason.code}>
-                  <strong>{reason.title}</strong>：{reason.detail}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          {risk.note ? <p>{risk.note}</p> : null}
-        </div>
-      ) : null}
-
-      {!environment.supported ? (
-        <p role="alert" style={alertStyle}>
-          {environment.message}
-          {environment.hint ? ` ${environment.hint}` : ''}
-          本次计划不会自动执行，也不会自动完成设备绑定。{' '}
-          <a href="#/security">前往安全中心</a>
-        </p>
-      ) : null}
-
-      {environment.supported && noDevices ? (
-        <p role="alert" style={alertStyle}>
-          当前账户没有已绑定设备，按规则写操作一律阻断；本次计划不会执行，也不会自动绑定设备。{' '}
-          <a href="#/security">前往安全中心绑定设备</a>
-        </p>
-      ) : null}
-
-      {locked ? (
-        <p role="alert" style={alertStyle}>
-          交易密码验证已锁定，解锁时间 {formatTimestamp(lockedUntil)}；锁定期间无法执行计划。
-        </p>
-      ) : null}
-
-      {environment.supported && statusLoaded && status === null ? (
-        <p role="status" style={hintStyle}>
-          设备状态未能读取，核验时仍会由服务端重新校验；已确认在安全中心绑定过设备可继续。
-        </p>
-      ) : null}
-
-      {disabled ? (
-        <p role="status" style={hintStyle}>
-          该计划当前不可执行或已完成，核验入口已关闭。
-        </p>
-      ) : null}
-
-      <label className="field" htmlFor={passwordId}>
-        交易密码
-        <input
-          id={passwordId}
-          name="transaction-password"
-          type="password"
-          autoComplete="off"
-          spellCheck={false}
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          disabled={busy || disabled || hardBlocked}
-        />
-      </label>
-
-      {requireAck ? (
-        <label className="field" htmlFor={ackId} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-          <input
-            id={ackId}
-            name="risk-acknowledged"
-            type="checkbox"
-            checked={acknowledged}
-            onChange={(event) => setAcknowledged(event.target.checked)}
-            disabled={busy || disabled}
-          />
-          <span>我已核对风险线索、收款对象与用途；本次计划不会自动执行，需要我在此确认。</span>
-        </label>
-      ) : null}
-
-      {error ? (
-        <p role="alert" style={alertStyle}>
-          {error}
-        </p>
-      ) : null}
-
-      <div style={actionRowStyle}>
-        <button
-          className="button button--primary"
-          type="submit"
-          disabled={busy || disabled || hardBlocked}
-          aria-busy={busy}
-        >
-          {busy ? '正在核验…' : '核验并确认执行（模拟）'}
-        </button>
-        <a className="button button--ghost" href="#/security">
-          安全中心
-        </a>
-      </div>
-    </form>
-  );
+  const passwordMissing=status!==null&&!status.passwordConfigured;
+  const setupNeeded=passwordMissing||noDevices;
+  return <form className='transaction-gate' onSubmit={handleVerify} noValidate aria-busy={busy} aria-labelledby={headingId}>
+   <header><span className='security-symbol'><ShieldCheck size={19}/></span><div><h3 id={headingId}>最后一步：确认是你本人办理</h3><p>输入本应用交易密码，再按系统弹窗完成设备验证。两步都通过后才会执行。</p></div></header>
+   {risk&&<details className='transaction-risk' open={requireAck}><summary>安全提醒 · {riskLabel(risk.level)}</summary>{risk.reasons.length>0?<ul>{risk.reasons.map(reason=><li key={reason.code}><strong>{reason.title}</strong>：{reason.detail}</li>)}</ul>:<p>暂未发现额外风险线索，仍请核对收款对象与用途。</p>}<p>这些提示用于帮助你核对，不代表交易一定安全。</p></details>}
+   {cannotVerifyHere?<div className='security-callout' role='alert'><strong>{blockedEnvironment.message}</strong><p>{blockedEnvironment.hint} 这份方案尚未执行。</p><SecurityLink>查看安全设置与说明</SecurityLink></div>:!statusLoaded?<p className='security-inline-note' role='status'>正在检查安全准备…</p>:status===null?<div className='security-callout' role='alert'><strong>暂时读不到安全设置</strong><p>请先到安全中心重新读取，确认后再回来办理。这份方案尚未执行。</p><SecurityLink>检查安全设置</SecurityLink></div>:setupNeeded?<div className='security-callout' role='alert'><strong>{passwordMissing?'还没设置交易密码':'还差一步：设置设备验证'}</strong><p>{passwordMissing?'请先设置本应用的交易密码和设备验证。':'设备验证会在确认时弹出电脑或手机的解锁窗口。请先完成设置，再回来确认这份方案。'} 目前只是准备好了方案，还没有执行。</p><SecurityLink>{passwordMissing?'去设置交易密码与设备验证':'去设置设备验证'}</SecurityLink></div>:null}
+   {locked&&<div className='security-callout' role='alert'>交易密码暂时锁定，请在 {formatTimestamp(lockedUntil)} 后重试。</div>}
+   {!hardBlocked&&!disabled&&<div className='transaction-gate-fields'><PasswordField id={passwordId} label='本应用交易密码' value={password} onChange={setPassword} disabled={busy}/>{requireAck&&<label className='transaction-risk-ack' htmlFor={ackId}><input id={ackId} type='checkbox' checked={acknowledged} onChange={e=>setAcknowledged(e.target.checked)} disabled={busy}/><span>我已核对风险线索、收款对象与用途，确认继续办理。</span></label>}</div>}
+   <Feedback error={error}/>
+   {disabled?<p className='security-inline-note'>这份方案当前不能执行，请核对有效期或重新生成方案。</p>:<div className='transaction-gate-footer'>{!hardBlocked&&<><p>即将确认「{plan.title}」 · 预计资金变化 {money(plan.impactCents)}。取消系统验证不会执行方案。</p><button className='button button--primary' type='submit' disabled={busy} aria-busy={busy}>{busy?'正在等待验证与确认…':'验证并确认执行（模拟）'}</button></>}</div>}
+  </form>;
 }

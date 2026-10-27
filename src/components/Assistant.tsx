@@ -280,15 +280,15 @@ export function Assistant({ state, send, busy, openPlan, refresh, navigate, comp
                     {message.role === 'assistant' ? <Sparkles size={15} /> : initial}
                   </div>
                   <div className='chat-bubble'>
-                    <p className='chat-text'>{message.role==='user'?displayMessage(message.text):message.text}</p>
-                    {message.role==='assistant' && message.agent && <AgentTaskCard view={message.agent} busy={busy} onSend={submit} onNavigate={navigate} isCurrent={message.id===currentAgentMessageId && (!plan || plan.status==='pending')} />}
+                    {(message.role==='user'||!message.agent||message.agent.kind==='savings')&&<p className='chat-text'>{message.role==='user'?displayMessage(message.text):message.text}</p>}
+                    {message.role==='assistant' && message.agent && <AgentTaskCard view={message.agent} answer={message.text} plan={plan} onOpenPlan={openPlan} busy={busy} onSend={submit} onNavigate={navigate} isCurrent={message.id===currentAgentMessageId && (!plan || plan.status==='pending')} />}
                     <div className='chat-meta'>
                       {message.intentSource && <span className={`source-chip source-chip--${sourceTone(message.intentSource)}`}>{sourceLabel(message.intentSource)}</span>}
                       {sources && <span className='source-chip source-chip--count'>{sources.label} {sources.count}</span>}
                       {time && <time className='chat-time' dateTime={message.at}>{time}</time>}
                     </div>
                     {message.fallbackReason && <p className='fallback-reason'>回退原因：{message.fallbackReason}</p>}
-                    {plan && <><button type='button' className='view-plan' onClick={() => openPlan(plan)}>查看计划 <ChevronRight size={14} /></button><span className='source-chip'>{({pending:'待确认',cancelled:'已取消',expired:'已过期',executed:'已执行',failed:'执行失败'} as Record<string,string>)[plan.status]??plan.status}</span></>}
+                    {plan && !message.agent && <><button type='button' className='view-plan' onClick={() => openPlan(plan)}>查看计划 <ChevronRight size={14} /></button><span className='source-chip'>{({pending:'待确认',cancelled:'已取消',expired:'已过期',executed:'已执行',failed:'执行失败'} as Record<string,string>)[plan.status]??plan.status}</span></>}
                     {message.planId && !plan && <span className='missing-plan'>关联计划已不在当前模拟环境</span>}
                     {message.recovery && (
                       <div className='assistant-recovery' role='group' aria-label={message.recovery.title}>

@@ -1,5 +1,5 @@
 {
-  "version": "0.8.5",
+  "version": "0.8.6",
   "files": [
     {
       "path": ".dockerignore",
@@ -13,8 +13,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "03eec07529fc21f71243132dcca13e21c064cd3d9ea66bccfb5e6e7a6db9110c",
-      "bytes": 4511
+      "sha256": "4704264c7cf8edd77078875cdc68a23e5f9b7bb37bab0a74db025ace27fcc3a9",
+      "bytes": 4669
     },
     {
       "path": "Dockerfile",
@@ -43,8 +43,8 @@
     },
     {
       "path": "docs/30_魔搭免费试用部署_2026-10-27.md",
-      "sha256": "7b1233efd5df955783d41fe66c4cb26bad7a6b2deb4a69ff9ff2a0a82e58b9f4",
-      "bytes": 11132
+      "sha256": "5b5e4e13c0ec6b3dc07261450ef7727df63ab9a17c6177a995e51e069fa416a0",
+      "bytes": 11834
     },
     {
       "path": "index.html",
@@ -53,12 +53,12 @@
     },
     {
       "path": "package-lock.json",
-      "sha256": "2f420167c0bff1b584cbc7ff7393899afd5c451465417d8731589c46376ef3ae",
+      "sha256": "99a43a3b29443bb0deb81faef4a75d7cbdb9be09471f45e7f05ca94bce169263",
       "bytes": 54892
     },
     {
       "path": "package.json",
-      "sha256": "2445bae5c5aa7e994004a372eb4e5f5a9fc7f568c3753e27258a56c6a412711e",
+      "sha256": "6bc3d500b5465a8f0d029ca2920ef60344609f20fe3f365d75be012800998829",
       "bytes": 779
     },
     {
@@ -138,13 +138,13 @@
     },
     {
       "path": "scripts/start-modelscope.mjs",
-      "sha256": "77ac39254d58d0bdf251bab8a8ee5461be42ebd03760139b14581a7fbdd610b5",
+      "sha256": "6873de1278820ecf167a45cd77f39f0c631388b88d3ef5dccb33ff8a730bf3ef",
       "bytes": 8270
     },
     {
       "path": "server/agent-tools.mjs",
-      "sha256": "07a99661822f7a8fc856185314236a2523b6aad34b378d312aa5eaa8d29a3d52",
-      "bytes": 10672
+      "sha256": "1e62a48289c9b6687d5b94926f299ce55635d0b9bdf5a6b7753225601d8cbea1",
+      "bytes": 10864
     },
     {
       "path": "server/analytics.mjs",
@@ -268,8 +268,8 @@
     },
     {
       "path": "server/transaction-security.mjs",
-      "sha256": "112b3d01239506b3dced66c43462888ffc77ec1d0c0b5411a026ae23543410ff",
-      "bytes": 13996
+      "sha256": "b8779bf0f721c3596f872cc07c601dfe6af4313e4009b844bbb8b1dc715b0f34",
+      "bytes": 14029
     },
     {
       "path": "shared/question-logic.d.mts",
@@ -288,8 +288,8 @@
     },
     {
       "path": "src/agent-types.ts",
-      "sha256": "30ebe7f941e3539fc5d9c907580702b7daf5b43a6353bc9a976508e858633709",
-      "bytes": 2734
+      "sha256": "baacc36cf565bcd896cd5877debb3b383c8d495ed8dc54577e71c084617cef02",
+      "bytes": 2780
     },
     {
       "path": "src/api.ts",
@@ -298,8 +298,8 @@
     },
     {
       "path": "src/App.tsx",
-      "sha256": "3118173b553116d5a79fdcde95d499ed63e74fc05ac9ff058c1e8eac269330a0",
-      "bytes": 62419
+      "sha256": "90f19040d6ad46769aab4dac744a702574b19a4d91989b1dd7a296eca1574f91",
+      "bytes": 62443
     },
     {
       "path": "src/components/AccountFunding.tsx",
@@ -337,14 +337,19 @@
       "bytes": 4417
     },
     {
+      "path": "src/components/AgentResult.css",
+      "sha256": "c145f963df3a3b96adb084f40aa6a1c365c4fc6073c52f114e1755ee7d5168be",
+      "bytes": 3501
+    },
+    {
       "path": "src/components/AgentTaskCard.css",
       "sha256": "39f0852f897eb8bcd3fcbe3769a85d5741acdfa3fec65ccd5e159c4560d6c933",
       "bytes": 14915
     },
     {
       "path": "src/components/AgentTaskCard.tsx",
-      "sha256": "bd37b9cff4d2f7ac2b6f87c8224e7440d4aa11abf20d24fe2f8c0ca08256ae20",
-      "bytes": 4269
+      "sha256": "bbf3aefa69ed48eea8ca7f343eeb4f16c68052f86fb43f294d42d367dfcfe606",
+      "bytes": 5752
     },
     {
       "path": "src/components/Assistant.css",
@@ -353,8 +358,8 @@
     },
     {
       "path": "src/components/Assistant.tsx",
-      "sha256": "0f7283ba2062e5353ec9181bc773c7d4f27d7a8824f325aba9e897b2d0c1b05e",
-      "bytes": 21260
+      "sha256": "502dbc3248a9f84f69bf51ba05f99a4b211b61e5ed83fc35c8b7a691a7d761c8",
+      "bytes": 21409
     },
     {
       "path": "src/components/AssistantWaiting.tsx",
@@ -483,8 +488,8 @@
     },
     {
       "path": "src/components/PageGuide.tsx",
-      "sha256": "a2493830e7e97aaf2dc034c1bb66424b7f41e48051c02d01e49f863da4b0c746",
-      "bytes": 15233
+      "sha256": "2f1a47b9345dd9b852b2d148a6c3754a8d0cd326aa20a0ebb3cf0badb0cf6a0a",
+      "bytes": 15291
     },
     {
       "path": "src/components/picker-position.ts",
@@ -507,9 +512,14 @@
       "bytes": 13643
     },
     {
+      "path": "src/components/SecurityCenter.css",
+      "sha256": "cbbaa9e2be9dc9f0ad4f5d365c90c121e0a5a0dc0f20f8066d8591cf2460f316",
+      "bytes": 7867
+    },
+    {
       "path": "src/components/SecurityCenter.tsx",
-      "sha256": "0a6f47f133678801ab961c9c4c998e93b66d40161bb3a5e122d333dca92f6ab6",
-      "bytes": 26778
+      "sha256": "7265de3e7622838a293181bb6bf4dd42069dc9dd02b7e58d52a52c05da6e70a7",
+      "bytes": 22425
     },
     {
       "path": "src/components/SidebarSurface.tsx",
@@ -572,9 +582,14 @@
       "bytes": 14962
     },
     {
+      "path": "src/security-environment.ts",
+      "sha256": "fee12067abc1e0556f8ef89fa54e2966e1ab3976ac86487ad35eb10a0c2ad87e",
+      "bytes": 3427
+    },
+    {
       "path": "src/security.ts",
-      "sha256": "9887e54acd8d1e35f030a2656e727b6f82e51cb65277cdad2e3b119f063af2d9",
-      "bytes": 8540
+      "sha256": "02188d29fd90908d9fb0a1eb7bac637297ec9faaff6ac67ef6b4d13e68dad4dd",
+      "bytes": 6980
     },
     {
       "path": "src/styles.css",

@@ -174,7 +174,7 @@ export class TransactionSecurity {
     const s = this.read(userId), rpId = this.rpId(origin);
     if (s.lockedUntil > Date.now()) fail('SECURITY_LOCKED', '核验暂时锁定。', 429);
     const credentials = s.credentials.filter(c => c.rpId === rpId);
-    if (!credentials.length) fail('DEVICE_NOT_BOUND', '请先在安全中心绑定设备，或使用交易密码。', 409);
+    if (!credentials.length) fail('DEVICE_NOT_BOUND', '请先在安全中心设置设备验证，再使用交易密码和设备一起确认办理。', 409);
     const options = await generateAuthenticationOptions({ rpID: rpId, allowCredentials: credentials.map(c => ({ id: c.id, transports: c.transports })), userVerification: 'required' });
     const current = this.read(userId);
     if (current.version !== s.version) fail('SECURITY_CHANGED', '安全设置已变化。', 409);

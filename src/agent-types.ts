@@ -33,6 +33,7 @@ export interface SavingsGuidanceOption {
   actionId?: string; kind?: 'edit';
 }
 export interface AgentView {
+  highlights?: {label:string;value:string}[];
   kind: 'savings' | 'banking'; stage: 'clarifying' | 'ready' | 'saved' | 'cancelled' | 'awaiting_confirmation' | 'completed';
   title: string; summary: string; steps: AgentStep[]; facts: { label: string; value: string; source: string }[];
   questions: string[]; clarifications?: AgentQuestion[]; actions: AgentAction[]; savings?: SavingsProjection;

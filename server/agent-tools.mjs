@@ -5,8 +5,8 @@ import { clarificationQuestions } from './clarification-ui.mjs';
 const money = n => new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(n / 100);
 const action = (id, label, route) => ({ id, label, kind: 'navigate', route });
 const ask = (id, label, text) => ({ id, label, kind: 'send', text });
-const view = (title, summary, facts = [], actions = []) => ({
-  kind: 'banking', stage: 'completed', title, summary, facts, actions, questions: [],
+const view = (title, summary, facts = [], actions = [], highlights = []) => ({
+  kind: 'banking', stage: 'completed', title, summary, facts, actions, highlights, questions: [],
   steps: [{ label: '理解需求', status: 'done' }, { label: '核对账户信息', status: 'done' }, { label: '选择下一步', status: 'current' }],
 });
 
@@ -52,7 +52,7 @@ export function agentOverview(state, topic = 'capabilities') {
         { label: '可用余额', value: money(available), source: '当前模拟环境账户，已减去预留' },
         { label: '数据范围', value: `${month}，${report.count}笔流水`, source: '当前模拟环境日期之前的本账户记录' },
         { label: '需核对线索', value: `${report.anomalies.length}条`, source: '账单规则检查，非欺诈判断' },
-      ], [action('bills', '核对原始账单', 'bills'), ask('subscriptions', '检查持续扣费', '检查重复扣款和扣费异常'), ask('save', '做一份存钱计划', '帮我做一份存钱计划')]),
+      ], [action('bills', '核对原始账单', 'bills'), ask('subscriptions', '检查持续扣费', '检查重复扣款和扣费异常'), ask('save', '做一份存钱计划', '帮我做一份存钱计划')], [{label:'本月流入',value:money(report.incomeCents)},{label:'本月流出',value:money(report.expenseCents)},{label:'净流入',value:money(report.netCents)}]),
       trace: ['读取本用户本月流水，排除未来记录', '计算收支与分类，未执行资金操作'], sources: report.sources,
     };
   }
@@ -83,7 +83,7 @@ export function decorateAgentResult(state, result, intent) {
     const plan = result.plan;
     return { ...result, agent: {
       kind: 'banking', stage: 'awaiting_confirmation', title: plan.title, summary: '方案已准备好，核对并完成安全验证后才会执行。',
-      steps: [{ label: '理解需求', status: 'done' }, { label: '检查执行条件', status: 'done' }, { label: '核对并确认', status: 'current' }, { label: '执行与凭证', status: 'pending' }],
+      steps: [{ label: '理解需求', status: 'done' }, { label: '核对操作信息', status: 'done' }, { label: '核对并确认', status: 'current' }, { label: '执行与凭证', status: 'pending' }],
       facts: plan.steps.map(s => ({ label: s.label, value: '待你确认', source: '服务端已校验的办理方案' })), questions: [], actions: [action('tasks', '查看统一任务入口', 'tasks')],
     } };
   }
